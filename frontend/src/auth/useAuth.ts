@@ -9,15 +9,15 @@ export const useAuth = () => {
   const { user, setAuthUser } = useAuthContext();
 
   // register user
-  const registerUser = async (data) => {
-    await api.post("/auth/register/user", data);
+  const registerUser = async (registerUserData) => {
+    await api.post("/auth/register/user", registerUserData);
 
     navigate("/login");
   };
 
   // register staff
-  const registerStaff = async (data) => {
-    await api.post("/auth/register/staff", data);
+  const registerStaff = async (registerStaffData) => {
+    await api.post("/auth/register/staff", registerStaffData);
 
     navigate("/login");
   };

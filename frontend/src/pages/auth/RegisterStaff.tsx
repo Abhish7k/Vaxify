@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/auth/useAuth";
 
 const staffRegisterSchema = z
   .object({
@@ -42,6 +43,8 @@ type StaffRegisterForm = z.infer<typeof staffRegisterSchema>;
 const RegisterStaff = () => {
   const [isLoading, setIsLoading] = useState(false);
 
+  const { registerStaff } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -56,11 +59,40 @@ const RegisterStaff = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 700));
 
+      const {
+        firstName,
+        lastName,
+        phone,
+        email,
+        password,
+        hospitalName,
+        hospitalAddress,
+        hospitalRegistrationId,
+      } = data;
+
+      const registerStaffPayload = {
+        user: {
+          firstName,
+          lastName,
+          email,
+          phone,
+          password,
+        },
+        hospital: {
+          name: hospitalName,
+          address: hospitalAddress,
+          registrationId: hospitalRegistrationId,
+        },
+      };
+
+      await registerStaff(registerStaffPayload);
+
       toast.success("Registration submitted for approval");
 
-      console.log(data);
-    } catch {
-      toast.error("Registration failed");
+      console.log("payload -> ", registerStaffPayload);
+    } catch (error) {
+      toast.error("Staff Registration failed");
+      console.log("register staff failed with error: ", error);
     } finally {
       setIsLoading(false);
     }

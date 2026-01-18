@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { toast } from "sonner";
 import { LoaderCircle } from "lucide-react";
+import { useAuth } from "@/auth/useAuth";
 
 const userRegisterSchema = z
   .object({
@@ -40,6 +41,8 @@ type UserRegisterForm = z.infer<typeof userRegisterSchema>;
 const RegisterUser = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const { registerUser } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -54,7 +57,11 @@ const RegisterUser = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      toast.success("Logged in successfully", {
+      const { confirmPassword, ...registerData } = formData;
+
+      await registerUser(registerData);
+
+      toast.success("Registered successfully", {
         style: {
           backgroundColor: "#e7f9ed",
           color: "#0f7a28",
@@ -63,9 +70,9 @@ const RegisterUser = () => {
 
       console.log(formData);
     } catch (error) {
-      console.log("Sign in error: ", error);
+      console.log("Register error: ", error);
 
-      toast.error("Login failed. Please try again.", {
+      toast.error("Register failed. Please try again.", {
         style: {
           backgroundColor: "#ffe5e5",
           color: "#b00000",

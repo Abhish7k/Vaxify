@@ -4,10 +4,13 @@ import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router/index.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
+import { AuthProvider } from "./auth/AuthContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
-    <Toaster position="top-right" />
-  </StrictMode>
+    <AuthProvider>
+      <RouterProvider router={router} />
+      <Toaster position="top-right" />
+    </AuthProvider>
+  </StrictMode>,
 );
