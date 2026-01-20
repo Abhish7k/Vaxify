@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import UserDashboard from "@/pages/user/UserDashboard";
 import DashboardLayout from "@/components/dashboards/DashboardLayout";
 import { NotFoundPage } from "@/pages/NotFoundPage";
+import StaffDashboard from "@/pages/staff/StaffDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -40,7 +41,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  //
+  // user pages
   {
     element: <ProtectedRoute allowedRoles={["user"]} />,
     children: [
@@ -50,6 +51,22 @@ export const router = createBrowserRouter([
           {
             path: "/dashboard",
             element: <UserDashboard />,
+          },
+        ],
+      },
+    ],
+  },
+
+  // staff pages
+  {
+    element: <ProtectedRoute allowedRoles={["staff"]} />,
+    children: [
+      {
+        element: <DashboardLayout />,
+        children: [
+          {
+            path: "/staff/dashboard",
+            element: <StaffDashboard />,
           },
         ],
       },

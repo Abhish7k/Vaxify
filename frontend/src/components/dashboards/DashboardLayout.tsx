@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
 import AppSidebar from "./sidebar/AppSidebar";
+import { Separator } from "../ui/separator";
 
 const DashboardLayout = () => {
   return (
@@ -18,7 +19,12 @@ const DashboardLayout = () => {
             <div className="font-medium flex gap-5 items-center">
               <SidebarTrigger className="cursor-pointer" />
 
-              <span className="mt-0.5">Dashboard</span>
+              <Separator
+                orientation="vertical"
+                className="mx-2 data-[orientation=vertical]:h-4"
+              />
+
+              <h1 className="mt-0.5">Dashboard</h1>
             </div>
 
             <div className="text-sm">User</div>
