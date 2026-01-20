@@ -8,20 +8,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import {
-  CalendarCheck,
-  LayoutDashboard,
-  LogOut,
-  PlusCircle,
-  User,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import Avvvatars from "avvvatars-react";
 import { useAuth } from "@/auth/useAuth";
+import { USER_NAV_DROPDOWN_ITEMS } from "@/constants/user-nav-dropdown";
 
 const UserNav = () => {
   const { user, logout } = useAuth();
 
-  console.log("from user nav: ", user);
+  const userRole = user?.role;
+
+  const items = USER_NAV_DROPDOWN_ITEMS[userRole!];
 
   const handleLogout = () => {
     logout();
@@ -56,7 +53,7 @@ const UserNav = () => {
 
           <DropdownMenuSeparator />
 
-          {userDropdownItems.map((item, idx) => (
+          {items.map((item, idx) => (
             <Link to={item.href} key={idx} className="flex gap-2 items-center">
               <DropdownMenuItem className="hover:bg-gray-100 transition-all w-full cursor-pointer">
                 <item.icon className="text-xl" />
@@ -79,28 +76,5 @@ const UserNav = () => {
     </div>
   );
 };
-
-const userDropdownItems = [
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Profile",
-    href: "/profile",
-    icon: User,
-  },
-  {
-    name: "My Appointments",
-    href: "/appointments",
-    icon: CalendarCheck,
-  },
-  {
-    name: "Book Appointment",
-    href: "/book",
-    icon: PlusCircle,
-  },
-];
 
 export default UserNav;

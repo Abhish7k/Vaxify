@@ -16,7 +16,13 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
   // if user is authenticated but not authorized with the right role
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+    if (user.role === "user") {
+      return <Navigate to="/dashboard" replace />;
+    }
+
+    if (user.role === "staff") {
+      return <Navigate to="/staff/dashboard" replace />;
+    }
   }
 
   // render the child route component
