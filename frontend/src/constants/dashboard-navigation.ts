@@ -153,16 +153,6 @@ export const DashboardRoleBasedNavigationLinks = {
           path: "/admin/profile",
           icon: User,
         },
-        {
-          label: "Settings",
-          path: "/admin/settings",
-          icon: Settings,
-        },
-        {
-          label: "Help & Support",
-          path: "/admin/support",
-          icon: HelpCircle,
-        },
       ],
     },
   ],

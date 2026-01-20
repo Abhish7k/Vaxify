@@ -11,6 +11,7 @@ import UserDashboard from "@/pages/user/UserDashboard";
 import DashboardLayout from "@/components/dashboards/DashboardLayout";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import StaffDashboard from "@/pages/staff/StaffDashboard";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -67,6 +68,22 @@ export const router = createBrowserRouter([
           {
             path: "/staff/dashboard",
             element: <StaffDashboard />,
+          },
+        ],
+      },
+    ],
+  },
+
+  // admin pages
+  {
+    element: <ProtectedRoute allowedRoles={["admin"]} />,
+    children: [
+      {
+        element: <DashboardLayout />,
+        children: [
+          {
+            path: "/admin/dashboard",
+            element: <AdminDashboard />,
           },
         ],
       },
