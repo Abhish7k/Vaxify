@@ -1,5 +1,5 @@
-import StaffDashboardUpcomingAppointmentsComponent from "./upcoming-appointments/StaffDashboardUpcomingAppointmentsComponent";
-import { StaffDashboardRecentVaccinationsCardComponent } from "./upcoming-appointments/StaffDashboardRecentVaccinationsCardComponent";
+import StaffDashboardUpcomingAppointmentsComponent from "./StaffDashboardUpcomingAppointmentsComponent";
+import { StaffDashboardRecentVaccinationsCardComponent } from "./StaffDashboardRecentVaccinationsCardComponent";
 
 export default function StaffAppointmentsSection() {
   return (
