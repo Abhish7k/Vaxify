@@ -1,6 +1,7 @@
 "use client";
 
 import StaffStatsGrid from "@/components/dashboards/staff/StaffDashboardStatsGrid";
+import StaffAppointmentsSection from "@/components/dashboards/staff/StaffDashboardAppointmentsSection";
 
 export default function StaffDashboard() {
   return (
@@ -18,6 +19,9 @@ export default function StaffDashboard() {
 
       {/* stats grid */}
       <StaffStatsGrid />
+
+      {/*  */}
+      <StaffAppointmentsSection />
     </div>
   );
 }
