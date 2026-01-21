@@ -35,7 +35,7 @@ const links = [
   },
   {
     name: "Centers",
-    href: "/centre",
+    href: "/centers",
   },
   {
     name: "About",
