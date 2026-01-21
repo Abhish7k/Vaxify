@@ -28,7 +28,7 @@ function StatCard({
   iconBg,
 }: StatCardProps) {
   return (
-    <Card className="p-6">
+    <Card className="p-6 ">
       <div className="flex items-center justify-between">
         {/* left */}
         <div className="space-y-1">

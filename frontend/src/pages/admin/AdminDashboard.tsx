@@ -1,3 +1,4 @@
+import AdminDashboardChartsSection from "@/components/dashboards/admin/AdminDashboardChartsSection";
 import AdminDashboardStatsGrid from "@/components/dashboards/admin/AdminDashboardStatsGrid";
 
 const AdminDashboard = () => {
@@ -13,6 +14,9 @@ const AdminDashboard = () => {
 
       {/*  */}
       <AdminDashboardStatsGrid />
+
+      {/*  */}
+      <AdminDashboardChartsSection />
     </div>
   );
 };

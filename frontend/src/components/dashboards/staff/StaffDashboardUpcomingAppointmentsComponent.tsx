@@ -31,7 +31,7 @@ const StaffDashboardUpcomingAppointmentsComponent = () => {
         </div>
       </CardHeader>
 
-      <CardContent className="p-5">
+      <CardContent className="">
         <div className="relative overflow-x-auto border rounded-md">
           <Table>
             <TableHeader>
