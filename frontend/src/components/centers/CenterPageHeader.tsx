@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 
 export default function CentersPageHeader() {
   return (
@@ -26,24 +26,24 @@ export default function CentersPageHeader() {
   );
 }
 
-const CornerPlusIcons = () => (
-  <>
-    <PlusIcon className="-top-3 -left-3" />
-    <PlusIcon className="-top-3 -right-3" />
-    <PlusIcon className="-bottom-3 -left-3" />
-    <PlusIcon className="-bottom-3 -right-3" />
-  </>
-);
+// const CornerPlusIcons = () => (
+//   <>
+//     <PlusIcon className="-top-3 -left-3" />
+//     <PlusIcon className="-top-3 -right-3" />
+//     <PlusIcon className="-bottom-3 -left-3" />
+//     <PlusIcon className="-bottom-3 -right-3" />
+//   </>
+// );
 
-const PlusIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1"
-    className={cn("absolute size-6 text-black dark:text-white", className)}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
-  </svg>
-);
+// const PlusIcon = ({ className }: { className?: string }) => (
+//   <svg
+//     xmlns="http://www.w3.org/2000/svg"
+//     viewBox="0 0 24 24"
+//     fill="none"
+//     stroke="currentColor"
+//     strokeWidth="1"
+//     className={cn("absolute size-6 text-black dark:text-white", className)}
+//   >
+//     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
+//   </svg>
+// );
