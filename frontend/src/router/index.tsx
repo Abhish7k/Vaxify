@@ -13,6 +13,7 @@ import { NotFoundPage } from "@/pages/NotFoundPage";
 import StaffDashboard from "@/pages/staff/StaffDashboard";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import HomePage from "@/pages/HomePage";
+import CentersPage from "@/pages/CentersPage";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />,
+      },
+      {
+        path: "centers",
+        element: <CentersPage />,
       },
     ],
   },
