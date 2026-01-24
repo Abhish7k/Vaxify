@@ -12,7 +12,6 @@ const CenterDetailsHeaderSection = ({ center }: Props) => {
   return (
     <div className="mb-12 lg:mb-16">
       <div className="flex flex-col md:flex-row lg:items-start lg:justify-between gap-8 mb-8 transition-all">
-        {/* Left content */}
         <div className="flex-1">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight mb-4 lg:mb-5 transition-all">
             {center.name}
@@ -26,9 +25,12 @@ const CenterDetailsHeaderSection = ({ center }: Props) => {
           <Badge variant="outline" className="bg-emerald-50 text-emerald-700">
             {center.availableSlots} slots available today
           </Badge>
+
+          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mt-10">
+            {center.description}
+          </p>
         </div>
 
-        {/* CTA Card */}
         <Card className="sm:w-[80%] md:w-75 transition-all">
           <CardContent className="p-6 sm:p-8 text-center">
             <Calendar className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-4" />
@@ -46,11 +48,6 @@ const CenterDetailsHeaderSection = ({ center }: Props) => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Description */}
-      <p className="text-base sm:text-lg text-muted-foreground max-w-3xl">
-        {center.description}
-      </p>
     </div>
   );
 };
