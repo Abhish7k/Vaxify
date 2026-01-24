@@ -47,7 +47,7 @@ export default function CenterCard({ center }: Props) {
 
           {/* footer */}
           <div className="flex items-center justify-end pt-1 mt-10">
-            <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground">
+            <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground duration-500">
               Explore →
             </span>
           </div>
