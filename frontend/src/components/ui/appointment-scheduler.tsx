@@ -188,7 +188,7 @@ export function AppointmentScheduler({
                 disabled={!isAvailable}
                 onClick={() => handleDateClick(day)}
                 className={cn(
-                  "p-2 md:p-4 rounded-lg text-sm font-medium transition cursor-pointer transition-all",
+                  "p-2 md:p-4 rounded-lg text-sm font-medium cursor-pointer transition-all",
                   day === selectedDate &&
                     "bg-primary text-primary-foreground shadow",
                   day !== selectedDate &&
