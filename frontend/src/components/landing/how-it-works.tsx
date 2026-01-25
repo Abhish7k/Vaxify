@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { motion } from "framer-motion";
 import { Search, CalendarDays, ShieldCheck, Check } from "lucide-react";
@@ -8,7 +6,7 @@ const steps = [
   {
     id: 1,
     title: "Discover & Choose",
-    description: "Browse verified vaccination centers, view available vaccines, working hours, and real-time slot availability — all in one place.",
+    description: "Browse verified vaccination centers, view available vaccines, working hours, and real-time slot availability all in one place.",
     icon: <Search className="w-5 h-5 text-slate-400" />,
     label: "Step 1",
     arrow: (
@@ -147,7 +145,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-32">
           <p className="text-[#6366f1] text-[13px] font-mono font-bold mb-4 uppercase tracking-[0.2em]">How it works</p>
-          <h2 className="text-4xl md:text-[48px] font-bold tracking-tight mb-4 text-foreground">
+          <h2 className="text-3xl md:text-4xl font-normal tracking-tight text-foreground mb-4">
             Vaccination Management in 3 Simple Steps
           </h2>
           <p className="text-slate-500 text-lg max-w-2xl mx-auto">

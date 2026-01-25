@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   Database,
   BellRing,
@@ -8,12 +9,13 @@ import {
   BarChart3,
   FileCheck2,
 } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { FeatureCard } from '@/components/ui/grid-feature-cards';
+import { cn } from '@/lib/utils';
 
-/* -------------------------------- data -------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* DATA                                                                       */
+/* -------------------------------------------------------------------------- */
 
-const features = [
+const FEATURES = [
   {
     title: 'Smart Records',
     icon: Database,
@@ -52,67 +54,106 @@ const features = [
   },
 ];
 
-/* ------------------------------- section ------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* FEATURE CARD                                                               */
+/* -------------------------------------------------------------------------- */
 
-export function Features() {
+function FeatureCard({
+  feature,
+}: {
+  feature: (typeof FEATURES)[number];
+}) {
+  const Icon = feature.icon;
+
   return (
-    <section className="py-16 md:py-32">
-      <div className="mx-auto w-full max-w-5xl space-y-8 px-4">
-
-        {/* Heading */}
-        <AnimatedContainer className="mx-auto max-w-3xl text-center">
-          <h2 className="text-balance text-3xl font-bold tracking-wide md:text-4xl lg:text-5xl xl:font-extrabold">
-            Discover features built for modern vaccination management
-          </h2>
-          <p className="text-muted-foreground mt-4 text-sm tracking-wide md:text-base">
-            Simple, secure, and intelligent tools designed to streamline
-            vaccination tracking and compliance.
-          </p>
-        </AnimatedContainer>
-
-        {/* Feature grid */}
-        <AnimatedContainer
-          delay={0.4}
-          className="grid grid-cols-1 divide-x divide-y divide-dashed border border-dashed sm:grid-cols-2 md:grid-cols-3"
-        >
-          {features.map((feature, i) => (
-            <FeatureCard key={i} feature={feature} />
-          ))}
-        </AnimatedContainer>
-
+    <div
+      className={cn(
+        'relative overflow-hidden p-6',
+        'border border-dashed',
+        'bg-background'
+      )}
+    >
+      {/* subtle inner blur / glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/40 to-transparent opacity-60" />
       </div>
-    </section>
+
+      {/* grid pattern with targeted fading */}
+      <GridPattern />
+
+      <Icon className="relative z-10 h-5 w-5 text-foreground/70" />
+
+      <h3 className="relative z-10 mt-8 text-sm font-medium">
+        {feature.title}
+      </h3>
+
+      <p className="relative z-10 mt-2 text-xs leading-relaxed text-muted-foreground">
+        {feature.description}
+      </p>
+    </div>
   );
 }
 
-/* -------------------------- animation wrapper -------------------------- */
+/* -------------------------------------------------------------------------- */
+/* GRID PATTERN                                                               */
+/* -------------------------------------------------------------------------- */
 
-type AnimatedContainerProps = {
-  delay?: number;
-  className?: string;
-  children: React.ReactNode;
-};
-
-function AnimatedContainer({
-  className,
-  delay = 0.1,
-  children,
-}: AnimatedContainerProps) {
-  const shouldReduceMotion = useReducedMotion();
-
-  if (shouldReduceMotion) {
-    return <>{children}</>;
-  }
+function GridPattern() {
+  const id = React.useId();
 
   return (
-    <motion.div
-      initial={{ filter: 'blur(4px)', translateY: -8, opacity: 0 }}
-      whileInView={{ filter: 'blur(0px)', translateY: 0, opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ delay, duration: 0.8 }}
-      className={className}
+    <svg
+      aria-hidden
+      className={cn(
+        "pointer-events-none absolute inset-0 h-full w-full",
+        // UPDATED MASK: 
+        // 0% to 30% is 'transparent' (Blank/White background for text/logo)
+        // 30% to 100% fades in to 'white' (Making the grid visible on the right)
+        "[mask-image:linear-gradient(to_right,transparent_0%,transparent_30%,white_100%)]"
+      )}
     >
-      {children}
-    </motion.div>
+      <defs>
+        <pattern
+          id={id}
+          width="24"
+          height="24"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M.5 24V.5H24"
+            fill="none"
+            stroke="rgba(0,0,0,0.06)"
+            strokeWidth="1"
+          />
+        </pattern>
+      </defs>
+
+      <rect width="100%" height="100%" fill={`url(#${id})`} />
+
+      {/* random darker blocks */}
+      <g fill="rgba(0,0,0,0.08)">
+        <rect x="72" y="48" width="24" height="24" />
+        <rect x="168" y="96" width="24" height="24" />
+        <rect x="120" y="24" width="24" height="24" />
+      </g>
+    </svg>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* MAIN SECTION                                                               */
+/* -------------------------------------------------------------------------- */
+
+export function Features() {
+  return (
+    <section className="py-24 md:py-5">
+      <div className="mx-auto max-w-6xl px-6 space-y-16">
+        <div className="grid grid-cols-1 divide-x divide-y divide-dashed border border-dashed sm:grid-cols-2 md:grid-cols-3">
+          {FEATURES.map((feature) => (
+            <FeatureCard key={feature.title} feature={feature} />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
