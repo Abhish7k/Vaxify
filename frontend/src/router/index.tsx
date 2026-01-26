@@ -15,6 +15,7 @@ import HomePage from "@/pages/HomePage";
 import CentersPage from "@/pages/CentersPage";
 import CenterDetailsPage from "@/components/centers/center-details/CenterDetailsPage";
 import AppointmentBookingPage from "@/pages/appointment/book/AppointmentBookingPage";
+import BookingSummaryPage from "@/components/appointment/book/BookingSummaryPage";
 
 export const router = createBrowserRouter([
   {
@@ -78,6 +79,10 @@ export const router = createBrowserRouter([
           {
             path: "/appointments/book/:centerId",
             element: <AppointmentBookingPage />,
+          },
+          {
+            path: "/appointments/book/summary",
+            element: <BookingSummaryPage />,
           },
         ],
       },

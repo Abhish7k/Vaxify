@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import BookingHeaderSection from "@/components/appointment/book/BookingHeaderSection";
 import CenterNotFound from "@/components/centers/center-details/CenterNotFound";
 
@@ -10,6 +10,8 @@ import ConfirmBookingFooter from "@/components/appointment/book/ConfirmBookingFo
 
 const AppointmentBookingPage = () => {
   const { centerId } = useParams();
+
+  const navigate = useNavigate();
 
   const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(
     null,
@@ -31,14 +33,14 @@ const AppointmentBookingPage = () => {
   const handleConfirmBooking = () => {
     if (!isBookingReady) return;
 
-    const payload = {
-      centerId,
-      vaccineId: selectedVaccineId,
-      date: selectedDate,
-      time: selectedSlot,
-    };
-
-    console.log("confirm booking payload: ", payload);
+    navigate("/appointments/book/summary", {
+      state: {
+        center,
+        vaccine: selectedVaccine,
+        date: selectedDate,
+        slot: selectedSlot,
+      },
+    });
   };
 
   return (
