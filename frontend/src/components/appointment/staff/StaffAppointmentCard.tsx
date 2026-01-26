@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
-import { Calendar, Clock, Phone, User, Syringe, Check, X } from "lucide-react";
+import { Calendar, Clock, Phone, User, Syringe } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import type { StaffAppointment } from "./StaffAppointmentsListSection";
 import AppointmentStatusBadge from "../my-appointments/AppointmentStatusBadge";
+import StaffAppointmentCardActions from "./StaffAppointmentCardActions";
 
 type Props = {
   appointment: StaffAppointment;
@@ -41,45 +41,37 @@ export default function StaffAppointmentCard({
               </div>
             </div>
 
-            {/* Vaccine */}
+            {/* vaccine */}
             <div className="flex items-center gap-2 ">
               <Syringe className="h-4 w-4 text-purple-500" />
               <span className="text-sm font-medium">{appointment.vaccine}</span>
             </div>
 
-            {/* Date */}
+            {/* date */}
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">{appointment.date}</span>
             </div>
 
-            {/* Time */}
+            {/* time slot */}
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">{appointment.timeSlot}</span>
             </div>
 
-            {/* Status */}
+            {/* status */}
             <AppointmentStatusBadge status={appointment.status} />
           </div>
 
-          {/* Actions */}
+          {/* actions */}
           {appointment.status === "UPCOMING" && (
-            <div className="flex items-center justify-end gap-2 ml-auto mt-10">
-              <Button size="sm" onClick={onMarkCompleted}>
-                <Check className="h-4 w-4 mr-1" />
-                Complete
-              </Button>
-
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-destructive hover:bg-destructive/10"
-                onClick={onCancel}
-              >
-                <X className="h-4 w-4 mr-1" />
-                Cancel
-              </Button>
+            <div className="mt-10">
+              <StaffAppointmentCardActions
+                patientName={appointment.patientName}
+                status={appointment.status}
+                onMarkCompleted={onMarkCompleted}
+                onCancel={onCancel}
+              />
             </div>
           )}
         </CardContent>

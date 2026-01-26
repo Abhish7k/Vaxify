@@ -6,6 +6,7 @@ import StaffAppointmentsListSection, {
 import type { StaffAppointmentStatus } from "@/components/appointment/staff/StaffAppointmentsTabsSection";
 import StaffAppointmentsTabsSection from "@/components/appointment/staff/StaffAppointmentsTabsSection";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function StaffAppointmentsPage() {
   const [activeStatus, setActiveStatus] =
@@ -17,10 +18,24 @@ export default function StaffAppointmentsPage() {
 
   const handleMarkCompleted = (appointment: StaffAppointment) => {
     console.log("Mark completed:", appointment.id);
+
+    toast.success("Marked appointment as completed", {
+      style: {
+        backgroundColor: "#e7f9ed",
+        color: "#0f7a28",
+      },
+    });
   };
 
   const handleCancelAppointment = (appointment: StaffAppointment) => {
     console.log("Mark completed:", appointment.id);
+
+    toast.success("Cancelled appointment successfully", {
+      style: {
+        backgroundColor: "#e7f9ed",
+        color: "#0f7a28",
+      },
+    });
   };
 
   return (
