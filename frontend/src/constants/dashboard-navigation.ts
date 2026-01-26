@@ -29,7 +29,7 @@ export const DashboardRoleBasedNavigationLinks = {
         },
         {
           label: "My Appointments",
-          path: "/my-appointments",
+          path: "/appointments",
           icon: Calendar,
         },
         {

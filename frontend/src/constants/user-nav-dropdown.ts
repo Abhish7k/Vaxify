@@ -15,11 +15,7 @@ export const USER_NAV_DROPDOWN_ITEMS = {
       href: "/dashboard",
       icon: LayoutDashboard,
     },
-    {
-      name: "Profile",
-      href: "/profile",
-      icon: User,
-    },
+
     {
       name: "My Appointments",
       href: "/appointments",
@@ -27,8 +23,13 @@ export const USER_NAV_DROPDOWN_ITEMS = {
     },
     {
       name: "Book Appointment",
-      href: "/appointments/book",
+      href: "/centers",
       icon: PlusCircle,
+    },
+    {
+      name: "Profile",
+      href: "/profile",
+      icon: User,
     },
   ],
 

@@ -2,6 +2,7 @@ import * as React from "react";
 import { MapPin, Syringe, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export function AppointmentBookingSuccess({
   appointmentId,
@@ -70,16 +71,22 @@ export function AppointmentBookingSuccess({
 
         {/* actions */}
         <div className="pt-4 flex flex-col gap-3">
-          <Link to="/my-appointments">
-            <button className="w-full rounded-md border py-2 text-sm hover:bg-muted cursor-pointer active:scale-95 transition-all">
+          <Link to="/appointments">
+            <Button
+              variant="outline"
+              className="w-full cursor-pointer active:scale-95 transition-all"
+            >
               View My Appointments
-            </button>
+            </Button>
           </Link>
 
           <Link to="/dashboard">
-            <button className="w-full rounded-md bg-primary py-2 text-sm text-primary-foreground hover:opacity-90 cursor-pointer active:scale-95 transition-all">
+            <Button
+              variant="outline"
+              className="w-full cursor-pointer active:scale-95 transition-all"
+            >
               Go to Dashboard
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
