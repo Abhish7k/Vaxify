@@ -15,7 +15,8 @@ import HomePage from "@/pages/HomePage";
 import CentersPage from "@/pages/CentersPage";
 import CenterDetailsPage from "@/components/centers/center-details/CenterDetailsPage";
 import AppointmentBookingPage from "@/pages/appointment/book/AppointmentBookingPage";
-import BookingSummaryPage from "@/components/appointment/book/BookingSummaryPage";
+import BookingSummaryPage from "@/pages/appointment/book/BookingSummaryPage";
+import BookingSuccessPage from "@/pages/appointment/book/BookingSuccessPage";
 
 export const router = createBrowserRouter([
   {
@@ -83,6 +84,10 @@ export const router = createBrowserRouter([
           {
             path: "/appointments/book/summary",
             element: <BookingSummaryPage />,
+          },
+          {
+            path: "/appointments/book/success",
+            element: <BookingSuccessPage />,
           },
         ],
       },

@@ -3,36 +3,44 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import GoBackButton from "@/components/ui/go-back-button";
 import { CheckCircle } from "lucide-react";
+import { useEffect } from "react";
 
 export default function BookingSummaryPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  if (!state) {
-    navigate("/");
+  // route protection
+  useEffect(() => {
+    if (!state) {
+      navigate("/", { replace: true });
+    }
+  }, [state, navigate]);
 
-    return null;
-  }
+  if (!state) return null;
 
   const { center, vaccine, date, slot } = state;
 
   const handleConfirmBooking = () => {
-    const payload = {
-      centerId: center.id,
-      vaccineId: vaccine.id,
-      date,
-      time: slot,
-    };
+    // simulate backend response
+    const appointmentId = `APT-${Date.now()}`;
 
-    console.log("final booking payload", payload);
+    navigate("/appointments/book/success", {
+      state: {
+        appointmentId,
+        center,
+        vaccine,
+        date,
+        slot,
+      },
+      replace: true,
+    });
 
     // later:
     // await bookAppointment(payload)
-    // navigate("/booking/success");
   };
 
   return (
-    <div className="py-10 max-w-3xl mx-auto px-4 space-y-6">
+    <div className="py-10 max-w-3xl mx-auto px-4 space-y-6 animate-in slide-in-from-bottom-5 fade-in duration-500">
       <h1 className="text-xl font-semibold">Review your booking</h1>
 
       <Card>

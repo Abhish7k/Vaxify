@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
+import { Eye } from "lucide-react";
 
 type Props = {
   isDisabled: boolean;
@@ -36,8 +36,8 @@ export default function ConfirmBookingFooter({
           onClick={onConfirm}
           className="text-sm gap-2 cursor-pointer active:scale-95 transition-all"
         >
-          <CheckCircle className="w-4 h-4" />
-          Confirm
+          <Eye className="w-4 h-4" />
+          Review
         </Button>
       </div>
     </div>
