@@ -3,7 +3,20 @@ import { Search, CalendarDays, ShieldCheck, Check } from "lucide-react";
 
 export function HowItWorks() {
   return (
-    <section className="relative py-32 bg-background overflow-hidden">
+    <motion.section
+      className="relative py-32 bg-background overflow-hidden"
+      // viewport={{ once: true }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{
+        ease: "easeInOut",
+        duration: 0.4,
+        delay: 0.6,
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
+      }}
+    >
       <div
         aria-hidden
         className="absolute inset-0 -z-10 size-full [background:radial-gradient(125%_125%_at_50%_0%,transparent_0%,var(--background)_75%)] opacity-40"
@@ -67,7 +80,7 @@ export function HowItWorks() {
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 

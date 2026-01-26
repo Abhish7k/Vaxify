@@ -13,8 +13,8 @@ interface FooterSection {
 
 export function Footer() {
   return (
-    <footer className="relative mt-20 border-t border-border/40 bg-background">
-      <div className="mx-auto max-w-5xl px-6 py-14">
+    <footer className="relative mt-20 bg-background">
+      <div className="mx-auto max-w-5xl px-6 py-14 border-t">
         <div className="grid gap-12 md:grid-cols-[1.2fr_2fr]">
           {/* brand */}
           <AnimatedContainer className="space-y-4">
