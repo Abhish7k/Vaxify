@@ -1,10 +1,5 @@
-import React from 'react';
-import type { ComponentProps, ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-
-/* ------------------------------------------------------------------ */
-/* data */
-/* ------------------------------------------------------------------ */
+import type { ComponentProps, ReactNode } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 interface FooterLink {
   title: string;
@@ -16,51 +11,14 @@ interface FooterSection {
   links: FooterLink[];
 }
 
-const footerLinks: FooterSection[] = [
-  {
-    label: 'Product',
-    links: [
-      { title: 'Features', href: '/features' },
-      { title: 'Hospitals', href: '/hospitals' },
-      { title: 'Appointments', href: '/appointments' },
-      { title: 'Dashboards', href: '/dashboard' },
-    ],
-  },
-  {
-    label: 'Company',
-    links: [
-      { title: 'About', href: '/about' },
-      { title: 'FAQs', href: '/faqs' },
-      { title: 'Privacy Policy', href: '/privacy' },
-      { title: 'Terms of Service', href: '/terms' },
-    ],
-  },
-  {
-    label: 'Resources',
-    links: [
-      { title: 'Help Center', href: '/help' },
-      { title: 'Documentation', href: '/docs' },
-      { title: 'Changelog', href: '/changelog' },
-      { title: 'Contact Support', href: '/contact' },
-    ],
-  },
-];
-
-/* ------------------------------------------------------------------ */
-/* footer */
-/* ------------------------------------------------------------------ */
-
 export function Footer() {
   return (
-    <footer className="relative mt-20 border-t border-border/40 bg-background">
-      <div className="mx-auto max-w-5xl px-6 py-14">
+    <footer className="relative mt-20 bg-background">
+      <div className="mx-auto max-w-5xl px-6 py-14 border-t">
         <div className="grid gap-12 md:grid-cols-[1.2fr_2fr]">
-
           {/* brand */}
           <AnimatedContainer className="space-y-4">
-            <div className="text-lg font-semibold tracking-tight">
-              Vaxify
-            </div>
+            <div className="text-lg font-semibold tracking-tight">Vaxify</div>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
               Secure and reliable vaccination management platform designed to
               streamline appointment booking, hospital operations, and
@@ -99,20 +57,16 @@ export function Footer() {
               </AnimatedContainer>
             ))}
           </div>
-
         </div>
       </div>
     </footer>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* animation wrapper (unchanged) */
-/* ------------------------------------------------------------------ */
-
+// animation wrapper
 type ViewAnimationProps = {
   delay?: number;
-  className?: ComponentProps<typeof motion.div>['className'];
+  className?: ComponentProps<typeof motion.div>["className"];
   children: ReactNode;
 };
 
@@ -131,7 +85,7 @@ function AnimatedContainer({
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
+      viewport={{ once: true, margin: "-80px" }}
       transition={{
         delay,
         duration: 0.9,
@@ -143,3 +97,33 @@ function AnimatedContainer({
     </motion.div>
   );
 }
+
+const footerLinks: FooterSection[] = [
+  {
+    label: "Product",
+    links: [
+      { title: "Features", href: "/features" },
+      { title: "Hospitals", href: "/hospitals" },
+      { title: "Appointments", href: "/appointments" },
+      { title: "Dashboards", href: "/dashboard" },
+    ],
+  },
+  {
+    label: "Company",
+    links: [
+      { title: "About", href: "/about" },
+      { title: "FAQs", href: "/faqs" },
+      { title: "Privacy Policy", href: "/privacy" },
+      { title: "Terms of Service", href: "/terms" },
+    ],
+  },
+  {
+    label: "Resources",
+    links: [
+      { title: "Help Center", href: "/help" },
+      { title: "Documentation", href: "/docs" },
+      { title: "Changelog", href: "/changelog" },
+      { title: "Contact Support", href: "/contact" },
+    ],
+  },
+];

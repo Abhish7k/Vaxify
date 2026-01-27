@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils';
-import React from 'react';
+import { cn } from "@/lib/utils";
+import React from "react";
 
 type FeatureType = {
   title: string;
@@ -7,11 +7,15 @@ type FeatureType = {
   description: string;
 };
 
-type FeatureCardProps = React.ComponentProps<'div'> & {
+type FeatureCardProps = React.ComponentProps<"div"> & {
   feature: FeatureType;
 };
 
-export function FeatureCard({ feature, className, ...props }: FeatureCardProps) {
+export function FeatureCard({
+  feature,
+  className,
+  ...props
+}: FeatureCardProps) {
   const pattern = genRandomPattern();
 
   return (
@@ -20,25 +24,25 @@ export function FeatureCard({ feature, className, ...props }: FeatureCardProps) 
         `
         group relative overflow-hidden rounded-2xl bg-background p-6
 
-        /* inner gray depth (reference style) */
+                                                
         shadow-[inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-1px_0_rgba(0,0,0,0.04)]
 
         /* interaction (synced with How-It-Works) */
         transition-all duration-300 ease-out
         hover:-translate-y-1
 
-        /* border + indigo glow */
+        /* + indigo glow */
         border border-transparent
         hover:border-indigo-600/30
         hover:shadow-[0_25px_45px_-15px_rgba(79,70,229,0.45)]
         `,
-        className
+        className,
       )}
       {...props}
     >
       {/* grid overlay */}
-      <div className="pointer-events-none absolute top-0 left-1/2 -mt-2 -ml-20 h-full w-full [mask-image:linear-gradient(white,transparent)]">
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/5 to-foreground/0">
+      <div className="pointer-events-none absolute top-0 left-1/2 -mt-2 -ml-20 h-full w-full mask-[linear-gradient(white,transparent)]">
+        <div className="absolute inset-0 bg-linear-to-r from-foreground/5 to-foreground/0">
           <GridPattern
             width={20}
             height={20}
@@ -88,7 +92,7 @@ function GridPattern({
   y,
   squares,
   ...props
-}: React.ComponentProps<'svg'> & {
+}: React.ComponentProps<"svg"> & {
   width: number;
   height: number;
   x: string;
