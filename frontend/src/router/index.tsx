@@ -25,6 +25,7 @@ import AdminHospitalDetailsPage from "@/pages/admin/AdminHospitalDetailsPage";
 import AdminUsersPage from "@/pages/admin/AdminUsersPage";
 import AdminProfilePage from "@/pages/admin/AdminProfile";
 import UserProfilePage from "@/pages/user/UserProfilePage";
+import StaffProfilePage from "@/pages/staff/StaffProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -124,6 +125,10 @@ export const router = createBrowserRouter([
           {
             path: "/staff/dashboard",
             element: <StaffDashboard />,
+          },
+          {
+            path: "/staff/profile",
+            element: <StaffProfilePage />,
           },
         ],
       },
