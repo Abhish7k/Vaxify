@@ -40,7 +40,7 @@ export default function AdminHospitalDetailsPage() {
   };
 
   return (
-    <div className="px-5 py-5 md:px-10">
+    <div className="px-5 py-5 md:px-10 mb-40">
       <MainSection />
 
       <AdminHospitalFloatingActions

@@ -12,9 +12,7 @@ export default function StaffAppointmentsPage() {
   const [activeStatus, setActiveStatus] =
     useState<StaffAppointmentStatus>("UPCOMING");
 
-  const [appointments, setAppointments] = useState<StaffAppointment[]>(
-    mockStaffAppointments,
-  );
+  // const [appointments, setAppointments] = useState<StaffAppointment[]>(mockStaffAppointments);
 
   const handleMarkCompleted = (appointment: StaffAppointment) => {
     console.log("Mark completed:", appointment.id);

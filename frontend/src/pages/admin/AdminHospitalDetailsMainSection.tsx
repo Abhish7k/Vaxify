@@ -8,17 +8,18 @@ import {
   Phone,
   Calendar,
   Hash,
+  ArrowLeft,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import AppointmentStatusBadge from "@/components/appointment/my-appointments/AppointmentStatusBadge";
 
 export default function MainSection() {
   const hospital = {
     id: "hosp-1",
     name: "City Health Hospital",
-    address: "MG Road, Bangalore",
+    address: "MG Road, Pune",
     status: "PENDING" as const,
     registeredOn: "2026-01-10",
     workingHours: "9:00 AM – 5:00 PM",
@@ -36,21 +37,33 @@ export default function MainSection() {
 
   return (
     <div className="space-y-8">
+      {/* go back btn */}
+      <div className="mb-6">
+        <button
+          onClick={() => window.history.back()}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-all duration-300 group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-all duration-300" />
+          Go back
+        </button>
+      </div>
       {/* header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start gap-10">
         <div>
-          <h1 className="text-2xl font-semibold flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-semibold flex items-center gap-2">
             <Hospital className="h-6 w-6 text-muted-foreground" />
             {hospital.name}
           </h1>
 
-          <p className="mt-1 text-sm text-muted-foreground flex items-center gap-1">
+          <p className="mt-2 text-sm text-muted-foreground flex items-center gap-1">
             <MapPin className="h-4 w-4" />
             {hospital.address}
           </p>
         </div>
 
-        <Badge variant="outline">{hospital.status}</Badge>
+        <div>
+          <AppointmentStatusBadge status={hospital.status} />
+        </div>
       </div>
 
       {/* basic info */}
@@ -119,7 +132,7 @@ export default function MainSection() {
               </AvatarFallback>
             </Avatar>
 
-            <div className="space-y-1 text-sm">
+            <div className="space-y-4 text-sm">
               <p className="font-medium flex items-center gap-1">
                 <User className="h-4 w-4 text-muted-foreground" />
                 {hospital.staff.name}
