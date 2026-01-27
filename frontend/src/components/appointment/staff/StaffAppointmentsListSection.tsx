@@ -1,7 +1,6 @@
 import EmptyStaffAppointmentsState from "./EmptyStaffAppointmentsState";
 import StaffAppointmentCard from "./StaffAppointmentCard";
 import type { StaffAppointmentStatus } from "./StaffAppointmentsTabsSection";
-// import EmptyStaffAppointmentsState from "../components/EmptyStaffAppointmentsState";
 
 export default function StaffAppointmentsListSection({
   appointments,

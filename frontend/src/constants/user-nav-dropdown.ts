@@ -45,8 +45,8 @@ export const USER_NAV_DROPDOWN_ITEMS = {
       icon: User,
     },
     {
-      name: "Manage Centers",
-      href: "/staff/centers/manage",
+      name: "Center",
+      href: "/staff/center",
       icon: Hospital,
     },
   ],

@@ -25,10 +25,24 @@ export default function StaffAppointmentCard({
       className="w-full"
     >
       <Card className="hover:shadow-md transition-shadow">
-        <CardContent className="px-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
-            {/* name */}
-            <div className="flex items-center gap-3 md:min-w-40">
+        <CardContent className="">
+          {/* 
+            layout behavior:
+            - >=1100px: single horizontal row
+            - <1100px: two rows (time + status move down)
+            - <640px: everything stacks vertically
+          */}
+          <div
+            className="
+              grid gap-4
+              grid-cols-1
+              sm:grid-cols-2
+              items-center
+              [@media(min-width:1100px)]:grid-cols-[1.4fr_1fr_1fr_1fr_auto]
+            "
+          >
+            {/* patient info always first */}
+            <div className="flex items-center gap-3 col-span-1 sm:col-span-2 [@media(min-width:1100px)]:col-span-1">
               <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
                 <User className="h-4 w-4 text-primary" />
               </div>
@@ -42,7 +56,7 @@ export default function StaffAppointmentCard({
             </div>
 
             {/* vaccine */}
-            <div className="flex items-center gap-2 ">
+            <div className="flex items-center gap-2">
               <Syringe className="h-4 w-4 text-purple-500" />
               <span className="text-sm font-medium">{appointment.vaccine}</span>
             </div>
@@ -53,17 +67,19 @@ export default function StaffAppointmentCard({
               <span className="text-sm">{appointment.date}</span>
             </div>
 
-            {/* time slot */}
+            {/* time slot moves to its own row below 1100px */}
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">{appointment.timeSlot}</span>
             </div>
 
-            {/* status */}
-            <AppointmentStatusBadge status={appointment.status} />
+            {/* status stacks under time on smaller screens */}
+            <div className="justify-self-start [@media(min-width:1100px)]:justify-self-end">
+              <AppointmentStatusBadge status={appointment.status} />
+            </div>
           </div>
 
-          {/* actions */}
+          {/* actions unchanged */}
           {appointment.status === "UPCOMING" && (
             <div className="mt-10">
               <StaffAppointmentCardActions

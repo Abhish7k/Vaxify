@@ -1,6 +1,4 @@
-import { motion } from "framer-motion";
 import { Calendar, Clock, MapPin, Syringe } from "lucide-react";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Appointment } from "./MyAppointmentsListSection";
@@ -19,18 +17,26 @@ export default function AppointmentCard({
   onCancel,
 }: Props) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="w-full"
-    >
+    <div className="w-full">
       <Card className="hover:shadow-md transition-shadow">
         <CardContent className="px-6">
-          {/* row content */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            {/* Center name + address */}
-            <div className="min-w-40">
+          {/*
+            layout behavior:
+            - >=1100px: single horizontal row
+            - <1100px: two rows (time + status move down)
+            - <640px: everything stacks vertically
+          */}
+          <div
+            className="
+              grid gap-4
+              grid-cols-1
+              sm:grid-cols-2
+              items-center
+              [@media(min-width:1100px)]:grid-cols-[1.6fr_1fr_1fr_1fr_auto]
+            "
+          >
+            {/* center info always first */}
+            <div className="min-w-40 col-span-1 sm:col-span-2 [@media(min-width:1100px)]:col-span-1">
               <p className="font-medium">{appointment.centerName}</p>
               <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                 <MapPin className="h-3.5 w-3.5" />
@@ -50,19 +56,25 @@ export default function AppointmentCard({
               <span className="text-sm">{appointment.date}</span>
             </div>
 
-            {/* time */}
+            {/* time slot moves down on medium screens */}
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">{appointment.timeSlot}</span>
             </div>
 
-            {/* status */}
-            <AppointmentStatusBadge status={appointment.status} />
+            {/* status stacks under time on smaller screens */}
+            <div className="justify-self-start [@media(min-width:1100px)]:justify-self-end">
+              <AppointmentStatusBadge status={appointment.status} />
+            </div>
           </div>
 
-          {/* actions */}
+          {/* actions stay unchanged */}
           <div className="mt-10 flex items-center justify-between">
-            <Button variant="link" className="px-0" onClick={onViewCenter}>
+            <Button
+              variant="link"
+              className="px-0 cursor-pointer"
+              onClick={onViewCenter}
+            >
               View center
             </Button>
 
@@ -75,6 +87,6 @@ export default function AppointmentCard({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }

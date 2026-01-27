@@ -6,8 +6,8 @@ import {
   BarChart,
   User,
   CalendarPlus,
-  Settings,
-  HelpCircle,
+  Syringe,
+  // Settings,
 } from "lucide-react";
 
 export const DashboardRoleBasedNavigationLinks = {
@@ -46,11 +46,11 @@ export const DashboardRoleBasedNavigationLinks = {
           path: "/profile",
           icon: User,
         },
-        {
-          label: "Settings",
-          path: "/settings",
-          icon: Settings,
-        },
+        // {
+        //   label: "Settings",
+        //   path: "/settings",
+        //   icon: Settings,
+        // },
       ],
     },
   ],
@@ -65,9 +65,9 @@ export const DashboardRoleBasedNavigationLinks = {
           icon: LayoutDashboard,
         },
         {
-          label: "Manage Centers",
-          path: "/staff/centers/manage",
-          icon: Hospital,
+          label: "Vaccines",
+          path: "/staff/vaccines",
+          icon: Syringe,
         },
         {
           label: "All Appointments",
@@ -84,16 +84,11 @@ export const DashboardRoleBasedNavigationLinks = {
           path: "/staff/profile",
           icon: User,
         },
-        {
-          label: "Settings",
-          path: "/staff/settings",
-          icon: Settings,
-        },
-        {
-          label: "Help & Support",
-          path: "/staff/support",
-          icon: HelpCircle,
-        },
+        // {
+        //   label: "Settings",
+        //   path: "/staff/settings",
+        //   icon: Settings,
+        // },
       ],
     },
   ],

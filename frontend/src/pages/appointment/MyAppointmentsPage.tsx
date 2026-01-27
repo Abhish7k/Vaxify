@@ -32,7 +32,7 @@ export default function MyAppointmentsPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto mt-10 px-10">
+    <div className="space-y-8 max-w-6xl mx-auto mt-10 px-2 animate-in fade-in slide-in-from-bottom-10 duration-500">
       {/* header */}
       <MyAppointmentsHeaderSection />
 

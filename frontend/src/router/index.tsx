@@ -130,11 +130,6 @@ export const router = createBrowserRouter([
             path: "/staff/profile",
             element: <StaffProfilePage />,
           },
-        ],
-      },
-      {
-        element: <App />,
-        children: [
           {
             path: "/staff/appointments",
             element: <StaffAppointmentsPage />,

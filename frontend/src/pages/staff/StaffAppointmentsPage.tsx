@@ -37,7 +37,7 @@ export default function StaffAppointmentsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto mt-10 px-10 animate-in fade-in slide-in-from-bottom-10 duration-500">
+    <div className="max-w-6xl mx-auto mt-10 px-2 animate-in fade-in slide-in-from-bottom-10 duration-500">
       <StaffAppointmentsHeaderSection />
 
       <StaffAppointmentsTabsSection
