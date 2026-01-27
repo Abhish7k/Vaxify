@@ -48,7 +48,7 @@ export function FAQSection() {
   return (
     <section className="py-32">
       {/* CENTERED WRAPPER */}
-      <div className="mx-auto max-w-6xl px-6 space-y-16">
+      <div className="mx-auto max-w-2xl px-6 space-y-16">
 
         {/* CENTERED HEADING */}
         <div className="mb-12 text-center">
