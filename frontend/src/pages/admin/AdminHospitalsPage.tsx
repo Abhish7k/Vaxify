@@ -39,7 +39,7 @@ const AdminHospitalsPage = () => {
   };
 
   return (
-    <div className="px-10 py-5 flex flex-col gap-10">
+    <div className="px-5 py-5 flex flex-col gap-10">
       {/* header */}
       <AdminHospitalsHeaderSection />
 

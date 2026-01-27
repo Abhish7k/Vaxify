@@ -4,7 +4,7 @@ export const mockHospitals: AdminHospital[] = [
   {
     id: "hosp-1",
     name: "City Health Hospital",
-    address: "MG Road, Bangalore",
+    address: "MG Road, Pune",
     staffName: "Ramesh Kumar",
     staffEmail: "ramesh@cityhealth.com",
     status: "PENDING",
@@ -12,7 +12,7 @@ export const mockHospitals: AdminHospital[] = [
   {
     id: "hosp-2",
     name: "Apollo Care Center",
-    address: "Indiranagar, Bangalore",
+    address: "Indiranagar, Pune",
     staffName: "Anita Verma",
     staffEmail: "anita@apollo.com",
     status: "APPROVED",
@@ -20,7 +20,7 @@ export const mockHospitals: AdminHospital[] = [
   {
     id: "hosp-3",
     name: "Green Life Hospital",
-    address: "Whitefield, Bangalore",
+    address: "Kothrud, Pune",
     staffName: "Kunal Mehta",
     staffEmail: "kunal@greenlife.com",
     status: "APPROVED",

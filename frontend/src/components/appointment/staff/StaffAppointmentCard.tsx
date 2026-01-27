@@ -27,7 +27,7 @@ export default function StaffAppointmentCard({
       <Card className="hover:shadow-md transition-shadow">
         <CardContent className="px-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
-            {/* Name */}
+            {/* name */}
             <div className="flex items-center gap-3 md:min-w-40">
               <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
                 <User className="h-4 w-4 text-primary" />
