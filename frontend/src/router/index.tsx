@@ -83,6 +83,10 @@ export const router = createBrowserRouter([
             path: "/dashboard",
             element: <UserDashboard />,
           },
+          {
+            path: "/appointments",
+            element: <MyAppointmentsPage />,
+          },
         ],
       },
       {
@@ -99,10 +103,6 @@ export const router = createBrowserRouter([
           {
             path: "/appointments/book/success",
             element: <BookingSuccessPage />,
-          },
-          {
-            path: "/appointments",
-            element: <MyAppointmentsPage />,
           },
         ],
       },

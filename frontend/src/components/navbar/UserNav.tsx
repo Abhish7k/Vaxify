@@ -54,9 +54,10 @@ const UserNav = () => {
           <DropdownMenuSeparator />
 
           {items.map((item, idx) => (
-            <Link to={item.href} key={idx} className="flex gap-2 items-center">
-              <DropdownMenuItem className="hover:bg-gray-100 transition-all w-full cursor-pointer">
-                <item.icon className="text-xl" />
+            <Link to={item.href} key={idx} className="">
+              <DropdownMenuItem className="flex gap-2 items-center hover:bg-gray-100 transition-all w-full cursor-pointer">
+                <item.icon className="size-4" />
+
                 {item.name}
               </DropdownMenuItem>
             </Link>
@@ -65,10 +66,10 @@ const UserNav = () => {
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            className="hover:bg-gray-100 transition-all w-full cursor-pointer"
+            className="flex gap-2 items-center hover:bg-gray-100 transition-all w-full cursor-pointer"
             onClick={handleLogout}
           >
-            <LogOut className="text-xl" />
+            <LogOut className="size-4" />
             Logout
           </DropdownMenuItem>
         </DropdownMenuContent>

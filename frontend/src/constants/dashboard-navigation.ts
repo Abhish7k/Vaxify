@@ -51,11 +51,6 @@ export const DashboardRoleBasedNavigationLinks = {
           path: "/settings",
           icon: Settings,
         },
-        {
-          label: "Help & Support",
-          path: "/support",
-          icon: HelpCircle,
-        },
       ],
     },
   ],

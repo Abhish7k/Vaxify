@@ -104,7 +104,7 @@ export default function UserDashboard() {
 
       {/* bottom section */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {/* Recent Appointments */}
+        {/* recent appointments */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl">
@@ -188,7 +188,7 @@ const QuickActionItems = [
   },
   {
     name: "View Appointments",
-    link: "/my-appointments",
+    link: "/appointments",
   },
   {
     name: "Find Centers",
