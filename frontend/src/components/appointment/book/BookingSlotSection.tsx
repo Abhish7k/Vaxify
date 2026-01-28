@@ -1,31 +1,45 @@
 import { AppointmentScheduler } from "@/components/ui/appointment-scheduler";
 import { useEffect } from "react";
+import type { TimeSlot } from "@/types/appointment";
 
 type Props = {
   selectedDate: string | null;
   selectedSlot: string | null;
+  availableSlots: TimeSlot[];
   onDateSelect: (date: string) => void;
   onSlotSelect: (slot: string) => void;
   onResetSlot: () => void;
+  isLoadingSlots?: boolean;
 };
 
 export default function BookingDateAndSlotSection({
+  selectedDate,
+  availableSlots,
   onDateSelect,
   onSlotSelect,
   onResetSlot,
+  isLoadingSlots,
 }: Props) {
   useEffect(() => {
-    const today = new Date();
+    // defaults to today if not selected
+    if (!selectedDate) {
+      const today = new Date();
 
-    onDateSelect(today.toISOString());
-
-    onResetSlot();
-
+      onDateSelect(today.toISOString());
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="w-fit">
+    <div className="w-fit relative">
+      {isLoadingSlots && (
+        <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px] rounded-lg border border-dashed border-gray-200">
+          <p className="text-xs text-primary font-medium animate-pulse bg-white px-3 py-1 rounded-full border shadow-sm">
+            Fetching slots...
+          </p>
+        </div>
+      )}
+
       {/* scheduler */}
       <AppointmentScheduler
         userName="Vaxify"
@@ -34,7 +48,7 @@ export default function BookingDateAndSlotSection({
         duration="1 hour"
         timezone="IST"
         availableDates={availableDates}
-        timeSlots={timeSlots}
+        timeSlots={availableSlots}
         onDateSelect={(day) => {
           const date = new Date();
           date.setDate(day);
@@ -48,20 +62,6 @@ export default function BookingDateAndSlotSection({
 }
 
 const availableDates = generateAvailableDates();
-const timeSlots = generateTimeSlots();
-
-function generateTimeSlots() {
-  const slots = [];
-
-  for (let hour = 9; hour < 18; hour++) {
-    slots.push({
-      time: `${hour.toString().padStart(2, "0")}:00`,
-      available: true,
-    });
-  }
-
-  return slots;
-}
 
 function generateAvailableDates() {
   const today = new Date();

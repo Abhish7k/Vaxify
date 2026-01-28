@@ -2,12 +2,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import GoBackButton from "@/components/ui/go-back-button";
-import { CheckCircle } from "lucide-react";
-import { useEffect } from "react";
+import { CheckCircle, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { appointmentApi } from "@/api/appointment.api";
 
 export default function BookingSummaryPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
+
+  const [isBooking, setIsBooking] = useState(false);
 
   // route protection
   useEffect(() => {
@@ -20,23 +23,35 @@ export default function BookingSummaryPage() {
 
   const { center, vaccine, date, slot } = state;
 
-  const handleConfirmBooking = () => {
-    // simulate backend response
-    const appointmentId = `APT-${Date.now()}`;
+  const handleConfirmBooking = async () => {
+    try {
+      setIsBooking(true);
 
-    navigate("/appointments/book/success", {
-      state: {
-        appointmentId,
-        center,
-        vaccine,
+      const request = {
+        centerId: center.id,
+        vaccineId: vaccine.id,
         date,
         slot,
-      },
-      replace: true,
-    });
+      };
 
-    // later:
-    // await bookAppointment(payload)
+      const appointment = await appointmentApi.bookAppointment(request);
+
+      navigate("/appointments/book/success", {
+        state: {
+          appointmentId: appointment.id,
+          center,
+          vaccine,
+          date,
+          slot,
+        },
+        replace: true,
+      });
+    } catch (error) {
+      console.error("Booking failed", error);
+      // could add toast error here
+    } finally {
+      setIsBooking(false);
+    }
   };
 
   return (
@@ -70,8 +85,13 @@ export default function BookingSummaryPage() {
         <Button
           className="text-xs sm:text-sm gap-2 cursor-pointer active:scale-95 transition-all"
           onClick={handleConfirmBooking}
+          disabled={isBooking}
         >
-          <CheckCircle className="size-3.5 sm:size-4" />
+          {isBooking ? (
+            <Loader2 className="size-3.5 sm:size-4 animate-spin" />
+          ) : (
+            <CheckCircle className="size-3.5 sm:size-4" />
+          )}
           Confirm Appointment
         </Button>
       </div>

@@ -4,10 +4,14 @@ import BookingHeaderSection from "@/components/appointment/book/BookingHeaderSec
 import CenterNotFound from "@/components/centers/center-details/CenterNotFound";
 
 import { centersData } from "@/constants/centers-mock-data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BookingDateAndSlotSection from "@/components/appointment/book/BookingSlotSection";
 import VaccineSelectionSection from "@/components/appointment/book/VaccineSelectionSection";
 import ConfirmBookingFooter from "@/components/appointment/book/ConfirmBookingFooter";
+import { vaccineApi } from "@/api/vaccine.api";
+import { appointmentApi } from "@/api/appointment.api";
+import type { Vaccine } from "@/types/vaccine";
+import type { TimeSlot } from "@/types/appointment";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -32,17 +36,64 @@ const fixedItemVariants = {
 
 const AppointmentBookingPage = () => {
   const { centerId } = useParams();
-
   const navigate = useNavigate();
+
+  // state
+  const [vaccines, setVaccines] = useState<Vaccine[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(
     null,
   );
-
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   const center = centersData.find((c) => c.id === centerId);
+
+  // fetch vaccines on mount
+  useEffect(() => {
+    if (!center) return;
+
+    const fetchVaccines = async () => {
+      try {
+        const allVaccines = await vaccineApi.getVaccines();
+
+        // filter vaccines available at this center
+        const centerVaccines = allVaccines.filter((v) =>
+          center.availableVaccines.includes(v.name),
+        );
+        setVaccines(centerVaccines);
+      } catch (error) {
+        console.error("failed to fetch vaccines", error);
+      }
+    };
+
+    fetchVaccines();
+  }, [center]);
+
+  // fetch slots when date changes
+  useEffect(() => {
+    if (!centerId || !selectedDate) return;
+
+    const fetchSlots = async () => {
+      try {
+        setIsLoadingSlots(true);
+
+        const slots = await appointmentApi.getSlots(centerId, selectedDate);
+
+        setAvailableSlots(slots);
+      } catch (error) {
+        console.error("failed to fetch slots", error);
+
+        setAvailableSlots([]);
+      } finally {
+        setIsLoadingSlots(false);
+      }
+    };
+
+    fetchSlots();
+  }, [centerId, selectedDate]);
 
   if (!center) {
     return <CenterNotFound />;
@@ -79,11 +130,18 @@ const AppointmentBookingPage = () => {
       <div className="flex flex-col md:flex-row justify-between gap-10 px-5 mt-16 mb-32">
         <motion.div className="w-full" variants={itemVariants}>
           <VaccineSelectionSection
-            vaccines={vaccines}
+            vaccines={vaccines.map((v) => ({
+              id: v.id,
+              name: v.name,
+              description: v.type, // mapping type to description for ui
+            }))}
             selectedVaccineId={selectedVaccineId}
             onSelect={(id) => {
               setSelectedVaccineId(id);
-              setSelectedDate(null);
+
+              // do not reset date, but maybe reset slot
+              // keeping date is better ux
+
               setSelectedSlot(null);
             }}
           />
@@ -93,12 +151,14 @@ const AppointmentBookingPage = () => {
           <BookingDateAndSlotSection
             selectedDate={selectedDate}
             selectedSlot={selectedSlot}
+            availableSlots={availableSlots}
             onDateSelect={(date) => {
               setSelectedDate(date);
               setSelectedSlot(null);
             }}
             onSlotSelect={setSelectedSlot}
             onResetSlot={() => setSelectedSlot(null)}
+            isLoadingSlots={isLoadingSlots}
           />
         </motion.div>
       </div>
@@ -117,16 +177,3 @@ const AppointmentBookingPage = () => {
 };
 
 export default AppointmentBookingPage;
-
-const vaccines = [
-  {
-    id: "covishield",
-    name: "Covishield",
-    description: "AstraZeneca-based COVID-19 vaccine",
-  },
-  {
-    id: "covaxin",
-    name: "Covaxin",
-    description: "Inactivated virus COVID-19 vaccine",
-  },
-];
