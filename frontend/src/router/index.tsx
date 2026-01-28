@@ -6,6 +6,7 @@ import RegisterPage from "@/pages/auth/RegisterPage";
 import RegisterUser from "@/pages/auth/RegisterUser";
 import RegisterStaff from "@/pages/auth/RegisterStaff";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { PublicRoute } from "./PublicRoute";
 import UserDashboard from "@/pages/user/UserDashboard";
 import DashboardLayout from "@/components/dashboards/DashboardLayout";
 import { NotFoundPage } from "@/pages/NotFoundPage";
@@ -54,23 +55,28 @@ export const router = createBrowserRouter([
 
   // for auth
   {
-    element: <AuthLayout />,
+    element: <PublicRoute />,
     children: [
       {
-        path: "/login",
-        element: <LoginPage />,
-      },
-      {
-        path: "/register",
-        element: <RegisterPage />,
-      },
-      {
-        path: "/register/user",
-        element: <RegisterUser />,
-      },
-      {
-        path: "/register/staff",
-        element: <RegisterStaff />,
+        element: <AuthLayout />,
+        children: [
+          {
+            path: "/login",
+            element: <LoginPage />,
+          },
+          {
+            path: "/register",
+            element: <RegisterPage />,
+          },
+          {
+            path: "/register/user",
+            element: <RegisterUser />,
+          },
+          {
+            path: "/register/staff",
+            element: <RegisterStaff />,
+          },
+        ],
       },
     ],
   },
