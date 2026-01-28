@@ -53,7 +53,8 @@ export const FileDropzone = ({
 
         toast.success("Document uploaded successfully");
       } catch (error) {
-        toast.error("Upload failed");
+        toast.error("Document upload failed");
+
         console.error(error);
       } finally {
         setLoading(false);

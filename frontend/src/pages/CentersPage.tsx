@@ -4,6 +4,26 @@ import CentersPageControlsSection from "@/components/centers/centers-page/contro
 import type { SortOption } from "@/components/centers/centers-page/control-section/CentersSort";
 import { centersData, type Center } from "@/constants/centers-mock-data";
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: -20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" as const },
+  },
+};
 
 export default function CentersPage() {
   const [search, setSearch] = useState("");
@@ -46,20 +66,29 @@ export default function CentersPage() {
   }, [search, selectedVaccines, sort]);
 
   return (
-    <div className="max-w-7xl mx-auto px-5">
-      <CenterPageHeader />
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="max-w-7xl mx-auto px-5 mb-20"
+    >
+      <motion.div variants={item}>
+        <CenterPageHeader />
+      </motion.div>
 
-      <CentersPageControlsSection
-        search={search}
-        onSearchChange={setSearch}
-        vaccines={allVaccines}
-        selectedVaccines={selectedVaccines}
-        onVaccinesChange={setSelectedVaccines}
-        sort={sort}
-        onSortChange={setSort}
-      />
+      <motion.div variants={item}>
+        <CentersPageControlsSection
+          search={search}
+          onSearchChange={setSearch}
+          vaccines={allVaccines}
+          selectedVaccines={selectedVaccines}
+          onVaccinesChange={setSelectedVaccines}
+          sort={sort}
+          onSortChange={setSort}
+        />
+      </motion.div>
 
       <CentersPageListSection centers={filteredCenters} />
-    </div>
+    </motion.div>
   );
 }
