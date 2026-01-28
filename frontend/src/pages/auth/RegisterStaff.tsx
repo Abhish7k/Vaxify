@@ -6,12 +6,36 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/auth/useAuth";
 
-const staffRegisterSchema = z
+import { useAuth } from "@/auth/useAuth";
+import { StaffDetailsStep } from "@/components/auth/StaffDetailsStep";
+import { HospitalDetailsStep } from "@/components/auth/HospitalDetailsStep";
+
+// staff details schema
+const step1Schema = z
+  .object({
+    firstName: z.string().min(2, "First name must be at least 2 characters"),
+    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+
+    phone: z
+      .string()
+      .regex(/^(\+91)?[6-9]\d{9}$/, "Enter a valid Indian phone number"),
+
+    email: z.email("Enter a valid email address"),
+
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+// hospital details schema
+// we repeat staff fields here because step 2 is the final step.
+// when the user submits the form on step 2, we want to validate everything
+const step2Schema = z
   .object({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
@@ -26,21 +50,29 @@ const staffRegisterSchema = z
     confirmPassword: z.string(),
 
     hospitalName: z.string().min(2, "Hospital name is required"),
+
     hospitalAddress: z.string().min(5, "Hospital address is required"),
+
     hospitalRegistrationId: z
       .string()
       .min(3, "Hospital registration ID is required"),
 
-    document: z.any().optional(),
+    document: z
+      .any()
+      .refine(
+        (files) => files?.length >= 1,
+        "Verification document is required",
+      ),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
-type StaffRegisterForm = z.infer<typeof staffRegisterSchema>;
+type StaffRegisterForm = z.infer<typeof step2Schema>;
 
 const RegisterStaff = () => {
+  const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
   const { registerStaff } = useAuth();
@@ -48,17 +80,50 @@ const RegisterStaff = () => {
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors },
   } = useForm<StaffRegisterForm>({
-    resolver: zodResolver(staffRegisterSchema),
+    // we want switch the validation schema based on the current step
+    // - if on step 1, we only check staff details step1Schema
+    // - if on step 2, we check everything step2Schema
+
+    resolver: zodResolver(step === 1 ? step1Schema : step2Schema) as any,
+    mode: "onSubmit",
   });
 
+  const onNext = async () => {
+    // we strictly validate only the fields present in step 1
+    // trigger returns true if these fields are valid, allowing us to proceed
+    // if we didn't do this, the user could skip step 1 without entering data
+
+    const step1Fields: (keyof StaffRegisterForm)[] = [
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "password",
+      "confirmPassword",
+    ];
+
+    const isStep1Valid = await trigger(step1Fields);
+
+    if (isStep1Valid) {
+      setStep(2);
+    }
+  };
+
+  const onPrev = () => {
+    setStep(1);
+  };
+
+  // on submit func
   const onSubmit = async (data: StaffRegisterForm) => {
     setIsLoading(true);
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 700));
 
+      // destructure data to format it for the backend api
       const {
         firstName,
         lastName,
@@ -70,6 +135,7 @@ const RegisterStaff = () => {
         hospitalRegistrationId,
       } = data;
 
+      // payload to match the expected api structure
       const registerStaffPayload = {
         user: {
           firstName,
@@ -88,8 +154,6 @@ const RegisterStaff = () => {
       await registerStaff(registerStaffPayload);
 
       toast.success("Registration submitted for approval");
-
-      console.log("payload -> ", registerStaffPayload);
     } catch (error) {
       toast.error("Staff Registration failed");
       console.log("register staff failed with error: ", error);
@@ -99,190 +163,95 @@ const RegisterStaff = () => {
   };
 
   return (
-    <Card className="border-none shadow-none">
-      <CardHeader className="pb-6">
+    <Card className="mx-auto w-full max-w-md">
+      <CardHeader>
         <CardTitle className="text-xl text-center">
           Hospital Staff Registration
         </CardTitle>
 
         <p className="text-sm text-center text-muted-foreground">
-          Register your hospital to manage vaccination centers
+          Step {step} of 2: {step === 1 ? "Staff Details" : "Hospital Details"}
         </p>
+
+        {/* progress indicator */}
+        <div className="flex justify-center gap-2 mt-2">
+          <div
+            className={`h-1 w-12 rounded-full transition-colors ${
+              step >= 1 ? "bg-primary" : "bg-muted"
+            }`}
+          />
+          <div
+            className={`h-1 w-12 rounded-full transition-colors ${
+              step >= 2 ? "bg-primary" : "bg-muted"
+            }`}
+          />
+        </div>
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-          {/* staff details */}
-          <section className="space-y-6">
-            <h3 className="text-sm font-semibold text-foreground">
-              Staff Details
-            </h3>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* step 1 - staff details */}
+          {step === 1 && (
+            <StaffDetailsStep register={register} errors={errors} />
+          )}
 
-            <div className="grid grid-cols-2 gap-5">
-              <div className="space-y-2">
-                <Label>First Name</Label>
+          {/* step 2 - hospital details */}
+          {step === 2 && (
+            <HospitalDetailsStep register={register} errors={errors} />
+          )}
 
-                <Input {...register("firstName")} />
+          {/* actions */}
+          <div className="space-y-4 pt-4">
+            <div className="flex gap-3">
+              {step === 2 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onPrev}
+                  className="w-1/3"
+                >
+                  Back
+                </Button>
+              )}
 
-                {errors.firstName && (
-                  <p className="text-sm text-red-500">
-                    {errors.firstName.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Last Name</Label>
-
-                <Input {...register("lastName")} />
-
-                {errors.lastName && (
-                  <p className="text-sm text-red-500">
-                    {errors.lastName.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Email</Label>
-
-              <Input type="email" {...register("email")} />
-
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
+              {step === 1 ? (
+                <Button
+                  type="button"
+                  onClick={onNext}
+                  className="w-full"
+                  size="lg"
+                >
+                  Next Step
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  size="lg"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <LoaderCircle className="animate-spin" />
+                      Submitting...
+                    </span>
+                  ) : (
+                    "Submit for Approval"
+                  )}
+                </Button>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label>Phone Number</Label>
-
-              <Input placeholder="+91XXXXXXXXXX" {...register("phone")} />
-
-              {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone.message}</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-5">
-              <div className="space-y-2">
-                <Label>Password</Label>
-
-                <Input type="password" {...register("password")} />
-
-                {errors.password && (
-                  <p className="text-sm text-red-500">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Confirm Password</Label>
-
-                <Input type="password" {...register("confirmPassword")} />
-
-                {errors.confirmPassword && (
-                  <p className="text-sm text-red-500">
-                    {errors.confirmPassword.message}
-                  </p>
-                )}
-              </div>
-            </div>
-          </section>
-
-          {/* hospital details */}
-          <section className="space-y-6">
-            <h3 className="text-sm font-semibold text-foreground">
-              Hospital Details
-            </h3>
-
-            <div className="space-y-2">
-              <Label>Hospital Name</Label>
-
-              <Input {...register("hospitalName")} />
-
-              {errors.hospitalName && (
-                <p className="text-sm text-red-500">
-                  {errors.hospitalName.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Hospital Address</Label>
-
-              <Input {...register("hospitalAddress")} />
-
-              {errors.hospitalAddress && (
-                <p className="text-sm text-red-500">
-                  {errors.hospitalAddress.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Hospital Registration ID</Label>
-
-              <Input {...register("hospitalRegistrationId")} />
-
-              {errors.hospitalRegistrationId && (
-                <p className="text-sm text-red-500">
-                  {errors.hospitalRegistrationId.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Verification Document</Label>
-
-              <Input
-                type="file"
-                accept=".pdf,.jpg,.png"
-                {...register("document")}
-              />
-
-              <p className="text-xs text-muted-foreground">
-                Upload hospital registration proof or authorization letter
-              </p>
-            </div>
-          </section>
-
-          {/* submit */}
-          <Button
-            type="submit"
-            className="w-full cursor-pointer"
-            size="lg"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <LoaderCircle className="animate-spin" />
-                Submitting...
-              </span>
-            ) : (
-              "Submit for Approval"
-            )}
-          </Button>
-
-          {/* approval note */}
-          <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-4">
-            <p className="text-sm text-amber-700">
-              <strong>Note:</strong> Your account will remain in an approval
-              phase until verified by the system administrator.
+            <p className="text-center text-sm text-muted-foreground">
+              Already registered?{" "}
+              <Link
+                to="/login"
+                className="text-primary font-medium hover:underline"
+              >
+                Sign In
+              </Link>
             </p>
           </div>
-
-          {/*  */}
-          <p className="text-center text-sm text-muted-foreground">
-            Already registered?{" "}
-            <Link
-              to="/login"
-              className="text-indigo-600 font-medium hover:underline"
-            >
-              Sign In
-            </Link>
-          </p>
         </form>
       </CardContent>
     </Card>

@@ -22,7 +22,7 @@ const QuickDemoLogins = () => {
         Quick Demo Logins
       </p>
 
-      <div className="flex flex-col gap-2 items-center w-fit mx-auto">
+      <div className="flex flex-col md:flex-row gap-2 items-center w-fit mx-auto">
         {demoAccounts.map(({ email, role, icon: Icon }) => (
           <Button
             key={email}
