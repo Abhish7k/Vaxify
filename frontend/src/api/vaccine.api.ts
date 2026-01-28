@@ -1,16 +1,28 @@
 import type { UpdateStockRequest, Vaccine } from "@/types/vaccine";
 
-// todo: replace mock data with actual data
-// todo: implement actual api calls
+import { API_CONFIG } from "@/api/api.config";
+import api from "./axios";
 
 export const vaccineApi = {
   // get all vaccines
   getVaccines: async (): Promise<Vaccine[]> => {
-    try {
+    // check config for mock mode
+    if (API_CONFIG.USE_MOCKS || API_CONFIG.MODULES.VACCINE) {
+      console.log("[Mock API] Fetching vaccines...");
+
       await new Promise((resolve) => setTimeout(resolve, 500));
+
       return [...mockVaccines];
+    }
+
+    // real api call
+    try {
+      const response = await api.get<Vaccine[]>("/vaccines");
+
+      return response.data;
     } catch (error) {
-      console.error("Error fetching vaccines:", error);
+      console.error("Error fetching vaccines from API:", error);
+
       throw error;
     }
   },
@@ -19,66 +31,93 @@ export const vaccineApi = {
   addVaccine: async (
     vaccine: Omit<Vaccine, "id" | "lastUpdated">,
   ): Promise<Vaccine> => {
-    try {
+    if (API_CONFIG.USE_MOCKS || API_CONFIG.MODULES.VACCINE) {
+      console.log("[Mock API] Adding vaccine...", vaccine);
+
       await new Promise((resolve) => setTimeout(resolve, 500));
+
       const newVaccine: Vaccine = {
         ...vaccine,
+
         id: `v${mockVaccines.length + 1}`,
+
         lastUpdated: new Date().toISOString(),
       };
       mockVaccines.push(newVaccine);
+
       return newVaccine;
-    } catch (error) {
-      console.error("Error adding vaccine:", error);
-      throw error;
     }
+
+    const response = await api.post<Vaccine>("/vaccines", vaccine);
+    return response.data;
   },
 
   // update stock
   updateStock: async (request: UpdateStockRequest): Promise<Vaccine> => {
-    try {
+    if (API_CONFIG.USE_MOCKS || API_CONFIG.MODULES.VACCINE) {
+      console.log("[Mock API] Updating stock...", request);
+
       await new Promise((resolve) => setTimeout(resolve, 500));
+
       const index = mockVaccines.findIndex((v) => v.id === request.vaccineId);
+
       if (index === -1) {
         throw new Error("Vaccine not found");
       }
 
       mockVaccines[index] = {
         ...mockVaccines[index],
+
         stock: request.quantity,
+
         lastUpdated: new Date().toISOString(),
       };
+
       return mockVaccines[index];
-    } catch (error) {
-      console.error("Error updating stock:", error);
-      throw error;
     }
+
+    const response = await api.patch<Vaccine>(
+      `/vaccines/${request.vaccineId}/stock`,
+
+      { stock: request.quantity },
+    );
+
+    return response.data;
   },
 
   // delete vaccine
   deleteVaccine: async (id: string): Promise<void> => {
-    try {
+    if (API_CONFIG.USE_MOCKS || API_CONFIG.MODULES.VACCINE) {
+      console.log("[Mock API] Deleting vaccine...", id);
+
       await new Promise((resolve) => setTimeout(resolve, 500));
+
       const index = mockVaccines.findIndex((v) => v.id === id);
+
       if (index === -1) {
         throw new Error("Vaccine not found");
       }
+
       mockVaccines.splice(index, 1);
-    } catch (error) {
-      console.error("Error deleting vaccine:", error);
-      throw error;
+
+      return;
     }
+
+    await api.delete(`/vaccines/${id}`);
   },
 
   // get low stock alerts
   getLowStockAlerts: async (): Promise<Vaccine[]> => {
-    try {
+    if (API_CONFIG.USE_MOCKS || API_CONFIG.MODULES.VACCINE) {
+      // simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 500));
+
       return mockVaccines.filter((v) => v.stock / v.capacity < 0.5);
-    } catch (error) {
-      console.error("Error fetching low stock alerts:", error);
-      throw error;
     }
+
+    const response = await api.get<Vaccine[]>("/vaccines/alerts");
+
+    return response.data;
   },
 };
 

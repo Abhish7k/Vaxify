@@ -26,8 +26,9 @@ export const useAuth = () => {
 
     const { token, user } = response;
 
-    // persist the jwt token
+    // persist the jwt token & user
     localStorage.setItem("token", token);
+    localStorage.setItem("storedUser", JSON.stringify(user));
 
     // update the auth context with user
     setAuthUser(user);
@@ -37,8 +38,9 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    // remove jwt token
+    // remove jwt token & user
     localStorage.removeItem("token");
+    localStorage.removeItem("storedUser");
 
     // clear auth context
     setAuthUser(null);

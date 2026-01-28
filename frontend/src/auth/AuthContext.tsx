@@ -36,8 +36,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     } catch (error) {
       console.error("Failed to parse stored user", error);
+
       localStorage.removeItem("token");
-      localStorage.removeItem("user");
+
+      localStorage.removeItem("storedUser");
     } finally {
       setLoading(false);
     }

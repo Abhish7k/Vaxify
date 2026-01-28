@@ -1,10 +1,12 @@
+import { hospitalApi } from "@/api/hospital.api";
 import CenterPageHeader from "@/components/centers/centers-page/CenterPageHeader";
 import CentersPageListSection from "@/components/centers/centers-page/CentersPageListSection";
 import CentersPageControlsSection from "@/components/centers/centers-page/control-section/CentersPageControlsSection";
 import type { SortOption } from "@/components/centers/centers-page/control-section/CentersSort";
-import { centersData, type Center } from "@/constants/centers-mock-data";
-import { useMemo, useState } from "react";
+import { type Center } from "@/constants/centers-mock-data";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -26,17 +28,39 @@ const item = {
 };
 
 export default function CentersPage() {
+  const [centers, setCenters] = useState<Center[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [search, setSearch] = useState("");
   const [selectedVaccines, setSelectedVaccines] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>("name-asc");
 
+  // fetch centers on mount
+  useEffect(() => {
+    const fetchCenters = async () => {
+      try {
+        setIsLoading(true);
+
+        const data = await hospitalApi.getAllHospitals();
+
+        setCenters(data);
+      } catch (error) {
+        console.error("Failed to fetch centers:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCenters();
+  }, []);
+
   const allVaccines = useMemo(
-    () => Array.from(new Set(centersData.flatMap((c) => c.availableVaccines))),
-    [],
+    () => Array.from(new Set(centers.flatMap((c) => c.availableVaccines))),
+    [centers],
   );
 
   const filteredCenters: Center[] = useMemo(() => {
-    let data = [...centersData];
+    let data = [...centers];
 
     // search filter
     if (search.trim()) {
@@ -63,7 +87,15 @@ export default function CentersPage() {
     );
 
     return data;
-  }, [search, selectedVaccines, sort]);
+  }, [centers, search, selectedVaccines, sort]);
+
+  if (isLoading) {
+    return (
+      <div className="flex bg-slate-50 dark:bg-slate-900 h-screen items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <motion.div
