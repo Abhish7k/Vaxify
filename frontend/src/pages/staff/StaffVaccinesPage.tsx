@@ -5,21 +5,34 @@ import { getVaccineColumns } from "@/components/dashboards/staff/vaccines/Vaccin
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { useSidebar } from "@/components/ui/sidebar";
-import { Plus, RefreshCcw, Syringe } from "lucide-react";
+import { RefreshCcw, Syringe } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AddVaccineDialog } from "@/components/dashboards/staff/vaccines/AddVaccineDialog";
+import { DeleteVaccineDialog } from "@/components/dashboards/staff/vaccines/DeleteVaccineDialog";
+import { UpdateStockDialog } from "@/components/dashboards/staff/vaccines/UpdateStockDialog";
+import { toast } from "sonner";
 
 export default function StaffVaccinesPage() {
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
   const [loading, setLoading] = useState(false);
+  const [vaccineToDelete, setVaccineToDelete] = useState<Vaccine | null>(null);
+  const [vaccineToUpdate, setVaccineToUpdate] = useState<Vaccine | null>(null);
 
   const fetchVaccines = async () => {
     setLoading(true);
     try {
       const data = await vaccineApi.getVaccines();
+
       setVaccines(data);
     } catch (error) {
       console.error("Fetch failed", error);
+
+      toast.error("Failed to fetch vaccines", {
+        style: {
+          backgroundColor: "#ffe5e5",
+          color: "#b00000",
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -31,9 +44,10 @@ export default function StaffVaccinesPage() {
     fetchVaccines();
   }, []);
 
-  // auto-close sidebar on smaller screens for this page
+  // auto-close sidebar on smaller screens for better ux
   useEffect(() => {
     const handleResize = () => {
+      // close sidebar if screen width < 1300px
       if (window.innerWidth < 1300) {
         setOpen(false);
       } else {
@@ -47,11 +61,12 @@ export default function StaffVaccinesPage() {
     return () => window.removeEventListener("resize", handleResize);
   }, [setOpen]);
 
+  // memoize columns to prevent unnecessary re-renders
   const columns = useMemo(
     () =>
       getVaccineColumns({
-        onUpdate: (v: Vaccine) => console.log("Update", v),
-        onDelete: (v: Vaccine) => console.log("Delete", v),
+        onUpdate: (v: Vaccine) => setVaccineToUpdate(v),
+        onDelete: (v: Vaccine) => setVaccineToDelete(v),
       }),
     [],
   );
@@ -110,6 +125,18 @@ export default function StaffVaccinesPage() {
           )}
         </CardContent>
       </Card>
+
+      <DeleteVaccineDialog
+        vaccine={vaccineToDelete}
+        onClose={() => setVaccineToDelete(null)}
+        onSuccess={fetchVaccines}
+      />
+
+      <UpdateStockDialog
+        vaccine={vaccineToUpdate}
+        onClose={() => setVaccineToUpdate(null)}
+        onSuccess={fetchVaccines}
+      />
     </div>
   );
 }
