@@ -48,7 +48,6 @@ export default function BookingSummaryPage() {
       });
     } catch (error) {
       console.error("Booking failed", error);
-      // could add toast error here
     } finally {
       setIsBooking(false);
     }

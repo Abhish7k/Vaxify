@@ -9,12 +9,14 @@ type Props = {
   appointment: Appointment;
   onViewCenter: () => void;
   onCancel: () => void;
+  onViewTicket: () => void;
 };
 
 export default function AppointmentCard({
   appointment,
   onViewCenter,
   onCancel,
+  onViewTicket,
 }: Props) {
   return (
     <div className="w-full">
@@ -70,13 +72,23 @@ export default function AppointmentCard({
 
           {/* actions stay unchanged */}
           <div className="mt-10 flex items-center justify-between">
-            <Button
-              variant="link"
-              className="px-0 cursor-pointer"
-              onClick={onViewCenter}
-            >
-              View center
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="link"
+                className="px-0 cursor-pointer"
+                onClick={onViewCenter}
+              >
+                View center
+              </Button>
+
+              <Button
+                variant="link"
+                className="px-0 cursor-pointer text-muted-foreground hover:text-primary"
+                onClick={onViewTicket}
+              >
+                View ticket
+              </Button>
+            </div>
 
             {appointment.status === "BOOKED" && (
               <CancelAppointmentDialog

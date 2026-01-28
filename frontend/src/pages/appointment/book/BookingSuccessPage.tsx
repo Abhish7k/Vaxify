@@ -18,8 +18,6 @@ export default function BookingSuccessPage() {
 
   if (!state) return null;
 
-  // const { appointmentId, center, vaccine, date, slot } = state;
-
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <AppointmentBookingSuccess

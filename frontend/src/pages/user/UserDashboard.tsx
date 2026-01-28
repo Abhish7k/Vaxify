@@ -1,9 +1,10 @@
 import {
   CalendarCheck,
   ShieldCheck,
-  FileCheck,
   ListChecks,
   MapPin,
+  Eye,
+  FileCheck,
 } from "lucide-react";
 
 import {
@@ -17,11 +18,24 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { TicketCard } from "@/components/appointment/TicketCard";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 export default function UserDashboard() {
+  const [selectedTicket, setSelectedTicket] = useState<AppointmentMock | null>(
+    null,
+  );
+
   return (
     <div className="space-y-6 px-3 sm:px-4 lg:px-6">
-      {/* Header */}
+      {/* header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
@@ -41,7 +55,7 @@ export default function UserDashboard() {
 
       {/* top Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {/* tpcoming appointment */}
+        {/* upcoming appointment */}
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <div>
@@ -114,43 +128,42 @@ export default function UserDashboard() {
           </CardHeader>
 
           <CardContent className="space-y-3">
-            {[
-              {
-                center: "City Health Center",
-                date: "22 Jan 2026",
-                status: "Scheduled",
-              },
-              {
-                center: "Community Clinic",
-                date: "12 Nov 2025",
-                status: "Completed",
-              },
-              {
-                center: "Urban Care Hospital",
-                date: "05 Sep 2025",
-                status: "Completed",
-              },
-            ].map((appt, idx) => (
+            {recentAppointments.map((appt, idx) => (
               <div
                 key={idx}
-                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-md border p-3"
+                className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-md border p-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full shrink-0">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                  </div>
                   <div>
-                    <p className="text-sm font-medium">{appt.center}</p>
-                    <p className="text-xs text-muted-foreground">{appt.date}</p>
+                    <p className="text-sm font-medium">{appt.centerName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(appt.date).toDateString()} • {appt.slot}
+                    </p>
                   </div>
                 </div>
 
-                <Badge
-                  className="w-fit"
-                  variant={
-                    appt.status === "Completed" ? "outline" : "secondary"
-                  }
-                >
-                  {appt.status}
-                </Badge>
+                <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+                  <Badge
+                    variant={
+                      appt.status === "completed" ? "outline" : "secondary"
+                    }
+                  >
+                    {appt.status}
+                  </Badge>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground cursor-pointer"
+                    title="View Ticket"
+                    onClick={() => setSelectedTicket(appt)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ))}
           </CardContent>
@@ -177,6 +190,37 @@ export default function UserDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ticket dialog */}
+      <Dialog
+        open={!!selectedTicket}
+        onOpenChange={(open) => !open && setSelectedTicket(null)}
+      >
+        <DialogContent className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Vaccination Ticket</DialogTitle>
+          </DialogHeader>
+
+          <DialogDescription></DialogDescription>
+
+          {selectedTicket && (
+            <TicketCard
+              appointmentId={selectedTicket.id}
+              center={{
+                name: selectedTicket.centerName,
+                address: selectedTicket.centerAddress,
+              }}
+              vaccine={{
+                name: selectedTicket.vaccineName,
+              }}
+              date={selectedTicket.date}
+              slot={selectedTicket.slot}
+              status={selectedTicket.status}
+              className="shadow-2xl"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -193,5 +237,45 @@ const QuickActionItems = [
   {
     name: "Find Centers",
     link: "/centers",
+  },
+];
+
+type AppointmentMock = {
+  id: string;
+  centerName: string;
+  centerAddress: string;
+  vaccineName: string;
+  date: string;
+  slot: string;
+  status: "scheduled" | "completed" | "cancelled";
+};
+
+const recentAppointments: AppointmentMock[] = [
+  {
+    id: "APT-12345",
+    centerName: "City Health Center",
+    centerAddress: "MG Road, Pune",
+    vaccineName: "Covishield",
+    date: "2026-01-22T09:00:00.000Z",
+    slot: "09:00 - 10:00",
+    status: "scheduled",
+  },
+  {
+    id: "APT-67890",
+    centerName: "Community Clinic",
+    centerAddress: "Kalyani Nagar, Pune",
+    vaccineName: "Covaxin",
+    date: "2025-11-12T14:30:00.000Z",
+    slot: "14:30 - 15:30",
+    status: "completed",
+  },
+  {
+    id: "APT-11223",
+    centerName: "Urban Care Hospital",
+    centerAddress: "Shivaji Nagar, Pune",
+    vaccineName: "Covishield",
+    date: "2025-09-05T11:00:00.000Z",
+    slot: "11:00 - 12:00",
+    status: "completed",
   },
 ];

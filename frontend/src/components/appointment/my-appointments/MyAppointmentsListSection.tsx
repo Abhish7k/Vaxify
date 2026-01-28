@@ -8,6 +8,7 @@ export default function MyAppointmentsListSection({
   onBrowseCenters,
   onViewCenter,
   onCancelAppointment,
+  onViewTicket,
 }: Props) {
   const filteredAppointments = appointments.filter(
     (appointment) => appointment.status === activeStatus,
@@ -30,6 +31,7 @@ export default function MyAppointmentsListSection({
           appointment={appointment}
           onViewCenter={() => onViewCenter(appointment.centerId)}
           onCancel={() => onCancelAppointment(appointment)}
+          onViewTicket={() => onViewTicket(appointment.id)}
         />
       ))}
     </div>
@@ -53,4 +55,5 @@ type Props = {
   onBrowseCenters: () => void;
   onViewCenter: (centerId: string) => void;
   onCancelAppointment: (appointment: Appointment) => void;
+  onViewTicket: (appointmentId: string) => void;
 };
