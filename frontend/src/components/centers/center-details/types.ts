@@ -12,7 +12,6 @@ export interface CenterData {
   email: string;
   operatingHours: {
     weekdays: string;
-    weekends: string;
   };
   vaccines: Vaccine[];
   description: string;

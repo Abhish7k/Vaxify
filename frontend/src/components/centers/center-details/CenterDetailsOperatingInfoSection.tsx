@@ -20,13 +20,8 @@ const CenterDetailsOperatingInfoSection = ({ center }: Props) => {
           <Separator />
 
           <div>
-            <p className="text-xs text-muted-foreground">Mon – Fri</p>
+            <p className="text-xs text-muted-foreground">Mon – Sat</p>
             <p className="font-medium">{center.operatingHours.weekdays}</p>
-          </div>
-
-          <div>
-            <p className="text-xs text-muted-foreground">Sat – Sun</p>
-            <p className="font-medium">{center.operatingHours.weekends}</p>
           </div>
         </CardContent>
       </Card>

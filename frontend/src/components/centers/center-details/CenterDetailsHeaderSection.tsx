@@ -69,18 +69,23 @@ const CenterDetailsHeaderSection = ({ center }: Props) => {
           </p>
         </div>
 
-        <Card className="sm:w-[80%] md:w-75 transition-all">
+        <Card className="sm:w-[80%] md:w-75 transition-all py-0 group">
           <CardContent className="p-6 sm:p-8 text-center">
-            <Calendar className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-4" />
+            <img
+              src="/icons/calendar.png"
+              alt=""
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 
+              group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300"
+            />
 
-            <h3 className="font-medium mb-2">Ready to get vaccinated?</h3>
+            <h3 className="font-medium mt-2">Ready to get vaccinated ?</h3>
 
             <p className="text-sm text-muted-foreground mb-6">
               Book your appointment in seconds
             </p>
 
             <Button
-              className="md:w-full cursor-pointer active:scale-95 transition-all duration-300 group"
+              className="md:w-full cursor-pointer active:scale-95 transition-all duration-300 group text-sm"
               onClick={handleClick}
             >
               Book Appointment
