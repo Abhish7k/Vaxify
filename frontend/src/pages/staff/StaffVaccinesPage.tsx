@@ -7,6 +7,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Plus, RefreshCcw, Syringe } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { AddVaccineDialog } from "@/components/dashboards/staff/vaccines/AddVaccineDialog";
 
 export default function StaffVaccinesPage() {
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
@@ -79,10 +80,8 @@ export default function StaffVaccinesPage() {
             />
             Refresh
           </Button>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Vaccine
-          </Button>
+
+          <AddVaccineDialog onSuccess={fetchVaccines} />
         </div>
       </div>
 

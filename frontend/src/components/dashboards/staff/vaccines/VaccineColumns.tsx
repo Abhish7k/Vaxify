@@ -97,6 +97,24 @@ export const getVaccineColumns = ({
     },
   },
   {
+    accessorKey: "capacity",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="-ml-4 h-8"
+        >
+          Capacity
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="font-mono">{row.getValue("capacity")}</div>
+    ),
+  },
+  {
     // status badge column
     id: "status",
     header: "Status",
