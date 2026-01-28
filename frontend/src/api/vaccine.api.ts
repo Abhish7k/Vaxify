@@ -1,4 +1,4 @@
-import type { UpdateStockRequest, Vaccine } from "@/types/vaccines";
+import type { UpdateStockRequest, Vaccine } from "@/types/vaccine";
 
 // todo: replace mock data with actual data
 // todo: implement actual api calls
