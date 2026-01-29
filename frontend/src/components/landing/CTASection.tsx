@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 export function CTASection() {
   return (
     <section className="py-12 bg-white mb-20">
-      <div className="mx-auto max-w-[1100px] px-6">
+      <div className="mx-auto max-w-[1000px] px-6">
         <div className="relative overflow-hidden rounded-[40px] border border-slate-100 bg-[#F9FAFB] px-6 pt-10 shadow-sm">
-          {/* TOP INDIGO GRADIENT */}
+          {/* top indigo gradient */}
           <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-70 bg-linear-to-b from-indigo-600/15 via-indigo-600/5 to-transparent" />
 
-          {/* CONTENT */}
+          {/* content */}
           <div className="relative z-20 mx-auto max-w-2xl text-center">
             <motion.h2
               initial={{ opacity: 0, y: 12 }}
@@ -39,7 +39,7 @@ export function CTASection() {
             </motion.div>
           </div>
 
-          {/* DASHBOARD PREVIEW */}
+          {/* dashboard preview */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -47,7 +47,7 @@ export function CTASection() {
             viewport={{ once: false, amount: 0.1 }}
             className="relative z-20 mt-8 flex justify-center"
           >
-            <div className="relative w-full max-w-4xl max-h-[320px] overflow-hidden rounded-t-xl border-x border-t border-slate-200 bg-white p-1 shadow-xl ring-1 ring-slate-950/5">
+            <div className="relative w-full max-w-3xl max-h-[280px] overflow-hidden rounded-t-xl border-x border-t border-slate-200 bg-white p-1 shadow-xl ring-1 ring-slate-950/5">
               <img
                 src="/hero-dash.png"
                 alt="app screen"
