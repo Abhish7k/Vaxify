@@ -109,6 +109,20 @@ function SidebarProvider({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleSidebar]);
 
+  // Toggle sidebar automatically based on 1000px threshold
+  React.useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1000px)");
+    const handler = () => {
+      setOpen(!mql.matches);
+    };
+    mql.addEventListener("change", handler);
+
+    // Initial check
+    setOpen(!mql.matches);
+
+    return () => mql.removeEventListener("change", handler);
+  }, [setOpen]);
+
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed";
