@@ -2,7 +2,7 @@ export type Center = {
   id: string;
   name: string;
   address: string;
-  availableVaccines: string[];
+  availableVaccines?: string[];
 };
 
 export const centersData: Center[] = [

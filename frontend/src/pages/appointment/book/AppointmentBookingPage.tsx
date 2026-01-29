@@ -2,8 +2,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import BookingHeaderSection from "@/components/appointment/book/BookingHeaderSection";
 import CenterNotFound from "@/components/centers/center-details/CenterNotFound";
-
-import { centersData } from "@/constants/centers-mock-data";
+import { LoaderCircle } from "lucide-react";
+import { hospitalApi } from "@/api/hospital.api";
 import { useEffect, useState } from "react";
 import BookingDateAndSlotSection from "@/components/appointment/book/BookingSlotSection";
 import VaccineSelectionSection from "@/components/appointment/book/VaccineSelectionSection";
@@ -12,6 +12,7 @@ import { vaccineApi } from "@/api/vaccine.api";
 import { appointmentApi } from "@/api/appointment.api";
 import type { Vaccine } from "@/types/vaccine";
 import type { TimeSlot } from "@/types/appointment";
+import { type Center } from "@/constants/centers-mock-data";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -39,8 +40,10 @@ const AppointmentBookingPage = () => {
   const navigate = useNavigate();
 
   // state
+  const [center, setCenter] = useState<Center | null>(null);
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(
@@ -49,9 +52,28 @@ const AppointmentBookingPage = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
-  const center = centersData.find((c) => c.id === centerId);
+  // fetch center details
+  useEffect(() => {
+    if (!centerId) return;
 
-  // fetch vaccines on mount
+    const fetchCenter = async () => {
+      try {
+        setIsLoading(true);
+        const data = await hospitalApi.getHospitalById(centerId);
+        if (data) {
+          setCenter(data);
+        }
+      } catch (error) {
+        console.error("failed to fetch center", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCenter();
+  }, [centerId]);
+
+  // fetch vaccines on mount or when center changes
   useEffect(() => {
     if (!center) return;
 
@@ -59,10 +81,14 @@ const AppointmentBookingPage = () => {
       try {
         const allVaccines = await vaccineApi.getVaccines();
 
-        // filter vaccines available at this center
-        const centerVaccines = allVaccines.filter((v) =>
-          center.availableVaccines.includes(v.name),
-        );
+        // if the center has availableVaccines list, filter. Otherwise show all.
+        const centerVaccines =
+          center.availableVaccines && center.availableVaccines.length > 0
+            ? allVaccines.filter((v) =>
+                center.availableVaccines?.includes(v.name),
+              )
+            : allVaccines;
+
         setVaccines(centerVaccines);
       } catch (error) {
         console.error("failed to fetch vaccines", error);
@@ -94,6 +120,14 @@ const AppointmentBookingPage = () => {
 
     fetchSlots();
   }, [centerId, selectedDate]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!center) {
     return <CenterNotFound />;

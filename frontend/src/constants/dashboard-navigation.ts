@@ -75,6 +75,11 @@ export const DashboardRoleBasedNavigationLinks = {
           path: "/staff/alerts",
           icon: AlertTriangle,
         },
+        {
+          label: "My Hospital",
+          path: "/staff/hospital",
+          icon: Hospital,
+        },
       ],
     },
     {

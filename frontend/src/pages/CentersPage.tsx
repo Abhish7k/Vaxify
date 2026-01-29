@@ -55,7 +55,10 @@ export default function CentersPage() {
   }, []);
 
   const allVaccines = useMemo(
-    () => Array.from(new Set(centers.flatMap((c) => c.availableVaccines))),
+    () =>
+      Array.from(
+        new Set(centers.flatMap((c) => c.availableVaccines || [])),
+      ) as string[],
     [centers],
   );
 
@@ -75,7 +78,7 @@ export default function CentersPage() {
     // vaccine filter
     if (selectedVaccines.length > 0) {
       data = data.filter((c) =>
-        selectedVaccines.every((v) => c.availableVaccines.includes(v)),
+        selectedVaccines.every((v) => c.availableVaccines?.includes(v)),
       );
     }
 

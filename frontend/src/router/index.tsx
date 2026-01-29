@@ -29,6 +29,7 @@ import UserProfilePage from "@/pages/user/UserProfilePage";
 import StaffProfilePage from "@/pages/staff/StaffProfilePage";
 import StaffVaccinesPage from "@/pages/staff/StaffVaccinesPage";
 import LowStockAlertsPage from "@/pages/staff/LowStockAlertsPage";
+import MyHospitalPage from "@/pages/staff/MyHospitalPage";
 
 export const router = createBrowserRouter([
   {
@@ -149,6 +150,10 @@ export const router = createBrowserRouter([
           {
             path: "/staff/alerts",
             element: <LowStockAlertsPage />,
+          },
+          {
+            path: "/staff/hospital",
+            element: <MyHospitalPage />,
           },
         ],
       },

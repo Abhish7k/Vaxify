@@ -75,17 +75,18 @@ function SidebarProvider({
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
-      const openState = typeof value === "function" ? value(open) : value;
-      if (setOpenProp) {
-        setOpenProp(openState);
-      } else {
-        _setOpen(openState);
-      }
+      _setOpen((prev) => {
+        const nextOpen = typeof value === "function" ? value(prev) : value;
+        if (setOpenProp) {
+          setOpenProp(nextOpen);
+        }
 
-      // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+        // This sets the cookie to keep the sidebar state.
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=${nextOpen}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+        return nextOpen;
+      });
     },
-    [setOpenProp, open],
+    [setOpenProp],
   );
 
   // Helper to toggle the sidebar.
@@ -109,17 +110,26 @@ function SidebarProvider({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleSidebar]);
 
+  const prevMatches = React.useRef<boolean | null>(null);
+
   // Toggle sidebar automatically based on 1000px threshold
   React.useEffect(() => {
     const mql = window.matchMedia("(max-width: 1000px)");
+
     const handler = () => {
-      setOpen(!mql.matches);
+      if (mql.matches !== prevMatches.current) {
+        setOpen(!mql.matches);
+        prevMatches.current = mql.matches;
+      }
     };
-    mql.addEventListener("change", handler);
 
     // Initial check
-    setOpen(!mql.matches);
+    if (prevMatches.current === null) {
+      setOpen(!mql.matches);
+      prevMatches.current = mql.matches;
+    }
 
+    mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
   }, [setOpen]);
 
