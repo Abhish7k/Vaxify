@@ -40,7 +40,7 @@ export function HowItWorks() {
           <p className="text-[#6366f1] text-[11px] font-mono font-bold mb-1 uppercase tracking-[0.2em]">
             How it works
           </p>
-          <h2 className="text-2xl md:text-4xl font-normal tracking-tight text-slate-900 mb-1">
+          <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-slate-900 mb-1">
             Vaccination Management <br /> in 3 Simple Steps
           </h2>
         </AnimatedGroup>
