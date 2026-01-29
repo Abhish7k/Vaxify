@@ -66,11 +66,11 @@ export function HeroSectionComponent() {
                     </div>
                   </Link>
 
-                  <h1 className="mt-8 max-w-5xl mx-auto text-balance text-4xl md:text-5xl lg:text-6xl lg:mt-16 xl:text-7xl transition-all">
-                    Simplifying Vaccination Management for Everyone{" "}
+                  <h1 className="mt-8 max-w-5xl mx-auto text-balance text-3xl sm:text-5xl lg:text-6xl lg:mt-16 xl:text-7xl transition-all">
+                    Simplifying Vaccination <br /> Management for Everyone{" "}
                   </h1>
 
-                  <p className="mx-auto mt-8 max-w-2xl text-balance text-lg">
+                  <p className="mx-auto mt-8 max-w-2xl text-balance text-sm sm:text-lg">
                     A modern vaccination platform designed to make booking,
                     tracking, and managing vaccinations feel clear, effortless,
                     and dependable
@@ -97,7 +97,7 @@ export function HeroSectionComponent() {
                     className="group relative px-6 py-1.5 flex transform items-center justify-center gap-2 overflow-visible whitespace-nowrap rounded-md text-white bg-indigo-600/80 font-medium transition-all 
           duration-300 hover:ring-2 hover:ring-offset-1 hover:ring-indigo-500 active:scale-90"
                   >
-                    <span className="group relative z-10 flex items-center gap-2 md:text- transition-all">
+                    <span className="group relative z-10 flex items-center gap-2 transition-all">
                       Discover centers
                     </span>
                   </Link>
@@ -118,19 +118,12 @@ export function HeroSectionComponent() {
                 ...transitionVariants,
               }}
             >
-              <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20 z-50">
+              <div className="relative mt-8 overflow-hidden px-4 sm:mt-12 md:mt-20 z-50">
                 <div
                   aria-hidden
                   className="bg-linear-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
                 />
                 <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-2 shadow-lg shadow-zinc-950/15 ring-1">
-                  <img
-                    className="bg-background aspect-15/8 relative hidden rounded-2xl dark:block"
-                    src="/hero-dash.png"
-                    alt="app screen"
-                    width="2700"
-                    height="1440"
-                  />
                   <img
                     className="z-2 border-border/25 aspect-15/8 relative rounded-2xl border dark:hidden"
                     src="/hero-dash.png"
