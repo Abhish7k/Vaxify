@@ -19,10 +19,10 @@ public class SlotRequestDTO {
 
     private Long hospitalId;
     private LocalDate date;
-    @JsonFormat(pattern = "HH:mm")
+    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime startTime;
 
-    @JsonFormat(pattern = "HH:mm")
+    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime endTime;
     private Integer capacity;
     private SlotStatus status;
