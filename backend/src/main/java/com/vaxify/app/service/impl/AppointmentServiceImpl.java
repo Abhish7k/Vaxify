@@ -8,6 +8,7 @@ import com.vaxify.app.entities.enums.SlotStatus;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.repository.*;
 import com.vaxify.app.service.AppointmentService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -142,6 +143,9 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointmentRepository.save(appointment);
         }
 
+        // checks stock levels and sends alerts if low
+        // vaccineService should ideally own this, but kept here for now per request
+        // triggers on stock updates
         private AppointmentResponse mapToResponse(Appointment a) {
                 return AppointmentResponse.builder().id(a.getId()).centerId(a.getSlot().getCenter().getId())
                                 .centerName(a.getSlot().getCenter().getName())
@@ -152,7 +156,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                                 .patientEmail(a.getUser().getEmail()).patientPhone(a.getUser().getPhone()).build();
         }
 
-        private void checkStockAlerts(Vaccine vaccine) {
+        public void checkStockAlerts(Vaccine vaccine) {
                 int stock = vaccine.getStock();
                 int capacity = vaccine.getCapacity();
 

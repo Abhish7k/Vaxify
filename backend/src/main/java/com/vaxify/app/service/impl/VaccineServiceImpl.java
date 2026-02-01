@@ -26,6 +26,7 @@ public class VaccineServiceImpl implements VaccineService {
     private final HospitalRepository hospitalRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final com.vaxify.app.service.AppointmentService appointmentService;
 
     @Override
     @Transactional
@@ -69,7 +70,16 @@ public class VaccineServiceImpl implements VaccineService {
 
         validateStockAndCapacity(vaccine.getStock(), vaccine.getCapacity());
 
-        return toResponse(vaccineRepository.save(vaccine));
+        Vaccine saved = vaccineRepository.save(vaccine);
+
+        // check stock alerts (since user might have manually lowered stock)
+        try {
+            appointmentService.checkStockAlerts(saved);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        return toResponse(saved);
     }
 
     private void validateStockAndCapacity(Integer stock, Integer capacity) {
