@@ -27,6 +27,13 @@ services:
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
       - AWS_REGION=${AWS_REGION}
       - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_AUTH=${MAIL_AUTH}
+      - MAIL_TLS=${MAIL_TLS}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
       - ALLOWED_ORIGINS=https://vaxify.abhish7k.xyz
     labels:
       - "traefik.enable=true"

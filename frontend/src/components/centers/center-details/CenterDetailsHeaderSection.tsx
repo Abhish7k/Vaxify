@@ -1,6 +1,6 @@
 import { MapPin, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import type { CenterData } from "./types";
 import { useNavigate } from "react-router-dom";
@@ -59,10 +59,6 @@ const CenterDetailsHeaderSection = ({ center }: Props) => {
             <MapPin className="w-4 h-4 mt-1 shrink-0" />
             <span className="text-sm sm:text-base">{center.address}</span>
           </div>
-
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-700">
-            {center.availableSlots} slots available today
-          </Badge>
 
           <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mt-10">
             {center.description}

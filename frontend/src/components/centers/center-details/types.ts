@@ -16,7 +16,6 @@ export interface CenterData {
   vaccines: Vaccine[];
   description: string;
   features: string[];
-  availableSlots: number;
 }
 
 export const mockCenterData: CenterData = {
@@ -43,5 +42,4 @@ export const mockCenterData: CenterData = {
     "Air-conditioned waiting area",
     "Wheelchair accessible",
   ],
-  availableSlots: 24,
 };

@@ -19,7 +19,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender emailSender;
 
-    @Value("${app.mail.from-address:${spring.mail.username}}")
+    @Value("${app.mail.from-address:vaxify.vms@gmail.com}")
     private String fromEmail;
 
     @Override

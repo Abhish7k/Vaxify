@@ -36,30 +36,32 @@ const CenterDetailsPage = () => {
       if (!centerId) return;
       try {
         setLoading(true);
-        const data = await hospitalApi.getHospitalById(centerId);
-        if (data) {
+        // Fetch hospital details
+        const hospitalData = await hospitalApi.getHospitalById(centerId);
+
+        if (hospitalData) {
           // map api res to center data
           const mappedData: CenterData = {
-            id: String(data.id),
-            name: data.name,
-            address: data.address,
-            phone: (data as any).staffPhone || "N/A",
-            email: (data as any).staffEmail || "N/A",
+            id: String(hospitalData.id),
+            name: hospitalData.name,
+            address: hospitalData.address,
+            phone: hospitalData.staffPhone || "N/A",
+            email: hospitalData.staffEmail || "N/A",
             operatingHours: {
-              weekdays: "9:00 AM - 6:00 PM", // Hardcoded for now, could be in DB
+              weekdays: "9:00 AM - 6:00 PM", // Default standard hours
             },
-            vaccines: (data.vaccines || []).map((v: any) => ({
+            vaccines: (hospitalData.vaccines || []).map((v: any) => ({
               name: v.name,
-              available: v.stock > 0,
-              price: "Free", // Adjust if needed
+              available: (v.stock || 0) > 0,
+              price: v.price ? `₹${v.price}` : "Free",
             })),
-            description: `${data.name} is a verified vaccination facility located in ${data.address}.`,
+            description: `${hospitalData.name} is a verified vaccination facility located in ${hospitalData.address}.`,
             features: [
               "Digital vaccination certificates",
               "Experienced medical staff",
               "Wheelchair accessible",
+              "Sanitized environment",
             ],
-            availableSlots: 24, // Could be dynamic
           };
           setCenter(mappedData);
         }
