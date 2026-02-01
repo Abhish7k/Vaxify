@@ -15,6 +15,19 @@ export const vaccineApi = {
     return response.data;
   },
 
+  // get vaccines by hospital id
+  getVaccinesByHospitalId: async (hospitalId: string): Promise<Vaccine[]> => {
+    if (API_CONFIG.USE_MOCKS) {
+      console.log("[Mock API] Fetching vaccines for hospital...", hospitalId);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return [...mockVaccines];
+    }
+    const response = await api.get<Vaccine[]>(
+      `/vaccines/hospital/${hospitalId}`,
+    );
+    return response.data;
+  },
+
   // get vaccines for logged-in staff's hospital
   getMyVaccines: async (): Promise<Vaccine[]> => {
     if (API_CONFIG.USE_MOCKS) {

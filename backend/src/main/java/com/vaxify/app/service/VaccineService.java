@@ -18,4 +18,7 @@ public interface VaccineService {
 
     // for staff dashboard
     List<VaccineResponseDTO> getVaccinesByStaff(String staffEmail);
+
+    // for public booking page
+    List<VaccineResponseDTO> getVaccinesByHospitalId(Long hospitalId);
 }

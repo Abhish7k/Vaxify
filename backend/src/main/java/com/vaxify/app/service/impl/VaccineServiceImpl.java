@@ -103,6 +103,18 @@ public class VaccineServiceImpl implements VaccineService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<VaccineResponseDTO> getVaccinesByHospitalId(Long hospitalId) {
+        Hospital hospital = hospitalRepository.findById(hospitalId)
+                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+
+        return vaccineRepository.findByHospital(hospital)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     // helper
     private Hospital getHospitalByStaffEmail(String email) {
         User staffUser = userRepository.findByEmail(email)

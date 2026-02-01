@@ -233,25 +233,33 @@ export function BulkCreateSlotDialog({
               Repeat On
             </Label>
             <div className="flex flex-wrap gap-2">
-              {WEEKDAYS.map((day) => (
-                <div
-                  key={day.id}
-                  className={cn(
-                    "flex items-center space-x-2 border rounded-xl px-4 py-2.5 cursor-pointer transition-all duration-200",
-                    selectedDays.includes(day.id)
-                      ? "bg-primary/10 border-primary text-primary shadow-sm"
-                      : "hover:bg-muted border-border/60",
-                  )}
-                  onClick={() => toggleDay(day.id)}
-                >
-                  <Checkbox
-                    checked={selectedDays.includes(day.id)}
-                    onCheckedChange={() => toggleDay(day.id)}
-                    className="pointer-events-none data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                  />
-                  <span className="text-sm font-semibold">{day.label}</span>
-                </div>
-              ))}
+              {WEEKDAYS.map((day) => {
+                const isSunday = day.id === 0;
+                return (
+                  <div
+                    key={day.id}
+                    className={cn(
+                      "flex items-center space-x-2 border rounded-xl px-4 py-2.5 transition-all duration-200",
+                      isSunday
+                        ? "opacity-50 cursor-not-allowed bg-muted border-dashed"
+                        : "cursor-pointer",
+                      !isSunday &&
+                        (selectedDays.includes(day.id)
+                          ? "bg-primary/10 border-primary text-primary shadow-sm"
+                          : "hover:bg-muted border-border/60"),
+                    )}
+                    onClick={() => !isSunday && toggleDay(day.id)}
+                  >
+                    <Checkbox
+                      checked={selectedDays.includes(day.id)}
+                      onCheckedChange={() => !isSunday && toggleDay(day.id)}
+                      disabled={isSunday}
+                      className="pointer-events-none data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                    />
+                    <span className="text-sm font-semibold">{day.label}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

@@ -64,4 +64,10 @@ public class VaccineController {
     public ResponseEntity<List<VaccineResponseDTO>> getAll() {
         return ResponseEntity.ok(vaccineService.getAllVaccines());
     }
+
+    // public: Get vaccines by hospital id
+    @GetMapping("/hospital/{hospitalId}")
+    public ResponseEntity<List<VaccineResponseDTO>> getByHospital(@PathVariable Long hospitalId) {
+        return ResponseEntity.ok(vaccineService.getVaccinesByHospitalId(hospitalId));
+    }
 }

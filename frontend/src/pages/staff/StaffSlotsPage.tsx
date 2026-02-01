@@ -235,7 +235,8 @@ export default function StaffSlotsPage() {
                         initialFocus
                         className="rounded-xl border border-border"
                         disabled={(date) =>
-                          date < new Date(new Date().setHours(0, 0, 0, 0))
+                          date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                          date.getDay() === 0
                         }
                       />
                     </PopoverContent>

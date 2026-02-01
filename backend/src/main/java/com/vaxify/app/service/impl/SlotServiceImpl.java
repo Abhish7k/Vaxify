@@ -30,13 +30,17 @@ public class SlotServiceImpl implements SlotService {
     @Transactional
     public SlotResponseDTO createSlot(SlotRequestDTO dto) {
 
+        if (dto.getDate().getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+            throw new RuntimeException("Cannot create slots on Sunday");
+        }
+
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
                 .orElseThrow(() -> new RuntimeException("Hospital not found"));
 
         Slot slot = new Slot();
-        modelMapper.map(dto, slot);   // maps ONLY matching fields
+        modelMapper.map(dto, slot); // maps ONLY matching fields
         slot.setCenter(hospital);
-        slot.setBookedCount(0);       // default
+        slot.setBookedCount(0); // default
         // slot.setStatus(dto.getStatus()); // already mapped if names match
 
         return mapToResponseDTO(slotRepository.save(slot));

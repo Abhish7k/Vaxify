@@ -7,7 +7,6 @@ import com.vaxify.app.entities.enums.AppointmentStatus;
 import com.vaxify.app.entities.enums.SlotStatus;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.repository.*;
-import com.vaxify.app.repository.VaccineStockRepository;
 import com.vaxify.app.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         private final VaccineRepository vaccineRepository;
         private final SlotRepository slotRepository;
         private final UserRepository userRepository;
-        private final VaccineStockRepository vaccineStockRepository;
 
         @Override
         @Transactional
@@ -42,9 +40,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 // 09:00:00)
                 java.time.LocalTime requestedTime = java.time.LocalTime.parse(request.getSlot());
 
-                Slot selectedSlot = slots.stream()
-                                .filter(s -> s.getStartTime().equals(requestedTime))
-                                .findFirst()
+                Slot selectedSlot = slots.stream().filter(s -> s.getStartTime().equals(requestedTime)).findFirst()
                                 .orElseThrow(() -> new VaxifyException(
                                                 "No available slot found for the selected time"));
 
@@ -53,12 +49,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                         throw new VaxifyException("Selected slot is already full");
                 }
 
-                Appointment appointment = Appointment.builder()
-                                .user(user)
-                                .slot(selectedSlot)
-                                .vaccine(vaccine)
-                                .status(AppointmentStatus.BOOKED)
-                                .build();
+                Appointment appointment = Appointment.builder().user(user).slot(selectedSlot).vaccine(vaccine)
+                                .status(AppointmentStatus.BOOKED).build();
 
                 selectedSlot.setBookedCount(selectedSlot.getBookedCount() + 1);
                 if (selectedSlot.getBookedCount() >= selectedSlot.getCapacity()) {
@@ -75,10 +67,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                 User user = userRepository.findByEmail(userEmail)
                                 .orElseThrow(() -> new VaxifyException("User not found"));
 
-                return appointmentRepository.findAll().stream()
-                                .filter(a -> a.getUser().getId().equals(user.getId()))
-                                .map(this::mapToResponse)
-                                .collect(Collectors.toList());
+                return appointmentRepository.findAll().stream().filter(a -> a.getUser().getId().equals(user.getId()))
+                                .map(this::mapToResponse).collect(Collectors.toList());
         }
 
         @Override
@@ -113,9 +103,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         @Override
         @Transactional(readOnly = true)
         public List<AppointmentResponse> getAppointmentsByHospital(Long hospitalId) {
-                return appointmentRepository.findBySlotCenterId(hospitalId)
-                                .stream()
-                                .map(this::mapToResponse)
+                return appointmentRepository.findBySlotCenterId(hospitalId).stream().map(this::mapToResponse)
                                 .collect(Collectors.toList());
         }
 
@@ -134,40 +122,27 @@ public class AppointmentServiceImpl implements AppointmentService {
                 }
 
                 // automated vaccine stock deduction
-                Long hospitalId = appointment.getSlot().getCenter().getId();
-                Long vaccineId = appointment.getVaccine().getId();
+                Vaccine vaccine = appointment.getVaccine();
 
-                VaccineStock stock = vaccineStockRepository.findByHospitalIdAndVaccineId(hospitalId, vaccineId)
-                                .orElseThrow(() -> new VaxifyException(
-                                                "No stock entry found for this vaccine in the hospital"));
-
-                if (stock.getQuantity() <= 0) {
+                if (vaccine.getStock() <= 0) {
                         throw new VaxifyException("Insufficient vaccine stock to complete this appointment");
                 }
 
                 // Decrement stock
-                stock.setQuantity(stock.getQuantity() - 1);
-                vaccineStockRepository.save(stock);
+                vaccine.setStock(vaccine.getStock() - 1);
+                vaccineRepository.save(vaccine);
 
                 appointment.setStatus(AppointmentStatus.COMPLETED);
                 appointmentRepository.save(appointment);
         }
 
         private AppointmentResponse mapToResponse(Appointment a) {
-                return AppointmentResponse.builder()
-                                .id(a.getId())
-                                .centerId(a.getSlot().getCenter().getId())
+                return AppointmentResponse.builder().id(a.getId()).centerId(a.getSlot().getCenter().getId())
                                 .centerName(a.getSlot().getCenter().getName())
-                                .centerAddress(a.getSlot().getCenter().getAddress())
-                                .vaccineId(a.getVaccine().getId())
-                                .vaccineName(a.getVaccine().getName())
-                                .date(a.getSlot().getDate().toString())
-                                .slot(a.getSlot().getStartTime().toString())
-                                .status(a.getStatus())
-                                .createdAt(a.getCreatedAt())
-                                .patientName(a.getUser().getName())
-                                .patientEmail(a.getUser().getEmail())
-                                .patientPhone(a.getUser().getPhone())
-                                .build();
+                                .centerAddress(a.getSlot().getCenter().getAddress()).vaccineId(a.getVaccine().getId())
+                                .vaccineName(a.getVaccine().getName()).date(a.getSlot().getDate().toString())
+                                .slot(a.getSlot().getStartTime().toString()).status(a.getStatus())
+                                .createdAt(a.getCreatedAt()).patientName(a.getUser().getName())
+                                .patientEmail(a.getUser().getEmail()).patientPhone(a.getUser().getPhone()).build();
         }
 }

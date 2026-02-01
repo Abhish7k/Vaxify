@@ -73,22 +73,14 @@ const AppointmentBookingPage = () => {
     fetchCenter();
   }, [centerId]);
 
-  // fetch vaccines on mount or when center changes
+  // fetch vaccines on mount or when centerId changes
   useEffect(() => {
-    if (!center) return;
+    if (!centerId) return;
 
     const fetchVaccines = async () => {
       try {
-        const allVaccines = await vaccineApi.getVaccines();
-
-        // if the center has availableVaccines list, filter. Otherwise show all.
         const centerVaccines =
-          center.availableVaccines && center.availableVaccines.length > 0
-            ? allVaccines.filter((v) =>
-                center.availableVaccines?.includes(v.name),
-              )
-            : allVaccines;
-
+          await vaccineApi.getVaccinesByHospitalId(centerId);
         setVaccines(centerVaccines);
       } catch (error) {
         console.error("failed to fetch vaccines", error);
@@ -96,7 +88,7 @@ const AppointmentBookingPage = () => {
     };
 
     fetchVaccines();
-  }, [center]);
+  }, [centerId]);
 
   // fetch slots when date changes
   useEffect(() => {
