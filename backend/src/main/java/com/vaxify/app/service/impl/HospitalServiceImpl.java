@@ -32,7 +32,9 @@ public class HospitalServiceImpl implements HospitalService {
         private final UserRepository userRepository;
         private final PasswordEncoder passwordEncoder;
         private final VaccineRepository vaccineRepository;
+
         private final S3Service s3Service;
+        private final com.vaxify.app.service.EmailService emailService;
 
         // for staff
         @Override
@@ -136,7 +138,20 @@ public class HospitalServiceImpl implements HospitalService {
 
                 hospital.setStatus(HospitalStatus.APPROVED);
 
-                return toResponse(hospitalRepository.save(hospital));
+                Hospital saved = hospitalRepository.save(hospital);
+
+                // send email
+                if (saved.getStaffUser() != null) {
+                        String subject = "Hospital Registration Approved - Vaxify";
+                        String body = "Dear " + saved.getStaffUser().getName() + ",\n\n" +
+                                        "Your hospital registration for '" + saved.getName()
+                                        + "' has been APPROVED by the admin.\n" +
+                                        "You can now login and manage your hospital dashboard.\n\n" +
+                                        "Regards,\nVaxify Team";
+                        emailService.sendSimpleEmail(saved.getStaffUser().getEmail(), subject, body);
+                }
+
+                return toResponse(saved);
 
         }
 
@@ -148,7 +163,20 @@ public class HospitalServiceImpl implements HospitalService {
 
                 hospital.setStatus(HospitalStatus.REJECTED);
 
-                return toResponse(hospitalRepository.save(hospital));
+                Hospital saved = hospitalRepository.save(hospital);
+
+                // send email
+                if (saved.getStaffUser() != null) {
+                        String subject = "Hospital Registration Rejected - Vaxify";
+                        String body = "Dear " + saved.getStaffUser().getName() + ",\n\n" +
+                                        "Your hospital registration for '" + saved.getName()
+                                        + "' has been REJECTED by the admin.\n" +
+                                        "Please contact support for more details.\n\n" +
+                                        "Regards,\nVaxify Team";
+                        emailService.sendSimpleEmail(saved.getStaffUser().getEmail(), subject, body);
+                }
+
+                return toResponse(saved);
 
         }
 
@@ -242,9 +270,17 @@ public class HospitalServiceImpl implements HospitalService {
                 hospital.setStatus(HospitalStatus.PENDING);
                 hospital.setCreatedAt(LocalDateTime.now());
 
-                hospitalRepository.save(hospital);
+                Hospital savedHospital = hospitalRepository.save(hospital);
 
-                hospitalRepository.save(hospital);
+                // send email
+                String subject = "Hospital Registration Received - Vaxify";
+                String body = "Dear " + staffUser.getName() + ",\n\n" +
+                                "You have successfully registered your hospital '" + savedHospital.getName()
+                                + "' on Vaxify.\n" +
+                                "Your application is currently PENDING approval from the admin.\n" +
+                                "You will be notified once the status changes.\n\n" +
+                                "Regards,\nVaxify Team";
+                emailService.sendSimpleEmail(staffUser.getEmail(), subject, body);
 
         }
 

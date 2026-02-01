@@ -22,7 +22,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         private final AppointmentRepository appointmentRepository;
         private final VaccineRepository vaccineRepository;
         private final SlotRepository slotRepository;
+
         private final UserRepository userRepository;
+        private final com.vaxify.app.service.EmailService emailService;
 
         @Override
         @Transactional
@@ -128,9 +130,13 @@ public class AppointmentServiceImpl implements AppointmentService {
                         throw new VaxifyException("Insufficient vaccine stock to complete this appointment");
                 }
 
-                // Decrement stock
-                vaccine.setStock(vaccine.getStock() - 1);
+                // decrement stock
+                int newStock = vaccine.getStock() - 1;
+                vaccine.setStock(newStock);
                 vaccineRepository.save(vaccine);
+
+                // check stock alerts
+                checkStockAlerts(vaccine);
 
                 appointment.setStatus(AppointmentStatus.COMPLETED);
                 appointmentRepository.save(appointment);
@@ -144,5 +150,40 @@ public class AppointmentServiceImpl implements AppointmentService {
                                 .slot(a.getSlot().getStartTime().toString()).status(a.getStatus())
                                 .createdAt(a.getCreatedAt()).patientName(a.getUser().getName())
                                 .patientEmail(a.getUser().getEmail()).patientPhone(a.getUser().getPhone()).build();
+        }
+
+        private void checkStockAlerts(Vaccine vaccine) {
+                int stock = vaccine.getStock();
+                int capacity = vaccine.getCapacity();
+
+                if (capacity == 0)
+                        return;
+
+                // < 20% critical
+                if (stock < (capacity * 0.2)) {
+                        sendStockAlert(vaccine, "CRITICAL: Vaccine Stock Critical (<20%) - Booking Blocked Warning",
+                                        "The stock for vaccine '" + vaccine.getName() + "' is CRITICAL (" + stock + "/"
+                                                        + capacity + ").\n" +
+                                                        "Bookings may be blocked soon if stock runs out. Please restock immediately.");
+                }
+                // < 40% warning
+                else if (stock < (capacity * 0.4)) {
+                        sendStockAlert(vaccine, "WARNING: Vaccine Stock Low (<40%)",
+                                        "The stock for vaccine '" + vaccine.getName() + "' is running low (" + stock
+                                                        + "/" + capacity + ").\n" +
+                                                        "Please arrange for restocking.");
+                }
+        }
+
+        private void sendStockAlert(Vaccine vaccine, String subject, String message) {
+                try {
+                        if (vaccine.getHospital() != null && vaccine.getHospital().getStaffUser() != null) {
+                                String staffEmail = vaccine.getHospital().getStaffUser().getEmail();
+                                emailService.sendSimpleEmail(staffEmail, subject, message);
+                        }
+                } catch (Exception e) {
+                        // ignore email errors to not fail the transaction
+                        System.err.println("Failed to send stock alert: " + e.getMessage());
+                }
         }
 }

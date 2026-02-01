@@ -42,6 +42,7 @@ public class Hospital {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "staff_user_id", nullable = false, unique = true)
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private User staffUser;
 
     @Enumerated(EnumType.STRING)

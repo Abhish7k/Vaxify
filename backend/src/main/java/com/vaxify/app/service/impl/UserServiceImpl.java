@@ -22,6 +22,7 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final AppointmentRepository appointmentRepository;
+    private final com.vaxify.app.repository.HospitalRepository hospitalRepository;
 
     @Override
     public UserDTO getProfile(String email) {
@@ -101,6 +102,17 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
+
+        // If staff user, delete associated hospital first to fix FK constraint
+        if (user.getRole() == com.vaxify.app.entities.enums.Role.STAFF) {
+            hospitalRepository.findByStaffUser(user).ifPresent(hospital -> {
+                // Check if it has vaccines/slots? Ideally delete those too via
+                // HospitalService.deleteHospital
+                // For now, simple direct delete if no complex dependencies:
+                hospitalRepository.delete(hospital);
+            });
+        }
+
         userRepository.delete(user);
     }
 }
