@@ -71,10 +71,14 @@ const RegisterUser = () => {
           color: "#0f7a28",
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.log("Register error: ", error);
 
-      toast.error("Register failed. Please try again.", {
+      // extract error message from backend response if available
+      const errorMessage =
+        error.response?.data?.message || "Register failed. Please try again.";
+
+      toast.error(errorMessage, {
         style: {
           backgroundColor: "#ffe5e5",
           color: "#b00000",

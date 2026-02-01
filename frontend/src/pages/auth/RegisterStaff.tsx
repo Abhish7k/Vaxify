@@ -46,7 +46,7 @@ const step2Schema = z
 
     email: z.email("Enter a valid email address"),
 
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
 
     hospitalName: z.string().min(2, "Hospital name is required"),
@@ -160,8 +160,11 @@ const RegisterStaff = () => {
       await registerStaff(registerStaffPayload);
 
       toast.success("Registration submitted for approval");
-    } catch (error) {
-      toast.error("Staff Registration failed");
+    } catch (error: any) {
+      // extract error message from backend response if available
+      const errorMessage =
+        error.response?.data?.message || "Staff Registration failed";
+      toast.error(errorMessage);
       console.log("register staff failed with error: ", error);
     } finally {
       setIsLoading(false);

@@ -18,7 +18,7 @@ export const loginApi = async (
     password,
   });
 
-  // Normalize role to lowercase for frontend compatibility
+  // normalize role to lowercase for frontend compatibility
   if (response.data?.user) {
     response.data.user.role = response.data.user.role.toLowerCase() as any;
   }
