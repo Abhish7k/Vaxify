@@ -22,4 +22,9 @@ public class AdminUserController {
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    public void deleteUser(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        userService.deleteUser(id);
+    }
 }

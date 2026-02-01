@@ -95,4 +95,12 @@ public class UserServiceImpl implements UserService {
                 .patientPhone(a.getUser().getPhone())
                 .build();
     }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
+        userRepository.delete(user);
+    }
 }

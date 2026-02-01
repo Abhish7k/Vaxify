@@ -53,6 +53,27 @@ const AdminUsersPage = () => {
     fetchUsers();
   }, []);
 
+  const handleDeleteUser = async (user: UserProfile) => {
+    try {
+      await userApi.deleteUser(user.id);
+      toast.success("User deleted successfully", {
+        style: {
+          backgroundColor: "#e7f9ed",
+          color: "#0f7a28",
+        },
+      });
+      fetchUsers();
+    } catch (error) {
+      console.error("Failed to delete user", error);
+      toast.error("Failed to delete user", {
+        style: {
+          backgroundColor: "#ffe5e5",
+          color: "#b00000",
+        },
+      });
+    }
+  };
+
   return (
     <motion.div
       variants={container}
@@ -91,7 +112,7 @@ const AdminUsersPage = () => {
         {loading ? (
           <AdminUsersTableSkeleton />
         ) : (
-          <AdminUsersTable users={users} />
+          <AdminUsersTable users={users} onDelete={handleDeleteUser} />
         )}
       </motion.div>
     </motion.div>

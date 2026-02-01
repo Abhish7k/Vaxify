@@ -34,4 +34,6 @@ public interface HospitalService {
     // register hospital and staff
     public void registerHospitalStaff(StaffHospitalRegistrationDTO dto);
 
+    void deleteHospital(Long id);
+
 }

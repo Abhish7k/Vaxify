@@ -107,4 +107,11 @@ export const hospitalApi = {
     }
     await api.put(`/admin/hospitals/reject/${id}`);
   },
+
+  deleteHospital: async (id: string): Promise<void> => {
+    if (API_CONFIG.USE_MOCKS) {
+      return;
+    }
+    await api.delete(`/admin/hospitals/${id}`);
+  },
 };

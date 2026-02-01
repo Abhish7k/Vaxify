@@ -9,6 +9,7 @@ type Props = {
   isLoading?: boolean;
   onApproveHospital: (hospital: AdminHospital) => void;
   onRejectHospital: (hospital: AdminHospital) => void;
+  onDeleteHospital: (hospital: AdminHospital) => void;
 };
 
 export default function AdminHospitalsListSection({
@@ -17,6 +18,7 @@ export default function AdminHospitalsListSection({
   isLoading,
   onApproveHospital,
   onRejectHospital,
+  onDeleteHospital,
 }: Props) {
   if (isLoading) {
     return <AdminHospitalsSkeleton />;
@@ -37,6 +39,7 @@ export default function AdminHospitalsListSection({
           hospital={hospital}
           onApprove={() => onApproveHospital(hospital)}
           onReject={() => onRejectHospital(hospital)}
+          onDelete={() => onDeleteHospital(hospital)}
         />
       ))}
     </div>

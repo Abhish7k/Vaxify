@@ -10,4 +10,6 @@ public interface UserService {
     UserStatsDTO getUserStats(String email);
 
     java.util.List<UserDTO> getAllUsers();
+
+    void deleteUser(Long id);
 }

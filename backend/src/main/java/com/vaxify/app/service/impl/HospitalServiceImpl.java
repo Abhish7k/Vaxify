@@ -185,7 +185,7 @@ public class HospitalServiceImpl implements HospitalService {
                         try {
                                 finalDocumentUrl = s3Service.generatePresignedUrl(dbDocumentUrl);
                         } catch (Exception e) {
-                                // Fallback to raw value if signing fails
+                                // fallback to raw value if signing fails
                         }
                 }
 
@@ -244,6 +244,30 @@ public class HospitalServiceImpl implements HospitalService {
 
                 hospitalRepository.save(hospital);
 
+                hospitalRepository.save(hospital);
+
+        }
+
+        @Override
+        @Transactional
+        public void deleteHospital(Long id) {
+                Hospital hospital = hospitalRepository.findById(id)
+                                .orElseThrow(() -> new IllegalStateException("Hospital not found"));
+
+                // delete all vaccines associated with this hospital first
+                List<com.vaxify.app.entities.Vaccine> vaccines = vaccineRepository.findByHospital(hospital);
+                vaccineRepository.deleteAll(vaccines);
+
+                // get associated staff user before deleting hospital
+                User staffUser = hospital.getStaffUser();
+
+                // delete hospital
+                hospitalRepository.delete(hospital);
+
+                // delete staff user
+                if (staffUser != null) {
+                        userRepository.delete(staffUser);
+                }
         }
 
 }

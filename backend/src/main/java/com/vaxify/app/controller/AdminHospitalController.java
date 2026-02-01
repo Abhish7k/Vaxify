@@ -34,4 +34,9 @@ public class AdminHospitalController {
         return hospitalService.rejectHospital(id);
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteHospital(@PathVariable Long id) {
+        hospitalService.deleteHospital(id);
+    }
+
 }

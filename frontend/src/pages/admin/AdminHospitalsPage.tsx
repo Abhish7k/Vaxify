@@ -109,6 +109,28 @@ const AdminHospitalsPage = () => {
     }
   };
 
+  const handleDeleteHospital = async (hospital: AdminHospital) => {
+    try {
+      await hospitalApi.deleteHospital(hospital.id);
+
+      toast.success("Deleted hospital and associated staff account", {
+        style: {
+          backgroundColor: "#e7f9ed",
+          color: "#0f7a28",
+        },
+      });
+
+      fetchHospitals(); // refresh
+    } catch (error) {
+      toast.error("Failed to delete hospital", {
+        style: {
+          backgroundColor: "#ffe5e5",
+          color: "#b00000",
+        },
+      });
+    }
+  };
+
   return (
     <motion.div
       variants={container}
@@ -140,6 +162,7 @@ const AdminHospitalsPage = () => {
           isLoading={loading}
           onApproveHospital={handleApproveHospital}
           onRejectHospital={handleRejectHospital}
+          onDeleteHospital={handleDeleteHospital}
         />
       </motion.div>
     </motion.div>

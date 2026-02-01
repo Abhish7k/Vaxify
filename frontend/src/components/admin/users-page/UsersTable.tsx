@@ -46,7 +46,9 @@ import { type UserProfile } from "@/api/user.api";
 export type AdminUser = UserProfile;
 
 // cols
-export const columns: ColumnDef<AdminUser>[] = [
+export const getColumns = (
+  onDelete: (user: AdminUser) => void,
+): ColumnDef<AdminUser>[] => [
   {
     accessorKey: "name",
     header: "Name",
@@ -93,13 +95,25 @@ export const columns: ColumnDef<AdminUser>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <UserActions user={row.original} />,
+    cell: ({ row }) => (
+      <UserActions
+        user={row.original}
+        onDelete={() => onDelete(row.original)}
+      />
+    ),
   },
 ];
 
 // user actions menu
-function UserActions({ user }: { user: AdminUser }) {
+function UserActions({
+  user,
+  onDelete,
+}: {
+  user: AdminUser;
+  onDelete: () => void;
+}) {
   const [open, setOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
 
   return (
     <>
@@ -109,9 +123,18 @@ function UserActions({ user }: { user: AdminUser }) {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+        <DropdownMenuContent align="end" className="p-2 space-y-2">
+          <DropdownMenuItem
+            onClick={() => setOpen(true)}
+            className="cursor-pointer"
+          >
             View details
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setDeleteOpen(true)}
+            className="text-destructive focus:text-destructive cursor-pointer"
+          >
+            Delete user
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -135,6 +158,36 @@ function UserActions({ user }: { user: AdminUser }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* delete confirmation */}
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete User?</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to delete <b>{user.name}</b>? This action
+              cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                onDelete();
+                setDeleteOpen(false);
+              }}
+              className="text-white"
+            >
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
@@ -149,9 +202,17 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 }
 
 // main component
-export default function AdminUsersTable({ users }: { users: AdminUser[] }) {
+export default function AdminUsersTable({
+  users,
+  onDelete,
+}: {
+  users: AdminUser[];
+  onDelete: (user: AdminUser) => void;
+}) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [roleFilter, setRoleFilter] = React.useState<string>("all");
+
+  const columns = React.useMemo(() => getColumns(onDelete), [onDelete]);
 
   const table = useReactTable({
     data: users,

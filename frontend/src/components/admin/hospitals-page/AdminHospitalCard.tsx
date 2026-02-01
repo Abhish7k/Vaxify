@@ -9,12 +9,14 @@ type Props = {
   hospital: AdminHospital;
   onApprove: () => void;
   onReject: () => void;
+  onDelete: () => void;
 };
 
 export default function AdminHospitalCard({
   hospital,
   onApprove,
   onReject,
+  onDelete,
 }: Props) {
   return (
     <div
@@ -82,14 +84,13 @@ export default function AdminHospitalCard({
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
 
-          {hospital.status === "PENDING" && (
-            <AdminHospitalCardActions
-              hospitalName={hospital.name}
-              status={hospital.status}
-              onApprove={onApprove}
-              onReject={onReject}
-            />
-          )}
+          <AdminHospitalCardActions
+            hospitalName={hospital.name}
+            status={hospital.status}
+            onApprove={onApprove}
+            onReject={onReject}
+            onDelete={onDelete}
+          />
         </div>
       </div>
     </div>
