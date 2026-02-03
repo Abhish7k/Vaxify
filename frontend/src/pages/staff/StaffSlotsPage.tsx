@@ -153,7 +153,9 @@ export default function StaffSlotsPage() {
       fetchSlots(hospitalId);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to create slot");
+      // @ts-ignore
+      const message = error.response?.data || "Failed to create slot";
+      toast.error(message);
     } finally {
       setCreateLoading(false);
     }

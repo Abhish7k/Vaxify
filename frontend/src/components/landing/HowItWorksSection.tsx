@@ -1,6 +1,5 @@
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import { ShieldCheck, Check } from "lucide-react";
-import { motion } from "framer-motion";
 
 const transitionVariants = {
   container: {
@@ -127,19 +126,12 @@ const steps = [
     ),
     graphic: (
       <div className="relative w-24 h-32 bg-white rounded-lg shadow-sm border border-slate-100 p-2.5 flex flex-col gap-2 overflow-hidden">
-        <motion.div
-          animate={{ top: ["0%", "100%", "0%"] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-          className="absolute left-0 right-0 h-0.5 bg-indigo-400/30 z-10"
-        />
         <div className="w-full h-1.5 bg-slate-100 rounded-full" />
         <div className="w-3/4 h-1.5 bg-slate-100 rounded-full" />
         <div className="mt-auto space-y-2">
           {[1, 2, 3].map((i) => (
-            <motion.div
+            <div
               key={i}
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 2, delay: i * 0.4, repeat: Infinity }}
               className="w-full h-4 bg-slate-50 rounded border border-slate-100"
             />
           ))}
@@ -183,39 +175,10 @@ const steps = [
               className="h-4 bg-slate-50 rounded border border-slate-100"
             />
           ))}
-          <motion.div
-            animate={{
-              backgroundColor: ["#f8fafc", "#6366f1", "#10b981", "#f8fafc"],
-              borderColor: ["#f1f5f9", "#4338ca", "#059669", "#f1f5f9"],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              times: [0, 0.3, 0.7, 1],
-            }}
-            className="h-4 rounded border flex items-center justify-center"
-          >
-            <motion.div
-              animate={{ opacity: [0, 0, 1, 0] }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                times: [0, 0.4, 0.7, 1],
-              }}
-            >
-              <Check className="w-2.5 h-2.5 text-white" />
-            </motion.div>
-          </motion.div>
+          <div className="h-4 rounded border flex items-center justify-center bg-indigo-500 border-indigo-600">
+            <Check className="w-2.5 h-2.5 text-white" />
+          </div>
         </div>
-        <motion.div
-          animate={{ x: [50, 75, 50], y: [30, 15, 30] }}
-          transition={{ duration: 4, repeat: Infinity }}
-          className="absolute z-20"
-        >
-          <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
-            <path d="M1 1L5 11L7 7L11 5L1 1Z" fill="black" />
-          </svg>
-        </motion.div>
       </div>
     ),
   },
@@ -250,28 +213,20 @@ const steps = [
             <div className="w-8 h-1 bg-slate-100 rounded-full" />
           </div>
           <div className="px-1 py-0.5 rounded-full bg-emerald-50 text-[6px] font-bold text-emerald-600">
-            DONE
+            COMPLETED
           </div>
         </div>
-        <motion.div
-          animate={{ x: [-1.5, 1.5, -1.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="bg-white rounded p-1.5 shadow-md border-l-2 border-l-indigo-500 border border-slate-100 flex items-center justify-between"
-        >
+        <div className="bg-white rounded p-1.5 shadow-md border-l-2 border-l-indigo-500 border border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-indigo-50 rounded-full flex items-center justify-center">
               <ShieldCheck className="w-2.5 h-2.5 text-indigo-500" />
             </div>
             <div className="w-8 h-1 bg-slate-100 rounded-full" />
           </div>
-          <motion.div
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="px-1 py-0.5 rounded-full bg-indigo-50 text-[6px] font-bold text-indigo-600"
-          >
-            VERIFYING
-          </motion.div>
-        </motion.div>
+          <div className="px-1 py-0.5 rounded-full bg-indigo-50 text-[6px] font-bold text-indigo-600">
+            UPCOMING
+          </div>
+        </div>
       </div>
     ),
   },

@@ -123,7 +123,6 @@ export default function LowStockAlertsPage() {
             />
             Refresh Data
           </Button>
-
           <Button
             onClick={() => navigate("/staff/vaccines")}
             className="h-10 w-full sm:w-auto"

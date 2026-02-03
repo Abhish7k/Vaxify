@@ -121,7 +121,6 @@ export default function StaffVaccinesPage() {
           <AddVaccineDialog onSuccess={fetchVaccines} />
         </div>
       </div>
-      //...
       <Card className="border-none shadow-none bg-card/50 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium flex items-center">

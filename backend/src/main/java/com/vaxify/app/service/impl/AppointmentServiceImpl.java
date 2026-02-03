@@ -36,12 +36,19 @@ public class AppointmentServiceImpl implements AppointmentService {
                 Vaccine vaccine = vaccineRepository.findById(request.getVaccineId())
                                 .orElseThrow(() -> new VaxifyException("Vaccine not found"));
 
-                List<Slot> slots = slotRepository.findByCenterIdAndDate(request.getCenterId(),
-                                java.time.LocalDate.parse(request.getDate()));
+                java.time.LocalDate slotDate = java.time.LocalDate.parse(request.getDate());
+
+                List<Slot> slots = slotRepository.findByCenterIdAndDate(request.getCenterId(), slotDate);
 
                 // compare localtime objects to handle format differences (e.g. 09:00 vs
                 // 09:00:00)
                 java.time.LocalTime requestedTime = java.time.LocalTime.parse(request.getSlot());
+
+                // Time Travel Check
+                java.time.LocalDateTime slotDateTime = java.time.LocalDateTime.of(slotDate, requestedTime);
+                if (slotDateTime.isBefore(java.time.LocalDateTime.now())) {
+                        throw new VaxifyException("Cannot book a slot for a time that has already passed.");
+                }
 
                 Slot selectedSlot = slots.stream().filter(s -> s.getStartTime().equals(requestedTime)).findFirst()
                                 .orElseThrow(() -> new VaxifyException(

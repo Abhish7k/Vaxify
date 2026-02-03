@@ -45,14 +45,11 @@ export function HeroSectionComponent() {
             <div className="mx-auto max-w-7xl px-6">
               <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
                 <AnimatedGroup variants={transitionVariants}>
-                  <Link
-                    to="#link"
-                    className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-black/5 transition-all duration-300 dark:border-t-white/5 dark:shadow-zinc-950"
-                  >
+                  <div className="hover:bg-background bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-black/5 transition-all duration-300 cursor-default">
                     <span className="text-foreground text-sm">
                       Introducing Vaccine Availability Insights
                     </span>
-                    <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
+                    <span className="block h-4 w-0.5 border-l bg-white "></span>
 
                     <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
                       <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
@@ -64,7 +61,7 @@ export function HeroSectionComponent() {
                         </span>
                       </div>
                     </div>
-                  </Link>
+                  </div>
 
                   <h1 className="mt-8 max-w-5xl mx-auto text-balance text-3xl sm:text-5xl lg:text-6xl lg:mt-16 xl:text-7xl transition-all">
                     Simplifying Vaccination <br /> Management for Everyone{" "}
@@ -123,9 +120,9 @@ export function HeroSectionComponent() {
                   aria-hidden
                   className="bg-linear-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
                 />
-                <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-2 shadow-lg shadow-zinc-950/15 ring-1">
+                <div className="inset-shadow-2xs ring-background bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-2 shadow-lg shadow-zinc-950/15 ring-1">
                   <img
-                    className="z-2 border-border/25 aspect-15/8 relative rounded-2xl border dark:hidden"
+                    className="z-2 border-border/25 aspect-15/8 relative rounded-2xl border"
                     src="/hero-dash.png"
                     alt="app screen"
                     width="2700"

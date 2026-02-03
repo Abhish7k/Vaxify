@@ -25,7 +25,7 @@ public class SlotServiceImpl implements SlotService {
     private final HospitalRepository hospitalRepository;
     private final ModelMapper modelMapper;
 
-    // ---------------- CREATE SLOT ----------------
+    // create slot
     @Override
     @Transactional
     public SlotResponseDTO createSlot(SlotRequestDTO dto) {
@@ -37,16 +37,29 @@ public class SlotServiceImpl implements SlotService {
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
                 .orElseThrow(() -> new RuntimeException("Hospital not found"));
 
+        // check for duplicate slot
+        // fetch all slots for the day and check time
+        List<Slot> daySlots = slotRepository.findByCenterIdAndDate(dto.getHospitalId(), dto.getDate());
+        boolean exists = daySlots.stream()
+                .anyMatch(s -> s.getStartTime().equals(dto.getStartTime()));
+
+        if (exists) {
+            throw new RuntimeException("Slot already exists for this time on the selected date.");
+        }
+
         Slot slot = new Slot();
-        modelMapper.map(dto, slot); // maps ONLY matching fields
+
+        modelMapper.map(dto, slot); // maps only matching fields
+
         slot.setCenter(hospital);
+
         slot.setBookedCount(0); // default
         // slot.setStatus(dto.getStatus()); // already mapped if names match
 
         return mapToResponseDTO(slotRepository.save(slot));
     }
 
-    // ---------------- UPDATE SLOT ----------------
+    // update slot
     @Override
     @Transactional
     public SlotResponseDTO updateSlot(Long slotId, SlotRequestDTO dto) {
@@ -54,10 +67,16 @@ public class SlotServiceImpl implements SlotService {
         Slot slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new RuntimeException("Slot not found"));
 
-        // STRICT + skipNullEnabled = true → safe partial update
+        // strict + skipNullEnabled = true → safe partial update
         modelMapper.map(dto, slot);
 
-        // Hospital change (only if hospitalId provided)
+        // validation: capacity cannot be less than current bookings
+        if (slot.getCapacity() < slot.getBookedCount()) {
+            throw new RuntimeException("New capacity cannot be less than value of confirmed bookings ("
+                    + slot.getBookedCount() + ")");
+        }
+
+        // hospital change (only if hospitalId provided)
         if (dto.getHospitalId() != null) {
             Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
                     .orElseThrow(() -> new RuntimeException("Hospital not found"));
@@ -67,7 +86,7 @@ public class SlotServiceImpl implements SlotService {
         return mapToResponseDTO(slotRepository.save(slot));
     }
 
-    // ---------------- GET SLOT BY ID ----------------
+    // get slot by id
     @Override
     @Transactional(readOnly = true)
     public SlotResponseDTO getSlotById(Long slotId) {
@@ -78,7 +97,7 @@ public class SlotServiceImpl implements SlotService {
         return mapToResponseDTO(slot);
     }
 
-    // ---------------- GET ALL SLOTS ----------------
+    // get all slots
     @Override
     @Transactional(readOnly = true)
     public List<SlotResponseDTO> getAllSlots() {
@@ -89,7 +108,7 @@ public class SlotServiceImpl implements SlotService {
                 .toList();
     }
 
-    // ---------------- GET SLOTS BY HOSPITAL ----------------
+    // get slots by hospital
     @Override
     @Transactional(readOnly = true)
     public List<SlotResponseDTO> getSlotsByHospital(Long hospitalId) {
@@ -100,7 +119,7 @@ public class SlotServiceImpl implements SlotService {
                 .toList();
     }
 
-    // ---------------- GET SLOTS BY HOSPITAL & DATE ----------------
+    // get slots by hospital and date
     @Override
     @Transactional(readOnly = true)
     public List<SlotResponseDTO> getSlotsByHospitalAndDate(
@@ -112,23 +131,27 @@ public class SlotServiceImpl implements SlotService {
                 .toList();
     }
 
-    // ---------------- DELETE SLOT ----------------
+    // delete slot
     @Override
     @Transactional
     public void deleteSlot(Long slotId) {
 
-        if (!slotRepository.existsById(slotId)) {
-            throw new RuntimeException("Slot not found");
+        Slot slot = slotRepository.findById(slotId)
+                .orElseThrow(() -> new RuntimeException("Slot not found"));
+
+        if (slot.getBookedCount() > 0) {
+            throw new RuntimeException("Cannot delete a slot with active bookings.");
         }
+
         slotRepository.deleteById(slotId);
     }
 
-    // ---------------- ENTITY → DTO ----------------
+    // entity → dto
     private SlotResponseDTO mapToResponseDTO(Slot slot) {
 
         SlotResponseDTO dto = modelMapper.map(slot, SlotResponseDTO.class);
 
-        // Manual mapping for relationship fields
+        // manual mapping for relationship fields
         dto.setHospitalId(slot.getCenter().getId());
         dto.setHospitalName(slot.getCenter().getName());
 

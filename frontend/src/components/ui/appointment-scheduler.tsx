@@ -229,7 +229,32 @@ export function AppointmentScheduler({
           {timeSlots.map((slot) => (
             <button
               key={slot.time}
-              disabled={!slot.available}
+              disabled={
+                !slot.available ||
+                (() => {
+                  if (!selectedDate) return false;
+                  const today = new Date();
+                  const selDateObj = new Date(
+                    currentYear,
+                    currentMonth,
+                    selectedDate,
+                  );
+                  // check if selected date is today (ignoring time)
+                  const isToday =
+                    selDateObj.setHours(0, 0, 0, 0) ===
+                    today.setHours(0, 0, 0, 0);
+
+                  if (!isToday) return false;
+
+                  // parse slot time HH:mm
+                  const [h, m] = slot.time.split(":").map(Number);
+                  const now = new Date();
+                  const slotDate = new Date();
+                  slotDate.setHours(h, m, 0, 0);
+
+                  return slotDate < now;
+                })()
+              }
               onClick={() => handleTimeClick(slot.time)}
               className={cn(
                 "w-full py-2 rounded-lg text-sm transition cursor-pointer",
@@ -238,8 +263,27 @@ export function AppointmentScheduler({
                 slot.available &&
                   selectedTime !== slot.time &&
                   "bg-secondary/50 hover:bg-secondary",
-                !slot.available &&
-                  "text-muted-foreground/40 cursor-not-allowed",
+                (!slot.available ||
+                  (() => {
+                    // repeat logic for styling
+                    if (!selectedDate) return false;
+                    const today = new Date();
+                    const selDateObj = new Date(
+                      currentYear,
+                      currentMonth,
+                      selectedDate,
+                    );
+                    const isToday =
+                      selDateObj.setHours(0, 0, 0, 0) ===
+                      today.setHours(0, 0, 0, 0);
+                    if (!isToday) return false;
+                    const [h, m] = slot.time.split(":").map(Number);
+                    const now = new Date();
+                    const slotDate = new Date();
+                    slotDate.setHours(h, m, 0, 0);
+                    return slotDate < now;
+                  })()) &&
+                  "text-muted-foreground/40 cursor-not-allowed opacity-50 bg-muted/20",
               )}
             >
               {formatTime(slot.time)}
