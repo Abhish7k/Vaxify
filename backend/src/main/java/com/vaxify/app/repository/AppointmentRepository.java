@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.vaxify.app.entities.Appointment;
+import com.vaxify.app.entities.Vaccine;
 
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +14,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByUserEmail(String email);
 
-    List<Appointment> findByVaccineIn(List<com.vaxify.app.entities.Vaccine> vaccines);
+    List<Appointment> findByVaccineIn(List<Vaccine> vaccines);
 }

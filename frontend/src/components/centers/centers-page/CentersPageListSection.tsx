@@ -1,5 +1,5 @@
 import CenterCard from "@/components/centers/centers-page/CenterCard";
-import { type Center } from "@/constants/centers-mock-data";
+import type { Center } from "@/types/hospital";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 

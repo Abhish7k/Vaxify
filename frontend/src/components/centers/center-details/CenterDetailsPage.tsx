@@ -1,6 +1,6 @@
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { type CenterData } from "./types";
+import { type CenterData } from "@/types/center-details";
 
 import CenterDetailsHeaderSection from "./CenterDetailsHeaderSection";
 import CenterDetailsVaccinesSection from "./CenterDetailsVaccinesSection";

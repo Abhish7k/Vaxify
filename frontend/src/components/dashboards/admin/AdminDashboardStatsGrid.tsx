@@ -74,7 +74,6 @@ function StatCard({ title, value, subtitle, icon }: StatCardProps) {
           <div className="w-12 h-12 shrink-0" />
         </div>
 
-        {/* animated backdrop icon */}
         <motion.div
           variants={imageAnimation}
           className="absolute -right-8 -bottom-8 w-32 h-32 opacity-90 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full flex items-center justify-center p-4"

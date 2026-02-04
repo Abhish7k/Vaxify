@@ -1,6 +1,6 @@
 import { MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { type Center } from "@/constants/centers-mock-data";
+import type { Center } from "@/types/hospital";
 
 type Props = {
   center: Center;

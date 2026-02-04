@@ -5,10 +5,7 @@ import { hospitalApi } from "@/api/hospital.api";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-import type {
-  AdminHospital,
-  HospitalStatus,
-} from "@/components/admin/hospitals-page/types";
+import type { AdminHospital, HospitalStatus } from "@/types/admin-hospital";
 import AdminHospitalsTabsSection from "@/components/admin/hospitals-page/AdminHospitalsTabsSection";
 import { toast } from "sonner";
 

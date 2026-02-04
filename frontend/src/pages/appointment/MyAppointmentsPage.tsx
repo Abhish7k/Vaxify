@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import MyAppointmentsHeaderSection from "@/components/appointment/my-appointments/MyAppointmentsHeaderSection";
-import MyAppointmentsTabsSection, {
-  type AppointmentStatus,
-} from "@/components/appointment/my-appointments/MyAppointmentsTabsSection";
-import { type Appointment } from "@/types/appointment";
+import MyAppointmentsTabsSection from "@/components/appointment/my-appointments/MyAppointmentsTabsSection";
+import { type Appointment, type AppointmentStatus } from "@/types/appointment";
 import MyAppointmentsListSection from "@/components/appointment/my-appointments/MyAppointmentsListSection";
 import { appointmentApi } from "@/api/appointment.api";
 import { MyAppointmentsSkeleton } from "@/components/skeletons/MyAppointmentsSkeleton";
 
-// Modular Dialogs
 import AppointmentTicketDialog from "@/components/appointment/AppointmentTicketDialog";
 import AppointmentCancelDialog from "@/components/appointment/AppointmentCancelDialog";
 
@@ -25,7 +22,6 @@ export default function MyAppointmentsPage() {
     null,
   );
 
-  // Dialog state for cancellation
   const [appointmentToCancel, setAppointmentToCancel] =
     useState<Appointment | null>(null);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
@@ -99,16 +95,26 @@ export default function MyAppointmentsPage() {
         <MyAppointmentsSkeleton />
       ) : (
         <MyAppointmentsListSection
-          appointments={appointments.map((a) => ({
-            id: a.id,
-            centerId: a.centerId || "",
-            centerName: a.centerName || "Unknown Center",
-            centerAddress: a.centerAddress || "",
-            vaccine: a.vaccineName || "Unknown Vaccine",
-            date: a.date,
-            timeSlot: a.slot,
-            status: (a.status || "BOOKED").toUpperCase() as any,
-          }))}
+          appointments={appointments.map((a) => {
+            let status: AppointmentStatus = a.status;
+            const s = (a.status || "").toUpperCase();
+            if (s === "SCHEDULED" || s === "BOOKED" || s === "UPCOMING") {
+              status = "BOOKED";
+            } else if (s === "COMPLETED") {
+              status = "COMPLETED";
+            } else if (s === "CANCELLED") {
+              status = "CANCELLED";
+            }
+
+            return {
+              ...a,
+              centerName: a.centerName || "Unknown Center",
+              centerAddress: a.centerAddress || "",
+              vaccineName: a.vaccineName || a.vaccine || "Unknown Vaccine",
+              slot: a.slot || a.timeSlot || "N/A",
+              status: status,
+            };
+          })}
           activeStatus={activeStatus}
           onBrowseCenters={() => navigate("/centers")}
           onViewCenter={(centerId) => navigate(`/centers/${centerId}`)}

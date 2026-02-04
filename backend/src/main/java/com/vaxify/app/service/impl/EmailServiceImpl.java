@@ -27,11 +27,13 @@ public class EmailServiceImpl implements EmailService {
     public void sendSimpleEmail(String to, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+
             message.setFrom(fromEmail);
             message.setTo(to);
             message.setSubject(subject);
             message.setText(text);
             emailSender.send(message);
+
             log.info("Email sent to {}", to);
         } catch (Exception e) {
             log.error("Failed to send email to {}", to, e);
@@ -51,6 +53,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(htmlBody, true);
 
             emailSender.send(message);
+
             log.info("HTML Email sent to {}", to);
         } catch (MessagingException e) {
             log.error("Failed to send HTML email to {}", to, e);

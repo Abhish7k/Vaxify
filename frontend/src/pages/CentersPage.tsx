@@ -3,7 +3,7 @@ import CenterPageHeader from "@/components/centers/centers-page/CenterPageHeader
 import CentersPageListSection from "@/components/centers/centers-page/CentersPageListSection";
 import CentersPageControlsSection from "@/components/centers/centers-page/control-section/CentersPageControlsSection";
 import type { SortOption } from "@/components/centers/centers-page/control-section/CentersSort";
-import { type Center } from "@/constants/centers-mock-data";
+import type { Center } from "@/types/hospital";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";

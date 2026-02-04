@@ -17,7 +17,6 @@ export default function AdminPlatformMetricsChart() {
 
   return (
     <Card className="w-full col-span-12 xl:col-span-8 p-0">
-      {/* Metric Selector  */}
       <CardHeader className="p-0">
         <div className="grid @2xl:grid-cols-2 @3xl:grid-cols-4 grow border-b">
           {metrics.map((metric) => {
@@ -45,7 +44,6 @@ export default function AdminPlatformMetricsChart() {
         </div>
       </CardHeader>
 
-      {/* Chart */}
       <CardContent className="px-2.5 py-6 relative">
         <ChartContainer
           config={chartConfig}
@@ -63,7 +61,6 @@ export default function AdminPlatformMetricsChart() {
                 }}
                 style={{ overflow: "visible" }}
               >
-                {/* SVG Effects */}
                 <defs>
                   <pattern
                     id="dotGrid"
@@ -107,7 +104,6 @@ export default function AdminPlatformMetricsChart() {
                   </filter>
                 </defs>
 
-                {/* Axes */}
                 <XAxis
                   dataKey="date"
                   axisLine={false}
@@ -136,7 +132,6 @@ export default function AdminPlatformMetricsChart() {
                   }}
                 />
 
-                {/* Tooltip  */}
                 <ChartTooltip
                   content={<CustomTooltip active={false} payload={[]} />}
                   cursor={{
@@ -145,7 +140,6 @@ export default function AdminPlatformMetricsChart() {
                   }}
                 />
 
-                {/* Dotted Background */}
                 <rect
                   x="60px"
                   y="-20px"
@@ -155,7 +149,6 @@ export default function AdminPlatformMetricsChart() {
                   style={{ pointerEvents: "none" }}
                 />
 
-                {/* Line */}
                 <Line
                   type="monotone"
                   dataKey={selectedMetric}
@@ -218,18 +211,18 @@ function CustomTooltip({
 const chartConfig = {
   appointments: {
     label: "Appointments",
-    color: "#6366F1", // Indigo 500
+    color: "#6366F1",
   },
   pendingApprovals: {
     label: "Pending Approvals",
-    color: "#F59E0B", // Amber 500
+    color: "#F59E0B",
   },
   hospitals: {
     label: "Hospitals",
-    color: "#10B981", // Emerald 500
+    color: "#10B981",
   },
   users: {
     label: "Active Users",
-    color: "#0EA5E9", // Sky 500
+    color: "#0EA5E9",
   },
 } satisfies ChartConfig;

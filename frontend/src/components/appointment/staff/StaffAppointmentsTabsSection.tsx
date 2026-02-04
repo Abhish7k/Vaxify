@@ -1,4 +1,12 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { AppointmentStatus } from "@/types/appointment";
+
+export type StaffAppointmentStatus = AppointmentStatus;
+
+type Props = {
+  value: StaffAppointmentStatus;
+  onChange: (value: StaffAppointmentStatus) => void;
+};
 
 export default function StaffAppointmentsTabsSection({
   value,
@@ -18,10 +26,3 @@ export default function StaffAppointmentsTabsSection({
     </Tabs>
   );
 }
-
-export type StaffAppointmentStatus = "UPCOMING" | "COMPLETED" | "CANCELLED";
-
-type Props = {
-  value: StaffAppointmentStatus;
-  onChange: (value: StaffAppointmentStatus) => void;
-};

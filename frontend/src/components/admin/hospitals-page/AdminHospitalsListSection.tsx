@@ -1,6 +1,6 @@
 import AdminHospitalCard from "./AdminHospitalCard";
 import EmptyAdminHospitalsState from "./EmptyAdminHospitalsState";
-import type { AdminHospital, HospitalStatus } from "./types";
+import type { AdminHospital, HospitalStatus } from "@/types/admin-hospital";
 import { AdminHospitalsSkeleton } from "@/components/skeletons/AdminHospitalsSkeleton";
 
 type Props = {

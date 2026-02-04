@@ -1,9 +1,8 @@
 import StaffAppointmentsHeaderSection from "@/components/appointment/staff/StaffAppointmentsHeaderSection";
-import StaffAppointmentsListSection, {
-  type StaffAppointment,
-} from "@/components/appointment/staff/StaffAppointmentsListSection";
+import type { Appointment as StaffAppointment } from "@/types/appointment";
 import type { StaffAppointmentStatus } from "@/components/appointment/staff/StaffAppointmentsTabsSection";
 import StaffAppointmentsTabsSection from "@/components/appointment/staff/StaffAppointmentsTabsSection";
+import StaffAppointmentsListSection from "@/components/appointment/staff/StaffAppointmentsListSection";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { hospitalApi } from "@/api/hospital.api";
@@ -28,7 +27,6 @@ export default function StaffAppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Dialog state
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<
     "complete" | "cancel" | null
@@ -45,7 +43,27 @@ export default function StaffAppointmentsPage() {
       }
 
       const data = await appointmentApi.getStaffAppointments(hospital.id);
-      setAppointments(data as unknown as StaffAppointment[]);
+
+      const mappedData = data.map((appt: any) => {
+        let status = appt.status;
+        const s = (appt.status || "").toUpperCase();
+
+        if (s === "SCHEDULED" || s === "BOOKED" || s === "UPCOMING") {
+          status = "UPCOMING";
+        } else if (s === "COMPLETED") {
+          status = "COMPLETED";
+        } else if (s === "CANCELLED") {
+          status = "CANCELLED";
+        }
+
+        return {
+          ...appt,
+          vaccine: appt.vaccineName || appt.vaccine || "Unknown",
+          status: status,
+        };
+      });
+
+      setAppointments(mappedData);
     } catch (error) {
       console.error(error);
       toast.error("Failed to load appointments");
@@ -119,7 +137,6 @@ export default function StaffAppointmentsPage() {
         />
       )}
 
-      {/* Confirmation Dialog */}
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -128,16 +145,19 @@ export default function StaffAppointmentsPage() {
                 ? "Complete Appointment?"
                 : "Cancel Appointment?"}
             </AlertDialogTitle>
+
             <AlertDialogDescription>
               {pendingAction === "complete"
                 ? `Are you sure you want to mark the appointment for ${selectedAppointment?.patientName} as completed? This will deduct 1 unit from your vaccine inventory.`
                 : `Are you sure you want to cancel the appointment for ${selectedAppointment?.patientName}? This action cannot be undone.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
+
           <AlertDialogFooter>
             <AlertDialogCancel disabled={actionLoading}>
               Cancel
             </AlertDialogCancel>
+
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();

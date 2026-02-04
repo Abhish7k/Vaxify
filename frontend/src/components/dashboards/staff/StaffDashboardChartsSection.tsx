@@ -13,13 +13,11 @@ export default function StaffDashboardChartsSection({
 }: StaffDashboardChartsSectionProps) {
   return (
     <div className="grid gap-4 grid-cols-12">
-      {/* appointments trend line chart */}
       <StaffAppointmentsTrendLine
         appointments={appointments}
         loading={loading}
       />
 
-      {/* appointment status pie chart */}
       <StaffAppointmentStatusPie
         appointments={appointments}
         loading={loading}

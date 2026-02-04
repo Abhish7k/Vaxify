@@ -1,7 +1,7 @@
 import { Building2, MapPin, User, Mail, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import type { AdminHospital } from "./types";
+import type { AdminHospital } from "@/types/admin-hospital";
 import AppointmentStatusBadge from "@/components/appointment/my-appointments/AppointmentStatusBadge";
 import AdminHospitalCardActions from "./AdminHospitalCardActions";
 

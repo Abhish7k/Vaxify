@@ -2,7 +2,7 @@ import { MapPin, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
-import type { CenterData } from "./types";
+import type { CenterData } from "@/types/center-details";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/useAuth";
 import { toast } from "sonner";

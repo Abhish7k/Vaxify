@@ -1,7 +1,7 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { CenterData } from "./types";
+import type { CenterData } from "@/types/center-details";
 
 interface Props {
   center: CenterData;

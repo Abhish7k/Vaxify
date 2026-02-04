@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export type AppointmentStatus = "BOOKED" | "COMPLETED" | "CANCELLED";
+import type { AppointmentStatus } from "@/types/appointment";
 
 type Props = {
   value: AppointmentStatus;

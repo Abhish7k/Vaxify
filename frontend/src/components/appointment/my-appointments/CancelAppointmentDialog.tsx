@@ -36,6 +36,7 @@ export default function CancelAppointmentDialog({
         <AlertDialogHeader className="mb-4 items-center gap-2 md:flex-row md:items-start md:gap-4">
           <div className="flex flex-col gap-2">
             <AlertDialogTitle>Cancel appointment?</AlertDialogTitle>
+
             <AlertDialogDescription>
               Are you sure you want to cancel your vaccination appointment at{" "}
               <span className="font-medium">{centerName}</span> ? This action

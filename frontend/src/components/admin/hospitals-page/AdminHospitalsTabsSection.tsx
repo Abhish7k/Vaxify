@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { HospitalStatus } from "./types";
+import { type HospitalStatus } from "@/types/admin-hospital";
 
 type Props = {
   value: HospitalStatus;

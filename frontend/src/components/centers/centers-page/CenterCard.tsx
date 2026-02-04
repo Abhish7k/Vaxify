@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowRight, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, type Variants } from "framer-motion";
-import { type Center } from "@/constants/centers-mock-data";
+import type { Center } from "@/types/hospital";
 
 type Props = {
   center: Center;

@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import type { CenterData } from "./types";
+import type { CenterData } from "@/types/center-details";
 
 interface Props {
   center: CenterData;

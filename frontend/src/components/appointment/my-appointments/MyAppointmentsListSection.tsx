@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import EmptyAppointmentsState from "./EmptyAppointmentsState";
-import type { AppointmentStatus } from "./MyAppointmentsTabsSection";
+import type { Appointment, AppointmentStatus } from "@/types/appointment";
 import { getMyAppointmentsColumns } from "./MyAppointmentsColumns";
 
 export default function MyAppointmentsListSection({
@@ -46,17 +46,6 @@ export default function MyAppointmentsListSection({
     </div>
   );
 }
-
-export type Appointment = {
-  id: string;
-  centerId: string;
-  centerName: string;
-  centerAddress: string;
-  vaccine: string;
-  date: string;
-  timeSlot: string;
-  status: AppointmentStatus;
-};
 
 type Props = {
   appointments: Appointment[];

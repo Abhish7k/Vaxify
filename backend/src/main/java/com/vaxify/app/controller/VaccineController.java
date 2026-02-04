@@ -31,16 +31,16 @@ public class VaccineController {
     @PostMapping("/staff")
     public ResponseEntity<VaccineResponseDTO> create(@RequestBody VaccineRequestDTO dto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(vaccineService.createVaccine(dto, email));
     }
 
     // staff: update their vaccine
     @PutMapping("/staff/{id}")
-    public ResponseEntity<VaccineResponseDTO> update(
-            @PathVariable Long id,
-            @RequestBody VaccineRequestDTO dto) {
+    public ResponseEntity<VaccineResponseDTO> update(@PathVariable Long id, @RequestBody VaccineRequestDTO dto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         return ResponseEntity.ok(vaccineService.updateVaccine(id, dto, email));
     }
 
@@ -48,7 +48,9 @@ public class VaccineController {
     @DeleteMapping("/staff/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         vaccineService.deleteVaccine(id, email);
+
         return ResponseEntity.ok("Vaccine deleted");
     }
 
@@ -56,6 +58,7 @@ public class VaccineController {
     @GetMapping("/staff")
     public ResponseEntity<List<VaccineResponseDTO>> getMyVaccines() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         return ResponseEntity.ok(vaccineService.getVaccinesByStaff(email));
     }
 

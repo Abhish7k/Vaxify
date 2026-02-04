@@ -1,8 +1,7 @@
-import { ClipboardCheck, CalendarX2, Package } from "lucide-react";
-
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
+import { ClipboardCheck, Users, BarChart3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Action {
   label: string;
@@ -12,29 +11,31 @@ interface Action {
 }
 
 export default function AdminQuickActions() {
+  const navigate = useNavigate();
+
   const actions: Action[] = [
     {
       label: "Review Hospital Approvals",
       description: "Approve or reject pending hospital requests",
       icon: ClipboardCheck,
       onClick: () => {
-        // navigate("/admin/hospitals?status=pending")
+        navigate("/admin/hospitals");
       },
     },
     {
-      label: "Resolve Appointment Conflicts",
-      description: "Fix overbooked or invalid appointments",
-      icon: CalendarX2,
+      label: "Manage Users",
+      description: "View and manage registered patients",
+      icon: Users,
       onClick: () => {
-        // navigate("/admin/appointments/conflicts")
+        navigate("/admin/users");
       },
     },
     {
-      label: "View Low Stock Alerts",
-      description: "Hospitals running low on vaccines",
-      icon: Package,
+      label: "Platform Analytics",
+      description: "View vaccination insights and trends",
+      icon: BarChart3,
       onClick: () => {
-        // navigate("/admin/stock/alerts")
+        navigate("/admin/analytics");
       },
     },
   ];

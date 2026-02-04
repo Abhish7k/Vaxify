@@ -30,6 +30,7 @@ public class UserController {
     @GetMapping("/stats")
     public ResponseEntity<com.vaxify.app.dtos.UserStatsDTO> getStats(Authentication authentication) {
         String email = authentication.getName();
+
         return ResponseEntity.ok(userService.getUserStats(email));
     }
 

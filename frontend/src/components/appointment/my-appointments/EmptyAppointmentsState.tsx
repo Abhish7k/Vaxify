@@ -1,7 +1,7 @@
 import { CalendarX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { AppointmentStatus } from "./MyAppointmentsTabsSection";
+import type { AppointmentStatus } from "@/types/appointment";
 
 type Props = {
   status: AppointmentStatus;
@@ -16,6 +16,22 @@ export default function EmptyAppointmentsState({
     AppointmentStatus,
     { title: string; description: string }
   > = {
+    UPCOMING: {
+      title: "No upcoming appointments",
+      description: "You don’t have any upcoming vaccination appointments.",
+    },
+    scheduled: {
+      title: "No upcoming appointments",
+      description: "You don’t have any upcoming vaccination appointments.",
+    },
+    completed: {
+      title: "No completed appointments",
+      description: "You haven’t completed any appointments yet.",
+    },
+    cancelled: {
+      title: "No cancelled appointments",
+      description: "You don’t have any cancelled appointments.",
+    },
     BOOKED: {
       title: "No upcoming appointments",
       description: "You don’t have any upcoming vaccination appointments.",
@@ -35,10 +51,10 @@ export default function EmptyAppointmentsState({
       <CardContent className="py-12 flex flex-col items-center text-center gap-3">
         <CalendarX className="h-8 w-8 text-muted-foreground" />
 
-        <h3 className="font-medium">{copy[status].title}</h3>
+        <h3 className="font-medium">{copy[status]?.title}</h3>
 
         <p className="text-sm text-muted-foreground max-w-sm">
-          {copy[status].description}
+          {copy[status]?.description}
         </p>
 
         {status === "BOOKED" && onBrowseCenters && (

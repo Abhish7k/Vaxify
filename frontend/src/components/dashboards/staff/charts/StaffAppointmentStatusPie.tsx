@@ -65,7 +65,7 @@ export function StaffAppointmentStatusPie({
 
     appointments.forEach((a) => {
       const aptDate = parseISO(a.date);
-      // Filter for last 30 days
+      // filter for last 30 days
       if (isAfter(aptDate, thirtyDaysAgo)) {
         const status = a.status.toUpperCase();
         if (

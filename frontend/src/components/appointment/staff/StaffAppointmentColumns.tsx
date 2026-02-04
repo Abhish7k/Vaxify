@@ -19,7 +19,7 @@ import {
   Clock,
   Syringe,
 } from "lucide-react";
-import type { StaffAppointment } from "./StaffAppointmentsListSection";
+import type { Appointment as StaffAppointment } from "@/types/appointment";
 import { formatTime } from "@/lib/utils";
 
 interface GetColumnsProps {

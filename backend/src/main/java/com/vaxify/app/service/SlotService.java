@@ -6,8 +6,7 @@ import java.util.List;
 import com.vaxify.app.dtos.SlotRequestDTO;
 import com.vaxify.app.dtos.SlotResponseDTO;
 
-public interface SlotService
- {
+public interface SlotService {
     SlotResponseDTO createSlot(SlotRequestDTO dto);
 
     SlotResponseDTO updateSlot(Long slotId, SlotRequestDTO dto);

@@ -1,6 +1,6 @@
 import { Building2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { copy, type HospitalStatus } from "./types";
+import { copy, type HospitalStatus } from "@/types/admin-hospital";
 
 type Props = {
   status: HospitalStatus;

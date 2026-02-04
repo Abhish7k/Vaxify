@@ -40,6 +40,7 @@ public class FileUploadController {
             String fileUrl = s3Service.generatePresignedUrl(fileName);
 
             Map<String, String> response = new HashMap<>();
+
             response.put("fileName", fileName);
             response.put("fileUrl", fileUrl);
             response.put("message", "File uploaded successfully");
@@ -60,6 +61,7 @@ public class FileUploadController {
         String uploadUrl = s3Service.generatePresignedUploadUrl(uniqueFileName, contentType);
 
         Map<String, String> response = new HashMap<>();
+
         response.put("fileName", uniqueFileName);
         response.put("uploadUrl", uploadUrl);
 
@@ -69,6 +71,7 @@ public class FileUploadController {
     @GetMapping("/download/{fileName}")
     public ResponseEntity<byte[]> downloadFile(@PathVariable String fileName) {
         byte[] data = s3Service.downloadFile(fileName);
+
         return ResponseEntity.ok()
                 .header("Content-type", "application/octet-stream")
                 .header("Content-disposition", "attachment; filename=\"" + fileName + "\"")

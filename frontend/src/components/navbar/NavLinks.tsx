@@ -29,10 +29,6 @@ const NavLinks = () => {
 };
 
 const links = [
-  // {
-  //   name: "Book Appointment",
-  //   href: "/centers",
-  // },
   {
     name: "Centers",
     href: "/centers",

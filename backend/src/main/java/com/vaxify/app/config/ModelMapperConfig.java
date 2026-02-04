@@ -13,14 +13,13 @@ public class ModelMapperConfig {
 
         ModelMapper modelMapper = new ModelMapper();
 
-        // STRICT matching is recommended for large projects
+        // strict matching is recommended for large projects
         modelMapper.getConfiguration()
                 .setMatchingStrategy(MatchingStrategies.STRICT)
                 .setSkipNullEnabled(true)
                 .setFieldMatchingEnabled(true)
                 .setFieldAccessLevel(
-                        org.modelmapper.config.Configuration.AccessLevel.PRIVATE
-                );
+                        org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
 
         return modelMapper;
     }

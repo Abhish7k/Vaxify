@@ -1,4 +1,3 @@
-import { API_CONFIG } from "./api.config";
 import api from "./axios";
 import type {
   Appointment,
@@ -9,22 +8,6 @@ import type {
 export const appointmentApi = {
   // get available slots for a center on a specific date
   getSlots: async (centerId: string, date: string): Promise<TimeSlot[]> => {
-    if (API_CONFIG.USE_MOCKS) {
-      console.log(
-        `[mock api] fetching slots for center ${centerId} on ${date}...`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      const slots: TimeSlot[] = [];
-      const startHour = 9;
-      const endHour = 17;
-      for (let i = startHour; i < endHour; i++) {
-        const time = `${i.toString().padStart(2, "0")}:00`;
-        const available = Math.random() > 0.3;
-        slots.push({ time, available });
-      }
-      return slots;
-    }
-
     const formattedDate = date.includes("T") ? date.split("T")[0] : date;
 
     const response = await api.get<any[]>(`/slots/hospital/${centerId}/date`, {
@@ -33,6 +16,7 @@ export const appointmentApi = {
 
     return response.data.map((s: any) => ({
       time: s.startTime,
+
       available: s.status === "AVAILABLE" || s.bookedCount < s.capacity,
     }));
   },
@@ -41,25 +25,10 @@ export const appointmentApi = {
   bookAppointment: async (
     data: BookAppointmentRequest,
   ): Promise<Appointment> => {
-    if (API_CONFIG.USE_MOCKS) {
-      console.log("[mock api] booking appointment...", data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return {
-        id: `apt_${Date.now()}`,
-        userId: "user_1",
-        centerId: data.centerId,
-        vaccineId: data.vaccineId,
-        date: data.date,
-        slot: data.slot,
-        status: "scheduled",
-        createdAt: new Date().toISOString(),
-        centerName: "Mock Hospital",
-        vaccineName: "Mock Vaccine",
-      } as any;
-    }
-
     const response = await api.post<any>("/appointments", data);
+
     const a = response.data;
+
     return {
       id: String(a.id),
       userId: String(a.userId),
@@ -77,11 +46,8 @@ export const appointmentApi = {
 
   // get current user's appointments
   getMyAppointments: async (): Promise<Appointment[]> => {
-    if (API_CONFIG.USE_MOCKS) {
-      return [];
-    }
-
     const response = await api.get<any[]>("/appointments/my");
+
     return response.data.map((a: any) => ({
       id: String(a.id),
       centerId: String(a.hospitalId || a.centerId),
@@ -97,26 +63,20 @@ export const appointmentApi = {
 
   // cancel appointment
   cancelAppointment: async (appointmentId: string): Promise<void> => {
-    if (API_CONFIG.USE_MOCKS) {
-      return;
-    }
     await api.patch(`/appointments/${appointmentId}/cancel`);
   },
 
   // get all appointments for a staff's hospital
   getStaffAppointments: async (hospitalId: string): Promise<Appointment[]> => {
-    if (API_CONFIG.USE_MOCKS) {
-      console.log("[Mock API] Fetching staff appointments...");
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      return [];
-    }
-
     const response = await api.get<any[]>(
       `/appointments/hospital/${hospitalId}`,
     );
+
     return response.data.map((a: any) => {
       let status = a.status;
+
       if (status === "BOOKED" || status === "scheduled") status = "UPCOMING";
+
       return {
         id: String(a.id),
         patientName: a.patientName,
@@ -132,9 +92,6 @@ export const appointmentApi = {
 
   // complete appointment
   completeAppointment: async (appointmentId: string): Promise<void> => {
-    if (API_CONFIG.USE_MOCKS) {
-      return;
-    }
     await api.patch(`/appointments/${appointmentId}/complete`);
   },
 };

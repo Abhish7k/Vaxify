@@ -4,7 +4,6 @@ import {
   User,
   Mail,
   Phone,
-  MapPin,
   Hash,
   Calendar,
   ClipboardList,
@@ -53,7 +52,6 @@ export default function UserInfoCard() {
     { icon: User, label: "Name", value: profile.name },
     { icon: Mail, label: "Email", value: profile.email },
     { icon: Phone, label: "Phone", value: profile.phone || "Not provided" },
-    { icon: MapPin, label: "Address", value: "India" }, // address not in DTO yet
   ];
 
   const metadataInfo = [

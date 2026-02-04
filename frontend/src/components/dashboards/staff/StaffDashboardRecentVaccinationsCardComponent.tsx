@@ -15,7 +15,7 @@ export const StaffDashboardRecentVaccinationsCardComponent = ({
   appointments,
   loading,
 }: StaffDashboardRecentVaccinationsCardComponentProps) => {
-  // Filter for completed status and slice for recent 4
+  // filter for completed status and slice for recent 4
   const recentList = appointments
     .filter((a) => a.status === "COMPLETED")
     .slice(0, 4);

@@ -14,7 +14,7 @@ import { vaccineApi } from "@/api/vaccine.api";
 import { appointmentApi } from "@/api/appointment.api";
 import type { Vaccine } from "@/types/vaccine";
 import type { TimeSlot } from "@/types/appointment";
-import { type Center } from "@/constants/centers-mock-data";
+import type { Center } from "@/types/hospital";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -191,14 +191,11 @@ const AppointmentBookingPage = () => {
                 vaccines={vaccines.map((v) => ({
                   id: v.id,
                   name: v.name,
-                  description: v.type, // mapping type to description for ui
+                  description: v.type,
                 }))}
                 selectedVaccineId={selectedVaccineId}
                 onSelect={(id) => {
                   setSelectedVaccineId(id);
-
-                  // do not reset date, but maybe reset slot
-                  // keeping date is better ux
 
                   setSelectedSlot(null);
                 }}

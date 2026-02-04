@@ -49,6 +49,7 @@ public class Vaccine {
     @JoinColumn(name = "hospital_id")
     private Hospital hospital;
 
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
 }

@@ -8,11 +8,15 @@ import com.vaxify.app.entities.enums.SlotStatus;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.repository.*;
 import com.vaxify.app.service.AppointmentService;
+import com.vaxify.app.service.EmailService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +29,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         private final SlotRepository slotRepository;
 
         private final UserRepository userRepository;
-        private final com.vaxify.app.service.EmailService emailService;
+        private final EmailService emailService;
 
         @Override
         @Transactional
@@ -36,17 +40,18 @@ public class AppointmentServiceImpl implements AppointmentService {
                 Vaccine vaccine = vaccineRepository.findById(request.getVaccineId())
                                 .orElseThrow(() -> new VaxifyException("Vaccine not found"));
 
-                java.time.LocalDate slotDate = java.time.LocalDate.parse(request.getDate());
+                LocalDate slotDate = LocalDate.parse(request.getDate());
 
                 List<Slot> slots = slotRepository.findByCenterIdAndDate(request.getCenterId(), slotDate);
 
                 // compare localtime objects to handle format differences (e.g. 09:00 vs
                 // 09:00:00)
-                java.time.LocalTime requestedTime = java.time.LocalTime.parse(request.getSlot());
+                LocalTime requestedTime = LocalTime.parse(request.getSlot());
 
                 // Time Travel Check
-                java.time.LocalDateTime slotDateTime = java.time.LocalDateTime.of(slotDate, requestedTime);
-                if (slotDateTime.isBefore(java.time.LocalDateTime.now())) {
+                LocalDateTime slotDateTime = LocalDateTime.of(slotDate, requestedTime);
+
+                if (slotDateTime.isBefore(LocalDateTime.now())) {
                         throw new VaxifyException("Cannot book a slot for a time that has already passed.");
                 }
 
@@ -123,6 +128,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 if (slot.getStatus() == SlotStatus.FULL && slot.getBookedCount() < slot.getCapacity()) {
                         slot.setStatus(SlotStatus.AVAILABLE);
                 }
+
                 slotRepository.save(slot);
 
                 appointmentRepository.save(appointment);

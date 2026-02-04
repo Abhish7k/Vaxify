@@ -107,6 +107,7 @@ public class HospitalServiceImpl implements HospitalService {
         public HospitalResponse getHospitalById(Long id) {
                 Hospital hospital = hospitalRepository.findById(id)
                                 .orElseThrow(() -> new IllegalStateException("Hospital not found"));
+
                 return toResponse(hospital, false);
         }
 
@@ -152,6 +153,7 @@ public class HospitalServiceImpl implements HospitalService {
                                         + "' has been APPROVED by the admin.\n" +
                                         "You can now login and manage your hospital dashboard.\n\n" +
                                         "Regards,\nVaxify Team";
+
                         emailService.sendSimpleEmail(saved.getStaffUser().getEmail(), subject, body);
                 }
 
@@ -177,6 +179,7 @@ public class HospitalServiceImpl implements HospitalService {
                                         + "' has been REJECTED by the admin.\n" +
                                         "Please contact support for more details.\n\n" +
                                         "Regards,\nVaxify Team";
+
                         emailService.sendSimpleEmail(saved.getStaffUser().getEmail(), subject, body);
                 }
 
@@ -192,6 +195,7 @@ public class HospitalServiceImpl implements HospitalService {
                 if (hospital.getStatus() != HospitalStatus.PENDING) {
                         throw new IllegalStateException("Hospital is not pending");
                 }
+
                 return hospital;
         }
 
@@ -293,6 +297,7 @@ public class HospitalServiceImpl implements HospitalService {
                                 "Your application is currently PENDING approval from the admin.\n" +
                                 "You will be notified once the status changes.\n\n" +
                                 "Regards,\nVaxify Team";
+
                 emailService.sendSimpleEmail(staffUser.getEmail(), subject, body);
 
         }
@@ -306,9 +311,10 @@ public class HospitalServiceImpl implements HospitalService {
                 // delete all vaccines associated with this hospital first
                 List<com.vaxify.app.entities.Vaccine> vaccines = vaccineRepository.findByHospital(hospital);
 
-                // delete appointments first (Constraint fix)
+                // delete appointments first (constraint fix)
                 List<com.vaxify.app.entities.Appointment> appointments = appointmentRepository
                                 .findByVaccineIn(vaccines);
+
                 appointmentRepository.deleteAll(appointments);
 
                 vaccineRepository.deleteAll(vaccines);

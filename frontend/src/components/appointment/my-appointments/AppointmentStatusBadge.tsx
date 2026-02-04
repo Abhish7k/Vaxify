@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import type { AppointmentStatus } from "./MyAppointmentsTabsSection";
+import type { AppointmentStatus } from "@/types/appointment";
 import type { StaffAppointmentStatus } from "../staff/StaffAppointmentsTabsSection";
-import type { HospitalStatus } from "@/components/admin/hospitals-page/types";
+import type { HospitalStatus } from "@/types/admin-hospital";
 
 type Props = {
   status: AppointmentStatus | StaffAppointmentStatus | HospitalStatus;

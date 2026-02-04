@@ -44,7 +44,7 @@ export const StaffAppointmentsTrendLine = ({
   const isDemoData = appointments.length === 0;
 
   const chartData = React.useMemo(() => {
-    // Aggregation: Divide 30 days into 6 buckets of 5 days each
+    // aggregation: divide 30 days into 6 buckets of 5 days each
     const buckets = Array.from({ length: 6 }).map((_, i) => {
       const end = subDays(new Date(), (5 - i) * 5);
       const start = subDays(end, 4);

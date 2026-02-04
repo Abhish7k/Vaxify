@@ -19,7 +19,7 @@ import {
   Ticket,
   Eye,
 } from "lucide-react";
-import type { Appointment } from "./MyAppointmentsListSection";
+import type { Appointment } from "@/types/appointment";
 import { formatTime } from "@/lib/utils";
 import AppointmentStatusBadge from "./AppointmentStatusBadge";
 
@@ -54,6 +54,7 @@ export const getMyAppointmentsColumns = ({
         >
           {row.getValue("centerName")}
         </span>
+
         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 truncate">
           <MapPin className="h-3 w-3 shrink-0" />
           <span className="truncate" title={row.original.centerAddress}>
@@ -127,6 +128,7 @@ export const getMyAppointmentsColumns = ({
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end" className="w-48 p-2">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />

@@ -1,9 +1,9 @@
 import { Calendar, Clock, MapPin, Syringe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { Appointment } from "./MyAppointmentsListSection";
 import AppointmentStatusBadge from "./AppointmentStatusBadge";
 import CancelAppointmentDialog from "./CancelAppointmentDialog";
+import type { Appointment } from "@/types/appointment";
 
 type Props = {
   appointment: Appointment;
@@ -22,12 +22,6 @@ export default function AppointmentCard({
     <div className="w-full">
       <Card className="hover:shadow-md transition-shadow">
         <CardContent className="px-6">
-          {/*
-            layout behavior:
-            - >=1100px: single horizontal row
-            - <1100px: two rows (time + status move down)
-            - <640px: everything stacks vertically
-          */}
           <div
             className="
               grid gap-4
@@ -37,7 +31,6 @@ export default function AppointmentCard({
               [@media(min-width:1100px)]:grid-cols-[1.6fr_1fr_1fr_1fr_auto]
             "
           >
-            {/* center info always first */}
             <div className="min-w-40 col-span-1 sm:col-span-2 [@media(min-width:1100px)]:col-span-1">
               <p className="font-medium">{appointment.centerName}</p>
               <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
@@ -46,31 +39,30 @@ export default function AppointmentCard({
               </div>
             </div>
 
-            {/* vaccine */}
             <div className="flex items-center gap-2">
               <Syringe className="h-4 w-4 text-purple-500" />
-              <span className="text-sm font-medium">{appointment.vaccine}</span>
+              <span className="text-sm font-medium">
+                {appointment.vaccineName || appointment.vaccine}
+              </span>
             </div>
 
-            {/* date */}
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">{appointment.date}</span>
             </div>
 
-            {/* time slot moves down on medium screens */}
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{appointment.timeSlot}</span>
+              <span className="text-sm">
+                {appointment.timeSlot || appointment.slot}
+              </span>
             </div>
 
-            {/* status stacks under time on smaller screens */}
             <div className="justify-self-start [@media(min-width:1100px)]:justify-self-end">
               <AppointmentStatusBadge status={appointment.status} />
             </div>
           </div>
 
-          {/* actions stay unchanged */}
           <div className="mt-10 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
@@ -92,7 +84,7 @@ export default function AppointmentCard({
 
             {appointment.status === "BOOKED" && (
               <CancelAppointmentDialog
-                centerName={appointment.centerName}
+                centerName={appointment.centerName || ""}
                 onConfirm={onCancel}
               />
             )}

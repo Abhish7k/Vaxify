@@ -23,6 +23,7 @@ export default function StaffStatsGrid({
   ).length;
 
   const todayStr = format(new Date(), "yyyy-MM-dd");
+
   const todayAppointments = appointments.filter(
     (a) => a.date === todayStr,
   ).length;

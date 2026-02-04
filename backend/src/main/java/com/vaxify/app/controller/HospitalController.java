@@ -1,6 +1,8 @@
 package com.vaxify.app.controller;
 
 import com.vaxify.app.dtos.hospital.HospitalResponse;
+import com.vaxify.app.dtos.hospital.UpdateHospitalRequest;
+
 import java.util.List;
 import com.vaxify.app.service.HospitalService;
 import jakarta.validation.Valid;
@@ -42,6 +44,7 @@ public class HospitalController {
     @PostMapping("/register")
     public ResponseEntity<String> registerHospitalStaff(@Valid @RequestBody StaffHospitalRegistrationDTO dto) {
         hospitalService.registerHospitalStaff(dto);
+
         return ResponseEntity.ok("Hospital registration submitted for approval");
     }
 
@@ -56,8 +59,7 @@ public class HospitalController {
     }
 
     @PutMapping("/my")
-    public HospitalResponse updateHospital(
-            @Valid @RequestBody com.vaxify.app.dtos.hospital.UpdateHospitalRequest request) {
+    public HospitalResponse updateHospital(@Valid @RequestBody UpdateHospitalRequest request) {
 
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()

@@ -2,7 +2,7 @@ import AdminHospitalFloatingActions from "@/components/admin/hospital-details-pa
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import MainSection from "./AdminHospitalDetailsMainSection";
+import MainSection from "@/components/admin/hospital-details-page/AdminHospitalDetailsMainSection";
 import { hospitalApi } from "@/api/hospital.api";
 import { Loader2 } from "lucide-react";
 
