@@ -70,6 +70,7 @@ const LoginForm: React.FC = () => {
         },
       });
     } finally {
+      await new Promise((resolve) => setTimeout(resolve, 400));
       setIsLoading(false);
     }
   };
@@ -129,7 +130,7 @@ const LoginForm: React.FC = () => {
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
-                <LoaderCircle className="animate-spin" />
+                <LoaderCircle className="animate-spin size-4" />
                 Signing In...
               </span>
             ) : (

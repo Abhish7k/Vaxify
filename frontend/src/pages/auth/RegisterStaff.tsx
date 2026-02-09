@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -7,24 +7,22 @@ import { toast } from "sonner";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { useAuth } from "@/auth/useAuth";
 import { StaffDetailsStep } from "@/components/auth/StaffDetailsStep";
 import { HospitalDetailsStep } from "@/components/auth/HospitalDetailsStep";
 
-// staff details schema
+// step 1 schema - staff only
 const step1Schema = z
   .object({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
-
+    
     phone: z
-      .string()
-      .regex(/^(\+91)?[6-9]\d{9}$/, "Enter a valid Indian phone number"),
-
+      .string().min(10, "Enter a valid phone number").max(10, "Enter a valid phone number"),
     email: z.email("Enter a valid email address"),
 
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters").max(20, "Password must be at most 20 characters") ,
+
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -32,43 +30,22 @@ const step1Schema = z
     path: ["confirmPassword"],
   });
 
-// hospital details schema
-// we repeat staff fields here because step 2 is the final step.
-// when the user submits the form on step 2, we want to validate everything
-const step2Schema = z
-  .object({
-    firstName: z.string().min(2, "First name must be at least 2 characters"),
-    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+// step 2 schema - hospital only
+const step2Schema = z.object({
+  hospitalName: z.string().min(2, "Hospital name is required"),
+  hospitalAddress: z.string().min(5, "Hospital address is required"),
 
-    phone: z
-      .string()
-      .regex(/^(\+91)?[6-9]\d{9}$/, "Enter a valid Indian phone number"),
+  city: z.string().min(2, "City is required"),
+  state: z.string().min(2, "State is required"),
+  pincode: z.string().min(6, "Enter a valid 6-digit pincode"),
 
-    email: z.email("Enter a valid email address"),
+  hospitalRegistrationId: z.string().min(3, "Hospital registration ID is required"),
+  
+  document: z.string().min(1, "Verification document is required"),
+});
 
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-
-    hospitalName: z.string().min(2, "Hospital name is required"),
-
-    hospitalAddress: z.string().min(5, "Hospital address is required"),
-
-    city: z.string().min(2, "City is required"),
-    state: z.string().min(2, "State is required"),
-    pincode: z.string().regex(/^\d{6}$/, "Enter a valid 6-digit pincode"),
-
-    hospitalRegistrationId: z
-      .string()
-      .min(3, "Hospital registration ID is required"),
-
-    document: z.string().min(1, "Verification document is required"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type StaffRegisterForm = z.infer<typeof step2Schema>;
+// for form state 
+type StaffRegisterForm = z.infer<typeof step1Schema> & z.infer<typeof step2Schema>;
 
 const RegisterStaff = () => {
   const [step, setStep] = useState(1);
@@ -80,39 +57,50 @@ const RegisterStaff = () => {
     register,
     handleSubmit,
     trigger,
+    clearErrors,
+    getValues,
     setValue,
     watch,
     formState: { errors },
   } = useForm<StaffRegisterForm>({
-    // we want switch the validation schema based on the current step
-    // - if on step 1, we only check staff details step1Schema
-    // - if on step 2, we check everything step2Schema
-
     resolver: zodResolver(step === 1 ? step1Schema : step2Schema) as any,
     mode: "onSubmit",
     defaultValues: {
+      firstName: "",
+      lastName: "",
+      phone: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      hospitalName: "",
+      hospitalAddress: "",
+      city: "",
+      state: "",
+      pincode: "",
+      hospitalRegistrationId: "",
       document: "",
     },
   });
 
+  // clear errors on step change to ensure no premature messages
+  useEffect(() => {
+    // we clear errors and reset validation state so step 2 starts clean
+    clearErrors();
+  }, [step, clearErrors]);
+
+
   const onNext = async () => {
-    // we strictly validate only the fields present in step 1
-    // trigger returns true if these fields are valid, allowing us to proceed
-    // if we didn't do this, the user could skip step 1 without entering data
-
-    const step1Fields: (keyof StaffRegisterForm)[] = [
-      "firstName",
-      "lastName",
-      "email",
-      "phone",
-      "password",
-      "confirmPassword",
-    ];
-
-    const isStep1Valid = await trigger(step1Fields);
-
-    if (isStep1Valid) {
-      setStep(2);
+    // validate only the current step (using the active schema)
+    const isStepValid = await trigger();
+    
+    if (isStepValid) {
+      if (step === 1) {
+        // using setTimeout to move to next step ensures components mount 
+        // before clearing errors, effectively hiding premature messages
+        setTimeout(() => {
+          setStep(2);
+        }, 10);
+      }
     }
   };
 
@@ -120,14 +108,15 @@ const RegisterStaff = () => {
     setStep(1);
   };
 
-  // on submit func
-  const onSubmit = async (data: StaffRegisterForm) => {
+  const onSubmit = async () => {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // destructure data to format it for the backend api
+      // combine data from all fields across steps
+      const data = getValues();
+
       const {
         firstName,
         lastName,
@@ -140,9 +129,9 @@ const RegisterStaff = () => {
         state,
         pincode,
         hospitalRegistrationId,
+        document,
       } = data;
 
-      // payload to match the expected StaffHospitalRegistrationDTO structure
       const registerStaffPayload = {
         staffName: `${firstName} ${lastName}`,
         email,
@@ -153,20 +142,34 @@ const RegisterStaff = () => {
         city,
         state,
         pincode,
-        licenseNumber: hospitalRegistrationId, // backend calls it licenseNumber
-        document: data.document,
+        licenseNumber: hospitalRegistrationId,
+        document,
       };
 
       await registerStaff(registerStaffPayload);
 
-      toast.success("Registration submitted for approval");
+      toast.success("Registration submitted for approval", {
+        style: {
+          backgroundColor: "#e7f9ed",
+          color: "#0f7a28",
+        },
+      });
     } catch (error: any) {
-      // extract error message from backend response if available
       const errorMessage =
         error.response?.data?.message || "Staff Registration failed";
-      toast.error(errorMessage);
+
+      toast.error(errorMessage, {
+       style: {
+          backgroundColor: "#ffe5e5",
+          color: "#b00000",
+        },
+      });
+
       console.log("register staff failed with error: ", error);
     } finally {
+
+      await new Promise((resolve) => setTimeout(resolve, 400));
+
       setIsLoading(false);
     }
   };
@@ -181,8 +184,6 @@ const RegisterStaff = () => {
         <p className="text-sm text-center text-muted-foreground">
           Step {step} of 2: {step === 1 ? "Staff Details" : "Hospital Details"}
         </p>
-
-        {/* progress indicator */}
         <div className="flex justify-center gap-2 mt-2">
           <div
             className={`h-1 w-12 rounded-full transition-colors ${
@@ -199,12 +200,10 @@ const RegisterStaff = () => {
 
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* step 1 - staff details */}
           {step === 1 && (
             <StaffDetailsStep register={register} errors={errors} />
           )}
 
-          {/* step 2 - hospital details */}
           {step === 2 && (
             <HospitalDetailsStep
               register={register}
@@ -214,7 +213,6 @@ const RegisterStaff = () => {
             />
           )}
 
-          {/* actions */}
           <div className="space-y-4 pt-4">
             <div className="flex gap-3">
               {step === 2 && (

@@ -16,9 +16,7 @@ const userRegisterSchema = z
     firstName: z.string().min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
 
-    phone: z
-      .string()
-      .regex(/^(\+91)?[6-9]\d{9}$/, "Enter a valid Indian phone number"),
+    phone: z.string().min(10, "Enter a valid phone number").max(10, "Enter a valid phone number"),
 
     email: z.email("Enter a valid email"),
 

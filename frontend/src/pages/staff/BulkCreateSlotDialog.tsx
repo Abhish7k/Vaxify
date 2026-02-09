@@ -90,6 +90,20 @@ export function BulkCreateSlotDialog({
       return;
     }
 
+    // validation for past date/time check for today
+    const now = new Date();
+    const isTodaySelected = format(startDate, "yyyy-MM-dd") === format(now, "yyyy-MM-dd");
+    if (isTodaySelected) {
+      const [hours, minutes] = startTime.split(":").map(Number);
+      const startDateTime = new Date(startDate);
+      startDateTime.setHours(hours, minutes, 0, 0);
+
+      if (startDateTime < now) {
+        toast.error("Cannot create slots for a past time today. Please adjust the start time.");
+        return;
+      }
+    }
+
     try {
       setLoading(true);
 
@@ -321,7 +335,7 @@ export function BulkCreateSlotDialog({
         </div>
 
         <DialogFooter>
-          <Button onClick={handleBulkCreate} disabled={loading}>
+          <Button onClick={handleBulkCreate} disabled={loading} className="active:scale-95 transition-all">
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {loading ? "Generating Slots..." : "Create Bulk Slots"}
           </Button>

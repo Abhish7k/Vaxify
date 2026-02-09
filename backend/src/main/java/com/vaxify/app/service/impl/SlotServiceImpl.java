@@ -30,6 +30,18 @@ public class SlotServiceImpl implements SlotService {
     @Transactional
     public SlotResponseDTO createSlot(SlotRequestDTO dto) {
 
+        // check for past date/time
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
+        if (dto.getDate().isBefore(today)) {
+            throw new RuntimeException("Cannot create slots for a past date.");
+        }
+
+        if (dto.getDate().isEqual(today) && dto.getStartTime().isBefore(now)) {
+            throw new RuntimeException("Cannot create slots for a past time today.");
+        }
+
         if (dto.getDate().getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
             throw new RuntimeException("Cannot create slots on Sunday");
         }
@@ -69,6 +81,18 @@ public class SlotServiceImpl implements SlotService {
 
         // strict + skipNullEnabled = true → safe partial update
         modelMapper.map(dto, slot);
+
+        // validation: past date/time check
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
+        if (slot.getDate().isBefore(today)) {
+            throw new RuntimeException("Cannot move or keep a slot in a past date.");
+        }
+
+        if (slot.getDate().isEqual(today) && slot.getStartTime().isBefore(now)) {
+            throw new RuntimeException("Cannot move or keep a slot in a past time today.");
+        }
 
         // validation: capacity cannot be less than current bookings
         if (slot.getCapacity() < slot.getBookedCount()) {

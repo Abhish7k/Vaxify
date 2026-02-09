@@ -47,7 +47,7 @@ export const StaffDetailsStep = ({
 
       <div className="space-y-2">
         <Label>Phone Number</Label>
-        <Input placeholder="+91XXXXXXXXXX" {...register("phone")} />
+        <Input {...register("phone")} type="number" />
         {errors.phone && (
           <p className="text-sm text-red-500">
             {errors.phone.message as string}

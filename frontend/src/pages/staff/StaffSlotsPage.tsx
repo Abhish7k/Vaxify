@@ -135,6 +135,17 @@ export default function StaffSlotsPage() {
   const handleCreateSlot = async () => {
     if (!hospitalId || !date) return;
 
+    // validation for past date/time check
+    const now = new Date();
+    const selectedDate = new Date(date);
+    const [hours, minutes] = startTime.split(":").map(Number);
+    selectedDate.setHours(hours, minutes, 0, 0);
+
+    if (selectedDate < now) {
+      toast.error("Cannot create a slot in the past. Please select a future time.");
+      return;
+    }
+
     try {
       setCreateLoading(true);
       const formattedDate = format(date, "yyyy-MM-dd");
@@ -330,7 +341,7 @@ export default function StaffSlotsPage() {
               </div>
 
               <DialogFooter>
-                <Button onClick={handleCreateSlot} disabled={createLoading}>
+                <Button onClick={handleCreateSlot} disabled={createLoading} className="active:scale-95 transition-all">
                   {createLoading ? "Creating..." : "Create Slot"}
                 </Button>
               </DialogFooter>
