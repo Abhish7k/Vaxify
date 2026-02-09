@@ -1,6 +1,7 @@
 package com.vaxify.app.service.impl;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
