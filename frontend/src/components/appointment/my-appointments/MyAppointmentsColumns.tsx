@@ -20,7 +20,7 @@ import {
   Eye,
 } from "lucide-react";
 import type { Appointment } from "@/types/appointment";
-import { formatTime } from "@/lib/utils";
+import { formatTimeRange, formatDate } from "@/lib/utils";
 import AppointmentStatusBadge from "./AppointmentStatusBadge";
 
 interface GetColumnsProps {
@@ -65,12 +65,12 @@ export const getMyAppointmentsColumns = ({
     ),
   },
   {
-    accessorKey: "vaccine",
+    accessorKey: "vaccineName",
     header: "Vaccine",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <Syringe className="h-4 w-4 text-primary opacity-70" />
-        <span className="font-medium">{row.getValue("vaccine")}</span>
+        <span className="font-medium">{row.getValue("vaccineName")}</span>
       </div>
     ),
   },
@@ -89,17 +89,17 @@ export const getMyAppointmentsColumns = ({
     cell: ({ row }) => (
       <div className="flex items-center gap-2 text-sm whitespace-nowrap">
         <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-        <span>{row.getValue("date")}</span>
+        <span>{formatDate(row.getValue("date"))}</span>
       </div>
     ),
   },
   {
-    accessorKey: "timeSlot",
+    accessorKey: "slot",
     header: "Time",
     cell: ({ row }) => (
       <div className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
         <Clock className="h-3 w-3" />
-        <span>{formatTime(row.getValue("timeSlot"))}</span>
+        <span>{formatTimeRange(row.getValue("slot"))}</span>
       </div>
     ),
   },
