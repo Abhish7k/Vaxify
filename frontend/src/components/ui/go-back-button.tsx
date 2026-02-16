@@ -14,11 +14,12 @@ const GoBackButton = ({ label }: { label: string }) => {
     >
       <div>
         <ArrowLeft
-          className="ms-0 opacity-60 transition-transform group-hover:-translate-x-0.5 mr-0.5"
+          className="ms-0 opacity-60 transition-transform group-hover:-translate-x-0.5 mr-1 mb-px duration-500"
           size={16}
           strokeWidth={2}
           aria-hidden="true"
         />
+
         {label}
       </div>
     </Button>

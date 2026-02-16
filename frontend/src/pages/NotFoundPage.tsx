@@ -63,17 +63,14 @@ export function NotFound({
       </motion.p>
 
       <motion.div
-        className="mt-16 flex flex-col sm:flex-row sm:items-center sm:justify-center gap-y-3 gap-x-6"
+        className="mt-16 flex flex-row items-center justify-center gap-y-3 gap-x-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
       >
         <GoBackButton label="Go Back" />
 
-        <Button
-          className="ml-2 -order-1 sm:order-0 hover:scale-105 active:scale-95 transition-all duration-200"
-          asChild
-        >
+        <Button className="ml-2 hover:bg-primary/85 active:scale-95 transition-all">
           <Link to="/">Take me home</Link>
         </Button>
       </motion.div>
