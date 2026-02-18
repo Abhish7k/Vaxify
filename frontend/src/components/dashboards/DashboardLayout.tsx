@@ -7,6 +7,7 @@ import { Outlet } from "react-router-dom";
 import AppSidebar from "./sidebar/AppSidebar";
 import { Separator } from "../ui/separator";
 import UserNav from "../navbar/UserNav";
+import { Suspense } from "react";
 
 const DashboardLayout = () => {
   return (
@@ -32,7 +33,9 @@ const DashboardLayout = () => {
           </header>
 
           <main className="flex-1 overflow-y-auto p-6">
-            <Outlet />
+            <Suspense fallback={null} >
+              <Outlet />
+            </Suspense>
           </main>
         </div>
       </SidebarInset>

@@ -20,8 +20,8 @@ export default function CentersSort({ value, onChange }: Props) {
         <SelectValue placeholder="Sort" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="name-asc">Name (A → Z)</SelectItem>
-        <SelectItem value="name-desc">Name (Z → A)</SelectItem>
+        <SelectItem value="name-asc">Name (A - Z)</SelectItem>
+        <SelectItem value="name-desc">Name (Z - A)</SelectItem>
       </SelectContent>
     </Select>
   );

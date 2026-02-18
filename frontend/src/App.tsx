@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "./components/navbar/Navbar";
 import NextTopLoader from "nextjs-toploader";
+import { Suspense } from "react";
 
 function App() {
   return (
@@ -10,7 +11,9 @@ function App() {
       <Navbar />
 
       {/* for router */}
-      <Outlet />
+      <Suspense fallback={null}>
+        <Outlet />
+      </Suspense>
     </div>
   );
 }

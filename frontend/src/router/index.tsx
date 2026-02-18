@@ -1,37 +1,42 @@
+import { lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import App from "@/App";
 import AuthLayout from "@/components/auth/AuthLayout";
-import LoginPage from "@/pages/auth/LoginPage";
-import RegisterPage from "@/pages/auth/RegisterPage";
-import RegisterUser from "@/pages/auth/RegisterUser";
-import RegisterStaff from "@/pages/auth/RegisterStaff";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
-import UserDashboard from "@/pages/user/UserDashboard";
 import DashboardLayout from "@/components/dashboards/DashboardLayout";
-import { NotFoundPage } from "@/pages/NotFoundPage";
-import StaffDashboard from "@/pages/staff/StaffDashboard";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
+
+// lazy loaded components
+const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
+const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
+const RegisterUser = lazy(() => import("@/pages/auth/RegisterUser"));
+const RegisterStaff = lazy(() => import("@/pages/auth/RegisterStaff"));
+const UserDashboard = lazy(() => import("@/pages/user/UserDashboard"));
+const StaffDashboard = lazy(() => import("@/pages/staff/StaffDashboard"));
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const CenterDetailsPage = lazy(() => import("@/components/centers/center-details/CenterDetailsPage"));
+const AppointmentBookingPage = lazy(() => import("@/pages/appointment/book/AppointmentBookingPage"));
+const BookingSummaryPage = lazy(() => import("@/pages/appointment/book/BookingSummaryPage"));
+const BookingSuccessPage = lazy(() => import("@/pages/appointment/book/BookingSuccessPage"));
+const MyAppointmentsPage = lazy(() => import("@/pages/appointment/MyAppointmentsPage"));
+const AboutUsPage = lazy(() => import("@/pages/AboutUsPage"));
+const StaffAppointmentsPage = lazy(() => import("@/pages/staff/StaffAppointmentsPage"));
+const AdminHospitalsPage = lazy(() => import("@/pages/admin/AdminHospitalsPage"));
+const AdminHospitalDetailsPage = lazy(() => import("@/pages/admin/AdminHospitalDetailsPage"));
+const AdminUsersPage = lazy(() => import("@/pages/admin/AdminUsersPage"));
+const AdminProfilePage = lazy(() => import("@/pages/admin/AdminProfile"));
+const AdminAnalyticsPage = lazy(() => import("@/pages/admin/AdminAnalyticsPage"));
+const UserProfilePage = lazy(() => import("@/pages/user/UserProfilePage"));
+const StaffProfilePage = lazy(() => import("@/pages/staff/StaffProfilePage"));
+const StaffVaccinesPage = lazy(() => import("@/pages/staff/StaffVaccinesPage"));
+const StaffSlotsPage = lazy(() => import("@/pages/staff/StaffSlotsPage"));
+const LowStockAlertsPage = lazy(() => import("@/pages/staff/LowStockAlertsPage"));
+const MyHospitalPage = lazy(() => import("@/pages/staff/MyHospitalPage"));
+
 import HomePage from "@/pages/HomePage";
+import { NotFoundPage } from "@/pages/NotFoundPage";
 import CentersPage from "@/pages/CentersPage";
-import CenterDetailsPage from "@/components/centers/center-details/CenterDetailsPage";
-import AppointmentBookingPage from "@/pages/appointment/book/AppointmentBookingPage";
-import BookingSummaryPage from "@/pages/appointment/book/BookingSummaryPage";
-import BookingSuccessPage from "@/pages/appointment/book/BookingSuccessPage";
-import MyAppointmentsPage from "@/pages/appointment/MyAppointmentsPage";
-import AboutUsPage from "@/pages/AboutUsPage";
-import StaffAppointmentsPage from "@/pages/staff/StaffAppointmentsPage";
-import AdminHospitalsPage from "@/pages/admin/AdminHospitalsPage";
-import AdminHospitalDetailsPage from "@/pages/admin/AdminHospitalDetailsPage";
-import AdminUsersPage from "@/pages/admin/AdminUsersPage";
-import AdminProfilePage from "@/pages/admin/AdminProfile";
-import AdminAnalyticsPage from "@/pages/admin/AdminAnalyticsPage";
-import UserProfilePage from "@/pages/user/UserProfilePage";
-import StaffProfilePage from "@/pages/staff/StaffProfilePage";
-import StaffVaccinesPage from "@/pages/staff/StaffVaccinesPage";
-import StaffSlotsPage from "@/pages/staff/StaffSlotsPage";
-import LowStockAlertsPage from "@/pages/staff/LowStockAlertsPage";
-import MyHospitalPage from "@/pages/staff/MyHospitalPage";
+
 
 export const router = createBrowserRouter([
   {

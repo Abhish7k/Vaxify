@@ -6,7 +6,6 @@ import type { SortOption } from "@/components/centers/centers-page/control-secti
 import type { Center } from "@/types/hospital";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -19,7 +18,7 @@ const container = {
 };
 
 const item = {
-  hidden: { opacity: 0, y: -20 },
+  hidden: { opacity: 0, y: 20 },
   show: {
     opacity: 1,
     y: 0,
@@ -92,13 +91,6 @@ export default function CentersPage() {
     return data;
   }, [centers, search, selectedVaccines, sort]);
 
-  if (isLoading) {
-    return (
-      <div className="flex bg-slate-50 dark:bg-slate-900 h-screen items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <motion.div
@@ -123,7 +115,7 @@ export default function CentersPage() {
         />
       </motion.div>
 
-      <CentersPageListSection centers={filteredCenters} />
+      <CentersPageListSection centers={filteredCenters} isLoading={isLoading} />
     </motion.div>
   );
 }

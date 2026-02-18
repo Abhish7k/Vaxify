@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 type Props = {
   centers: Center[];
+  isLoading?: boolean
 };
 
 const container = {
@@ -28,7 +29,7 @@ const staticItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0 } },
 };
 
-export default function CentersPageListSection({ centers }: Props) {
+export default function CentersPageListSection({ centers, isLoading }: Props) {
   const hasMounted = useRef(false);
 
   useEffect(() => {
@@ -46,31 +47,36 @@ export default function CentersPageListSection({ centers }: Props) {
           Available Centers
         </h2>
         <p className="text-sm text-muted-foreground">
-          {centers.length} centers found
+          {isLoading ? "Fetching centers..." : `${centers.length} centers found`}
         </p>
       </div>
 
-      {centers.length === 0 ? (
-        <div className="py-24 text-center text-sm text-muted-foreground">
-          No centers match your filters.
+      {isLoading ? (
+        <div className="col-span-full py-24 text-center text-sm text-muted-foreground">
+          Fetching centers...
         </div>
-      ) : (
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {centers.map((center, index) => (
-            <motion.div
-              key={center.id}
-              variants={hasMounted.current ? staticItem : item}
-            >
-              <CenterCard center={center} idx={index} />
-            </motion.div>
-          ))}
-        </motion.div>
-      )}
+      ) :
+        centers.length === 0 ? (
+          <div className="py-24 text-center text-sm text-muted-foreground">
+            No centers match your filters.
+          </div>
+        ) : (
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {centers.map((center, index) => (
+              <motion.div
+                key={center.id}
+                variants={hasMounted.current ? staticItem : item}
+              >
+                <CenterCard center={center} idx={index} />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
     </section>
   );
 }
