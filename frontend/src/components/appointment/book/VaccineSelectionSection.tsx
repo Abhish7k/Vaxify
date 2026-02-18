@@ -49,7 +49,7 @@ export default function VaccineSelectionSection({
                 {/* icon */}
                 <div className="">
                   <img
-                    src="/icons/booster.png"
+                    src="https://ik.imagekit.io/vaxify/icons/booster.png"
                     alt=""
                     className="h-14 w-14"
                     draggable={false}

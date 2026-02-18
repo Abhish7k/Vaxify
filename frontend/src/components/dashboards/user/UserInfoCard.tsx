@@ -99,7 +99,7 @@ export default function UserInfoCard() {
           className="relative z-10 flex justify-center mt-5"
         >
           <img
-            src="/icons/profile.png"
+            src="https://ik.imagekit.io/vaxify/icons/profile.png"
             alt="User profile"
             className="h-32 w-32 object-contain"
           />

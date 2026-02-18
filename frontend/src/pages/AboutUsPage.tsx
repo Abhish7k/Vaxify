@@ -46,7 +46,7 @@ export default function AboutUsPage() {
       <section className="mt-24">
         <div className="overflow-hidden rounded-2xl bg-muted">
           <img
-            src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3"
+            src="https://ik.imagekit.io/vaxify/aboutus.jpg"
             alt="Healthcare Facility"
             className="h-105 w-full object-cover grayscale"
             draggable="false"

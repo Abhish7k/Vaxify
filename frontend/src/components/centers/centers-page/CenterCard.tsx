@@ -53,13 +53,13 @@ export default function CenterCard({ center, idx }: Props) {
           >
             {idx % 2 === 0 ? (
               <img
-                src="/icons/hospital-2.png"
+                src="https://ik.imagekit.io/vaxify/icons/hospital-2.png"
                 alt=""
                 className="w-full h-full object-contain"
               />
             ) : (
               <img
-                src="/icons/hospital-1.png"
+                src="https://ik.imagekit.io/vaxify/icons/hospital-1.png"
                 alt=""
                 className="w-full h-full object-contain"
               />
