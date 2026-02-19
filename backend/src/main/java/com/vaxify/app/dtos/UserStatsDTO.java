@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public class UserStatsDTO {
     private String upcomingAppointmentDate;
-    private String vaccinationStatus; // e.g. "Not Vaccinated", "Partially Vaccinated", "Fully Vaccinated"
+    private String vaccinationStatus;
     private int totalAppointments;
     private int completedAppointments;
     private boolean certificateAvailable;

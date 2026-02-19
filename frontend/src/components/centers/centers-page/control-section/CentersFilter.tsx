@@ -58,15 +58,14 @@ export default function CentersFilter({
         <Badge
           key={vaccine}
           variant="outline"
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 text-sm px-3 py-1"
         >
           {vaccine}
           <button
             onClick={() => removeVaccine(vaccine)}
-            className="ml-1 rounded-sm hover:text-foreground"
             aria-label={`Remove ${vaccine} filter`}
           >
-            <XIcon className="h-4 w-4 hover:text-red-500 cursor-pointer transition-all mb-1" />
+            <XIcon className="h-4 w-4 hover:text-red-500 cursor-pointer transition-all mb-px" />
           </button>
         </Badge>
       ))}

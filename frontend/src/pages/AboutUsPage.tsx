@@ -1,8 +1,13 @@
 import { motion } from "framer-motion";
-import { Github, Linkedin } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export default function AboutUsPage() {
+
+  const [hovered, setHovered] = useState<string | null>(null);
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 20 }}
@@ -42,31 +47,27 @@ export default function AboutUsPage() {
         </p>
       </section>
 
-      {/* image */}
-      <section className="mt-24">
-        <div className="overflow-hidden rounded-2xl bg-muted">
-          <img
-            src="https://ik.imagekit.io/vaxify/aboutus.jpg"
-            alt="Healthcare Facility"
-            className="h-105 w-full object-cover grayscale"
-            draggable="false"
-          />
-        </div>
-      </section>
 
       {/* team */}
       <section className="mt-32">
-        <h2 className="mb-12 text-xl font-semibold">Our Team</h2>
+        <h2 className="mb-12 text-xl font-medium">Our Team</h2>
 
         <div className="space-y-6">
           {team.map((member, index) => (
-            <div key={member.id}>
+            <div key={index} className="group"
+              onMouseEnter={() => setHovered(member.name)}
+              onMouseLeave={() => setHovered(null)}
+            >
               <div className="flex items-center justify-between py-4">
                 <div className="flex items-center gap-6">
-                  <span className="text-sm text-muted-foreground">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <p className="font-medium">{member.name}</p>
+                  <p className={cn(
+                    "text-3xl font-medium group-hover:translate-x-5 transition-all duration-500 will-change-transform",
+                    hovered && hovered !== member.name
+                      ? "opacity-50"
+                      : "opacity-100"
+                  )}>
+                    {member.name}
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -74,20 +75,21 @@ export default function AboutUsPage() {
                     href={member.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-foreground transition"
+                    className="text-muted-foreground hover:text-foreground hover:scale-110 will-change-transform transition-all duration-300"
                   >
-                    <Github className="h-4 w-4" />
+                    <FaGithub size={22} />
                   </a>
                   <a
                     href={member.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-foreground transition"
+                    className="text-muted-foreground hover:text-foreground hover:scale-110 will-change-transform transition-all duration-300"
                   >
-                    <Linkedin className="h-4 w-4" />
+                    <FaLinkedin size={22} />
                   </a>
                 </div>
               </div>
+
               <Separator />
             </div>
           ))}
@@ -107,19 +109,16 @@ export default function AboutUsPage() {
 
 const team = [
   {
-    id: 1,
     name: "Indu",
     github: "https://github.com/indu61",
     linkedin: "https://www.linkedin.com/in/indu-gadagi/",
   },
   {
-    id: 2,
     name: "Abhishek",
     github: "https://github.com/abhish7k",
     linkedin: "https://www.linkedin.com/in/abhish7k/",
   },
   {
-    id: 3,
     name: "Rahul",
     github: "http://github.com/rahulkhadeeng/",
     linkedin: "https://www.linkedin.com/in/contactrahulkhade/",

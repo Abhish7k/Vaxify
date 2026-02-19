@@ -2,17 +2,25 @@ package com.vaxify.app.service.impl;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.vaxify.app.dtos.UserDTO;
 import com.vaxify.app.dtos.UserStatsDTO;
+import com.vaxify.app.dtos.appointment.AppointmentResponse;
 import com.vaxify.app.entities.User;
+import com.vaxify.app.entities.enums.AppointmentStatus;
+import com.vaxify.app.entities.enums.Role;
 import com.vaxify.app.entities.Appointment;
 import com.vaxify.app.exception.ResourceNotFoundException;
 import com.vaxify.app.repository.UserRepository;
 import com.vaxify.app.repository.AppointmentRepository;
 import com.vaxify.app.service.UserService;
 
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -40,13 +48,13 @@ public class UserServiceImpl implements UserService {
         List<Appointment> allAppointments = appointmentRepository.findByUserEmail(email);
 
         long completedCount = allAppointments.stream()
-                .filter(a -> a.getStatus() == com.vaxify.app.entities.enums.AppointmentStatus.COMPLETED)
+                .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
                 .count();
 
         java.util.Optional<Appointment> upcoming = allAppointments.stream()
-                .filter(a -> a.getStatus() == com.vaxify.app.entities.enums.AppointmentStatus.BOOKED)
-                .filter(a -> a.getSlot().getDate().isAfter(java.time.LocalDate.now().minusDays(1)))
-                .sorted(java.util.Comparator.comparing(a -> a.getSlot().getDate()))
+                .filter(a -> a.getStatus() == AppointmentStatus.BOOKED)
+                .filter(a -> a.getSlot().getDate().isAfter(LocalDate.now().minusDays(1)))
+                .sorted(Comparator.comparing(a -> a.getSlot().getDate()))
                 .findFirst();
 
         String vaccinationStatus = "Not Vaccinated";
@@ -56,11 +64,11 @@ public class UserServiceImpl implements UserService {
             vaccinationStatus = "Partially Vaccinated";
         }
 
-        List<com.vaxify.app.dtos.appointment.AppointmentResponse> recent = allAppointments.stream()
-                .sorted(java.util.Comparator.comparing(Appointment::getCreatedAt).reversed())
+        List<AppointmentResponse> recent = allAppointments.stream()
+                .sorted(Comparator.comparing(Appointment::getCreatedAt).reversed())
                 .limit(5)
                 .map(this::mapToAppointmentResponse)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
 
         return UserStatsDTO.builder()
                 .upcomingAppointmentDate(upcoming.map(a -> a.getSlot().getDate().toString()).orElse("No upcoming"))
@@ -76,11 +84,11 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(user -> modelMapper.map(user, UserDTO.class))
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 
-    private com.vaxify.app.dtos.appointment.AppointmentResponse mapToAppointmentResponse(Appointment a) {
-        return com.vaxify.app.dtos.appointment.AppointmentResponse.builder()
+    private AppointmentResponse mapToAppointmentResponse(Appointment a) {
+        return AppointmentResponse.builder()
                 .id(a.getId())
                 .centerId(a.getSlot().getCenter().getId())
                 .centerName(a.getSlot().getCenter().getName())
@@ -98,17 +106,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
 
         // If staff user, delete associated hospital first to fix FK constraint
-        if (user.getRole() == com.vaxify.app.entities.enums.Role.STAFF) {
+        if (user.getRole() == Role.STAFF) {
             hospitalRepository.findByStaffUser(user).ifPresent(hospital -> {
-                // Check if it has vaccines/slots? Ideally delete those too via
-                // HospitalService.deleteHospital
-                // For now, simple direct delete if no complex dependencies:
+
                 hospitalRepository.delete(hospital);
             });
         }

@@ -8,18 +8,17 @@ import com.vaxify.app.repository.AppointmentRepository;
 import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin/stats")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminDashboardController {
 
         private final HospitalRepository hospitalRepository;
@@ -39,7 +38,7 @@ public class AdminDashboardController {
 
         @GetMapping("/activities")
         public List<AdminActivityResponse> getRecentActivities() {
-                List<AdminActivityResponse> activities = new java.util.ArrayList<>();
+                List<AdminActivityResponse> activities = new ArrayList<>();
 
                 // Add Recent Hospitals
                 hospitalRepository.findAllByOrderByCreatedAtDesc().stream()
