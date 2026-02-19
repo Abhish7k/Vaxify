@@ -90,6 +90,11 @@ export function BulkCreateSlotDialog({
       return;
     }
 
+    if (startTime >= endTime) {
+      toast.error("Start time must be before end time");
+      return;
+    }
+
     // validation for past date/time check for today
     const now = new Date();
     const isTodaySelected = format(startDate, "yyyy-MM-dd") === format(now, "yyyy-MM-dd");
@@ -140,9 +145,10 @@ export function BulkCreateSlotDialog({
       toast.success(`Successfully created ${targetDates.length} slots`);
       setIsOpen(false);
       onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Failed to create some slots. Please try again.");
+      const errorMessage = error.response?.data?.message || "Failed to create some slots. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -258,9 +264,9 @@ export function BulkCreateSlotDialog({
                         ? "opacity-50 cursor-not-allowed bg-muted border-dashed"
                         : "cursor-pointer",
                       !isSunday &&
-                        (selectedDays.includes(day.id)
-                          ? "bg-primary/10 border-primary text-primary shadow-sm"
-                          : "hover:bg-muted border-border/60"),
+                      (selectedDays.includes(day.id)
+                        ? "bg-primary/10 border-primary text-primary shadow-sm"
+                        : "hover:bg-muted border-border/60"),
                     )}
                     onClick={() => !isSunday && toggleDay(day.id)}
                   >

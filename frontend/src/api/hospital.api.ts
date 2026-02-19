@@ -10,7 +10,8 @@ export const hospitalApi = {
       id: String(h.id),
       name: h.name,
       address: h.address,
-      availableVaccines: (h.availableVaccines || []).map((v: any) => v.name),
+      // Handle either the full DTO or the summary DTO
+      availableVaccines: h.availableVaccineNames || (h.availableVaccines || []).map((v: any) => v.name),
       staffEmail: h.staffEmail,
       staffPhone: h.staffPhone,
     }));

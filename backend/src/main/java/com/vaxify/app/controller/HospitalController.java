@@ -1,11 +1,11 @@
 package com.vaxify.app.controller;
 
 import com.vaxify.app.dtos.hospital.HospitalResponse;
+import com.vaxify.app.dtos.hospital.HospitalSummaryResponse;
 import com.vaxify.app.dtos.hospital.UpdateHospitalRequest;
 
 import java.util.List;
 import com.vaxify.app.service.HospitalService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ public class HospitalController {
     private final HospitalService hospitalService;
 
     @GetMapping
-    public ResponseEntity<List<HospitalResponse>> getAllApprovedHospitals() {
+    public ResponseEntity<List<HospitalSummaryResponse>> getAllApprovedHospitals() {
         return ResponseEntity.ok(hospitalService.getApprovedHospitals());
     }
 
@@ -42,7 +42,7 @@ public class HospitalController {
     // }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerHospitalStaff(@Valid @RequestBody StaffHospitalRegistrationDTO dto) {
+    public ResponseEntity<String> registerHospitalStaff(@RequestBody StaffHospitalRegistrationDTO dto) {
         hospitalService.registerHospitalStaff(dto);
 
         return ResponseEntity.ok("Hospital registration submitted for approval");
@@ -59,7 +59,7 @@ public class HospitalController {
     }
 
     @PutMapping("/my")
-    public HospitalResponse updateHospital(@Valid @RequestBody UpdateHospitalRequest request) {
+    public HospitalResponse updateHospital(@RequestBody UpdateHospitalRequest request) {
 
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()

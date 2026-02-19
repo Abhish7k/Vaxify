@@ -70,16 +70,16 @@ export default function UserDashboardStatsGrid({
           stats.upcomingAppointmentDate === "No upcoming"
             ? "None"
             : new Date(stats.upcomingAppointmentDate).toLocaleDateString(
-                "en-US",
-                { month: "short", day: "numeric" },
-              )
+              "en-US",
+              { month: "short", day: "numeric" },
+            )
         }
         subtitle={
           stats.upcomingAppointmentDate === "No upcoming"
             ? "Schedule one today"
             : "Your next visit"
         }
-        icon="/icons/upcoming.png"
+        icon="https://ik.imagekit.io/vaxify/icons/upcoming.png"
         loading={loading}
       />
 
@@ -87,7 +87,7 @@ export default function UserDashboardStatsGrid({
         title="Vaccination Status"
         value={stats.vaccinationStatus}
         subtitle="Current health level"
-        icon="/icons/sheild.png"
+        icon="https://ik.imagekit.io/vaxify/icons/sheild.png"
         loading={loading}
       />
 
@@ -95,7 +95,7 @@ export default function UserDashboardStatsGrid({
         title="Total Appointments"
         value={stats.totalAppointments}
         subtitle="All time bookings"
-        icon="/icons/calendar.png"
+        icon="https://ik.imagekit.io/vaxify/icons/calendar.png"
         loading={loading}
       />
 
@@ -103,7 +103,7 @@ export default function UserDashboardStatsGrid({
         title="Doses Completed"
         value={stats.completedAppointments}
         subtitle="Fully protected doses"
-        icon="/icons/booster.png"
+        icon="https://ik.imagekit.io/vaxify/icons/booster.png"
         loading={loading}
       />
     </div>

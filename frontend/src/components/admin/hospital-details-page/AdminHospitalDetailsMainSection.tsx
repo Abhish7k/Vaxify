@@ -74,7 +74,7 @@ export default function MainSection({ hospital }: { hospital: any }) {
         className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b pb-8"
       >
         <img
-          src="/icons/hospital-2.png"
+          src="https://ik.imagekit.io/vaxify/icons/hospital-2.png"
           alt="Hospital Logo"
           className="h-24 w-24 object-contain"
           draggable={false}
@@ -118,13 +118,12 @@ export default function MainSection({ hospital }: { hospital: any }) {
                     <div className="space-y-1">
                       <p className="font-bold text-slate-900">{v.name}</p>
                       <Badge
-                        className={`font-medium uppercase text-[8px]   ${
-                          !v.stock || v.stock === 0
+                        className={`font-medium uppercase text-[8px]   ${!v.stock || v.stock === 0
                             ? "border-destructive/50 bg-destructive/10 text-destructive"
                             : v.stock < (v.capacity || 100) * 0.2
                               ? "border-amber-600/20 bg-amber-600/10 text-amber-600"
                               : "border-green-600/20 bg-green-600/10 text-green-600"
-                        }`}
+                          }`}
                       >
                         {!v.stock || v.stock === 0
                           ? "Out of Stock"

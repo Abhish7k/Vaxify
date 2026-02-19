@@ -13,7 +13,7 @@ import ConfirmBookingFooter from "@/components/appointment/book/ConfirmBookingFo
 import { vaccineApi } from "@/api/vaccine.api";
 import { appointmentApi } from "@/api/appointment.api";
 import type { Vaccine } from "@/types/vaccine";
-import type { TimeSlot } from "@/types/appointment";
+import type { TimeSlot, HospitalTimeSlot } from "@/types/appointment";
 import type { Center } from "@/types/hospital";
 
 const containerVariants = {
@@ -48,6 +48,9 @@ const AppointmentBookingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingVaccines, setIsLoadingVaccines] = useState(true);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [allHospitalSlots, setAllHospitalSlots] = useState<HospitalTimeSlot[]>(
+    [],
+  );
 
   const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(
     null,
@@ -96,33 +99,47 @@ const AppointmentBookingPage = () => {
     fetchVaccines();
   }, [centerId]);
 
-  // fetch slots when date changes
+  // fetch all slots for the center
   useEffect(() => {
-    if (!centerId || !selectedDate) return;
+    if (!centerId) return;
 
-    const fetchSlots = async () => {
+    const fetchAllSlots = async () => {
       try {
         setIsLoadingSlots(true);
 
-        const slots = await appointmentApi.getSlots(centerId, selectedDate);
+        const slots = await appointmentApi.getHospitalSlots(centerId);
 
-        setAvailableSlots(slots);
+        setAllHospitalSlots(slots);
       } catch (error) {
-        console.error("failed to fetch slots", error);
+        console.error("failed to fetch all slots", error);
 
-        setAvailableSlots([]);
+        setAllHospitalSlots([]);
       } finally {
         setIsLoadingSlots(false);
       }
     };
 
-    fetchSlots();
-  }, [centerId, selectedDate]);
+    fetchAllSlots();
+  }, [centerId]);
+
+  // update available slots when date or allHospitalSlots changes
+  useEffect(() => {
+    if (!selectedDate) {
+      setAvailableSlots([]);
+      return;
+    }
+
+    const filteredSlots = allHospitalSlots.filter(
+      (slot) => slot.date === selectedDate,
+    );
+
+    setAvailableSlots(filteredSlots);
+  }, [selectedDate, allHospitalSlots]);
 
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
+        <LoaderCircle className="h-10 w-10 animate-spin text-primary/80" />
       </div>
     );
   }
@@ -159,65 +176,67 @@ const AppointmentBookingPage = () => {
         <BookingHeaderSection center={center} />
       </motion.div>
 
-      <div className="flex flex-col md:flex-row justify-between gap-10 px-5 mt-16 mb-32">
-        {isLoadingVaccines ? (
-          <div className="w-full h-40 flex items-center justify-center">
-            <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : vaccines.length === 0 ? (
-          <div className="w-full flex justify-center">
-            <Card className="max-w-md w-full p-10 flex flex-col items-center text-center text-muted-foreground bg-muted/30 border-dashed">
-              <XCircle className="w-12 h-12 mb-4 opacity-20" />
-              <h3 className="text-lg font-medium text-foreground">
-                Out of Stock
-              </h3>
-              <p className="mt-2 text-sm">
-                There are no vaccines currently available for booking at this
-                center.
-              </p>
-              <Button
-                variant="outline"
-                className="mt-6"
-                onClick={() => navigate(-1)}
-              >
-                Go Back
-              </Button>
-            </Card>
-          </div>
-        ) : (
-          <>
-            <motion.div className="w-full" variants={itemVariants}>
-              <VaccineSelectionSection
-                vaccines={vaccines.map((v) => ({
-                  id: v.id,
-                  name: v.name,
-                  description: v.type,
-                }))}
-                selectedVaccineId={selectedVaccineId}
-                onSelect={(id) => {
-                  setSelectedVaccineId(id);
+      <div className="flex flex-col md:flex-row justify-between gap-10 px-5 mt-16 mb-20">
+        {!isLoadingVaccines && vaccines.length === 0
+          ? (
+            <div className="w-full flex justify-center">
+              <Card className="max-w-md w-full flex flex-col items-center text-center text-muted-foreground shadow-none border-none">
+                <XCircle className="w-12 h-12 opacity-20" />
 
-                  setSelectedSlot(null);
-                }}
-              />
-            </motion.div>
+                <h3 className="text-lg font-medium text-foreground">
+                  Out of Stock
+                </h3>
 
-            <motion.div className="w-full" variants={itemVariants}>
-              <BookingDateAndSlotSection
-                selectedDate={selectedDate}
-                selectedSlot={selectedSlot}
-                availableSlots={availableSlots}
-                onDateSelect={(date) => {
-                  setSelectedDate(date);
-                  setSelectedSlot(null);
-                }}
-                onSlotSelect={setSelectedSlot}
-                onResetSlot={() => setSelectedSlot(null)}
-                isLoadingSlots={isLoadingSlots}
-              />
-            </motion.div>
-          </>
-        )}
+                <p className="mt-2 text-sm">
+                  There are no vaccines currently available <br />
+                  for booking at this center.
+                </p>
+
+                <Button
+                  variant="outline"
+                  className="mt-2"
+                  onClick={() => navigate(-1)}
+                >
+                  Go Back
+                </Button>
+              </Card>
+            </div>
+          ) : (
+            <>
+              <motion.div className="w-full" variants={itemVariants}>
+                <VaccineSelectionSection
+                  vaccines={vaccines.map((v) => ({
+                    id: v.id,
+                    name: v.name,
+                    description: v.type,
+                  }))}
+                  selectedVaccineId={selectedVaccineId}
+                  isLoading={isLoadingVaccines}
+                  onSelect={(id) => {
+                    setSelectedVaccineId(id);
+
+                    setSelectedSlot(null);
+                  }}
+                />
+              </motion.div>
+
+              <motion.div className="w-full" variants={itemVariants}>
+                <BookingDateAndSlotSection
+                  selectedDate={selectedDate}
+                  selectedSlot={selectedSlot}
+                  availableSlots={availableSlots}
+                  allSlots={allHospitalSlots}
+                  onDateSelect={(date) => {
+                    setSelectedDate(date);
+                    setSelectedSlot(null);
+                  }}
+                  onSlotSelect={setSelectedSlot}
+                  onResetSlot={() => setSelectedSlot(null)}
+                  isLoadingSlots={isLoadingSlots}
+                />
+              </motion.div>
+            </>
+          )}
       </div>
 
       <motion.div variants={fixedItemVariants}>

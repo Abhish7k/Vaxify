@@ -37,25 +37,25 @@ export default function StaffStatsGrid({
       title: "Total Appointments",
       value: totalAppointments,
       subtitle: "All processed appointments",
-      icon: "/icons/calendar.png",
+      icon: "https://ik.imagekit.io/vaxify/icons/calendar.png",
     },
     {
       title: "Upcoming Appointments",
       value: upcoming,
       subtitle: "Pending action",
-      icon: "/icons/upcoming.png",
+      icon: "https://ik.imagekit.io/vaxify/icons/upcoming.png",
     },
     {
       title: "Bookings Today",
       value: todayAppointments,
       subtitle: "Scheduled for today",
-      icon: "/icons/checklist.png",
+      icon: "https://ik.imagekit.io/vaxify/icons/checklist.png",
     },
     {
       title: "Low Stock Alerts",
       value: lowStockCount,
       subtitle: "Critical inventory items",
-      icon: "/icons/low-stock.png",
+      icon: "https://ik.imagekit.io/vaxify/icons/low-stock.png",
     },
   ];
 

@@ -68,7 +68,7 @@ const CenterDetailsHeaderSection = ({ center }: Props) => {
         <Card className="sm:w-[80%] md:w-75 transition-all py-0 group">
           <CardContent className="p-6 sm:p-8 text-center">
             <img
-              src="/icons/calendar.png"
+              src="https://ik.imagekit.io/vaxify/icons/calendar.png"
               alt=""
               className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 
               group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300"

@@ -49,7 +49,7 @@ export function CTASection() {
           >
             <div className="relative w-full max-w-3xl max-h-[280px] overflow-hidden rounded-t-xl border-x border-t border-slate-200 bg-white p-1 shadow-xl ring-1 ring-slate-950/5">
               <img
-                src="/hero-dash.png"
+                src="https://ik.imagekit.io/vaxify/hero-dash.png"
                 alt="app screen"
                 className="w-full h-auto rounded-t-lg"
               />

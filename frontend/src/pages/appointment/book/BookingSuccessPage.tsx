@@ -19,7 +19,7 @@ export default function BookingSuccessPage() {
   if (!state) return null;
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
+    <div className="flex items-center justify-center px-4 mb-10">
       <AppointmentBookingSuccess
         appointmentId={state.appointmentId}
         center={state.center}

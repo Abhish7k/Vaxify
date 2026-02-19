@@ -16,17 +16,27 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            if (id.includes("react-dom") || id.includes("react-router")) return "core-vendor";
-            if (id.includes("lucide-react")) return "icons-lucide";
-            if (id.includes("react-icons")) return "icons-react";
-            if (id.includes("recharts")) return "recharts";
-            if (id.includes("framer-motion")) return "framer";
-            if (id.includes("@radix-ui")) return "radix";
-            if (id.includes("date-fns")) return "date-fns";
-            if (id.includes("zod")) return "validation";
-            if (id.includes("@tanstack")) return "tables";
-            if (id.includes("axios")) return "axios";
-            return "vendor";
+            // util libs
+            if (
+              id.includes("zod") ||
+              id.includes("axios") ||
+              id.includes("date-fns") ||
+              id.includes("clsx") ||
+              id.includes("tailwind-merge") ||
+              id.includes("class-variance-authority")
+            ) {
+              return "utils";
+            }
+
+            // icon libs
+            if (id.includes("lucide-react") || id.includes("react-icons")) {
+              return "icons";
+            }
+
+            // table lib
+            if (id.includes("@tanstack")) {
+              return "tables";
+            }
           }
         },
       },

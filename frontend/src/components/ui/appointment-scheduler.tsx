@@ -126,7 +126,7 @@ export function AppointmentScheduler({
   });
 
   return (
-    <div className="flex flex-col lg:flex-row w-full max-w-3xl md:max-w-5xl rounded-xl border bg-card overflow-hidden shadow-xl transition-all">
+    <div className="flex flex-col lg:flex-row w-full max-w-3xl md:max-w-5xl border rounded-xl bg-card overflow-hidden shadow-xl transition-all">
       {/* calendar */}
       <div className="flex-1 p-6">
         <div className="flex justify-between mb-4">
@@ -190,10 +190,10 @@ export function AppointmentScheduler({
                 className={cn(
                   "aspect-square flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer transition-all p-2 lg:px-5",
                   day === selectedDate &&
-                    "bg-primary text-primary-foreground shadow",
+                  "bg-primary text-primary-foreground shadow",
                   day !== selectedDate &&
-                    isAvailable &&
-                    "bg-secondary/50 hover:bg-secondary",
+                  isAvailable &&
+                  "bg-secondary/50 hover:bg-secondary",
                   !isAvailable && "text-muted-foreground/40 cursor-not-allowed",
                 )}
               >
@@ -259,10 +259,10 @@ export function AppointmentScheduler({
               className={cn(
                 "w-full py-2 rounded-lg text-sm transition cursor-pointer",
                 selectedTime === slot.time &&
-                  "bg-primary text-primary-foreground",
+                "bg-primary text-primary-foreground",
                 slot.available &&
-                  selectedTime !== slot.time &&
-                  "bg-secondary/50 hover:bg-secondary",
+                selectedTime !== slot.time &&
+                "bg-secondary/50 hover:bg-secondary",
                 (!slot.available ||
                   (() => {
                     // repeat logic for styling
@@ -283,7 +283,7 @@ export function AppointmentScheduler({
                     slotDate.setHours(h, m, 0, 0);
                     return slotDate < now;
                   })()) &&
-                  "text-muted-foreground/40 cursor-not-allowed opacity-50 bg-muted/20",
+                "text-muted-foreground/40 cursor-not-allowed opacity-50 bg-muted/20",
               )}
             >
               {formatTime(slot.time)}

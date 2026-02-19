@@ -12,25 +12,25 @@ export default function AdminDashboardStatsGrid({
       title: "Total Hospitals",
       value: stats?.totalHospitals ?? 0,
       subtitle: "Registered on platform",
-      icon: "/icons/hospital-1.png",
+      icon: "https://ik.imagekit.io/vaxify/icons/hospital-1.png",
     },
     {
       title: "Pending Approvals",
       value: stats?.pendingApprovals ?? 0,
       subtitle: "Awaiting verification",
-      icon: "/icons/hourglass.png",
+      icon: "https://ik.imagekit.io/vaxify/icons/hourglass.png",
     },
     {
       title: "Total Users",
       value: stats?.totalUsers ?? 0,
       subtitle: "Citizens registered",
-      icon: "/icons/users.png",
+      icon: "https://ik.imagekit.io/vaxify/icons/users.png",
     },
     {
       title: "Active Centers",
       value: stats?.activeCenters ?? 0,
       subtitle: "Operational vaccination centers",
-      icon: "/icons/center.png",
+      icon: "https://ik.imagekit.io/vaxify/icons/center.png",
     },
   ];
 

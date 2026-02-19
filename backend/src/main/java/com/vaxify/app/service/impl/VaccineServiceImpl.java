@@ -14,6 +14,7 @@ import com.vaxify.app.entities.Vaccine;
 import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.repository.UserRepository;
 import com.vaxify.app.repository.VaccineRepository;
+import com.vaxify.app.service.AppointmentService;
 import com.vaxify.app.service.VaccineService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class VaccineServiceImpl implements VaccineService {
     private final HospitalRepository hospitalRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-    private final com.vaxify.app.service.AppointmentService appointmentService;
+    private final AppointmentService appointmentService;
 
     @Override
     @Transactional

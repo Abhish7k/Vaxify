@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
@@ -58,7 +59,11 @@ public class SecurityConfig {
                                                 .hasAnyRole("USER", "STAFF", "ADMIN")
                                                 .requestMatchers("/api/users/**").authenticated()
                                                 .requestMatchers("/api/appointments/**").authenticated()
+
+                                                // admin
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
+
                                 .sessionManagement(session -> session.sessionCreationPolicy(
                                                 SessionCreationPolicy.STATELESS))
                                 .addFilterBefore(
@@ -72,7 +77,7 @@ public class SecurityConfig {
         private String allowedOrigins;
 
         @Bean
-        public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
 
                 configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));

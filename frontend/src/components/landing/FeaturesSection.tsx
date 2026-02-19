@@ -77,7 +77,7 @@ export function Features() {
 
                 <div className="bg-slate-50 h-full w-full rounded-tl-lg border-l border-t border-slate-200 overflow-hidden shadow-sm relative ">
                   <img
-                    src="/hero-dash.png"
+                    src="https://ik.imagekit.io/vaxify/hero-dash.png"
                     alt="Staff Dashboard Preview"
                     className="absolute inset-0 w-full h-full object-cover object-top-left transition-transform duration-500"
                   />

@@ -5,16 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateHospitalRequest {
-
+public class HospitalSummaryResponse {
+    private Long id;
     private String name;
     private String address;
     private String city;
     private String state;
     private String pincode;
-    private String documentUrl;
+    private List<String> availableVaccineNames;
 }

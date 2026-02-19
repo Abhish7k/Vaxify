@@ -1,11 +1,13 @@
 import { AppointmentScheduler } from "@/components/ui/appointment-scheduler";
 import { useEffect } from "react";
-import type { TimeSlot } from "@/types/appointment";
+import type { TimeSlot, HospitalTimeSlot } from "@/types/appointment";
+import { useMemo } from "react";
 
 type Props = {
   selectedDate: string | null;
   selectedSlot: string | null;
   availableSlots: TimeSlot[];
+  allSlots: HospitalTimeSlot[];
   onDateSelect: (date: string) => void;
   onSlotSelect: (slot: string) => void;
   onResetSlot: () => void;
@@ -15,6 +17,7 @@ type Props = {
 export default function BookingDateAndSlotSection({
   selectedDate,
   availableSlots,
+  allSlots,
   onDateSelect,
   onSlotSelect,
   onResetSlot,
@@ -24,13 +27,32 @@ export default function BookingDateAndSlotSection({
     // defaults to today if not selected
     if (!selectedDate) {
       const today = new Date();
-
       onDateSelect(today.toISOString().split("T")[0]);
     }
   }, []);
 
+  const availableDates = useMemo(() => {
+    if (!allSlots.length) return generateDefaultDates();
+
+    // extract unique dates that have at least one available slot
+    const datesWithSlots = new Set(
+      allSlots.filter((s) => s.available).map((s) => s.date),
+    );
+
+    return generateDefaultDates().map((d) => {
+      // check if this date (day number) matches any date in datesWithSlots
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(d.date).padStart(2, "0")}`;
+
+      return {
+        ...d,
+        hasSlots: datesWithSlots.has(dateStr),
+      };
+    });
+  }, [allSlots]);
+
   return (
-    <div className="w-fit relative">
+    <div className="w-full relative">
       {isLoadingSlots && (
         <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px] rounded-lg border border-dashed border-gray-200">
           <p className="text-xs text-primary font-medium animate-pulse bg-white px-3 py-1 rounded-full border shadow-sm">
@@ -64,9 +86,7 @@ export default function BookingDateAndSlotSection({
   );
 }
 
-const availableDates = generateAvailableDates();
-
-function generateAvailableDates() {
+function generateDefaultDates() {
   const today = new Date();
   const currentDay = today.getDate();
   const daysInMonth = new Date(
