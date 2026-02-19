@@ -34,13 +34,13 @@ const CenterDetailsPage = () => {
   useEffect(() => {
     const fetchCenterDetails = async () => {
       if (!centerId) return;
+
       try {
         setLoading(true);
-        // Fetch hospital details
+
         const hospitalData = await hospitalApi.getHospitalById(centerId);
 
         if (hospitalData) {
-          // map api res to center data
           const mappedData: CenterData = {
             id: String(hospitalData.id),
             name: hospitalData.name,
@@ -48,7 +48,7 @@ const CenterDetailsPage = () => {
             phone: hospitalData.staffPhone || "N/A",
             email: hospitalData.staffEmail || "N/A",
             operatingHours: {
-              weekdays: "9:00 AM - 6:00 PM", // Default standard hours
+              weekdays: "9:00 AM - 6:00 PM",
             },
             vaccines: (hospitalData.vaccines || []).map((v: any) => ({
               name: v.name,
@@ -78,7 +78,7 @@ const CenterDetailsPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary/80" />
       </div>
     );
   }

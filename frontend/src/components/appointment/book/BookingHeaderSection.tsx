@@ -15,7 +15,7 @@ export default function BookingHeaderSection({ center }: Props) {
           <div className="flex items-center gap-3 ">
             <div className="">
               <img
-                src="/icons/hospital-2.png"
+                src="https://ik.imagekit.io/vaxify/icons/hospital-2.png"
                 alt=""
                 className="h-16 w-16"
                 draggable={false}

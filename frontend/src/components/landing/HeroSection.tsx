@@ -123,7 +123,7 @@ export function HeroSectionComponent() {
                 <div className="inset-shadow-2xs ring-background bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-2 shadow-lg shadow-zinc-950/15 ring-1">
                   <img
                     className="z-2 border-border/25 aspect-15/8 relative rounded-2xl border"
-                    src="/hero-dash.png"
+                    src="https://ik.imagekit.io/vaxify/hero-dash.png"
                     alt="app screen"
                     width="2700"
                     height="1440"

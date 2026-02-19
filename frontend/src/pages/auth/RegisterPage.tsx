@@ -62,7 +62,7 @@ const RegisterPage = () => {
           <Card className="cursor-pointer hover:shadow-md transition-all duration-300 group">
             <CardHeader className="flex flex-row gap-4 items-center">
               <img
-                src="/icons/profile.png"
+                src="https://ik.imagekit.io/vaxify/icons/profile.png"
                 alt=""
                 className="w-15 h-15 group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300"
               />
@@ -83,7 +83,7 @@ const RegisterPage = () => {
           <Card className="cursor-pointer hover:shadow-md transition-all duration-300 group">
             <CardHeader className="flex flex-row gap-4 items-center">
               <img
-                src="/icons/staff.png"
+                src="https://ik.imagekit.io/vaxify/icons/staff.png"
                 alt=""
                 className="w-15 h-15 group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300"
               />

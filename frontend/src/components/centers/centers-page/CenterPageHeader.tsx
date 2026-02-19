@@ -4,7 +4,7 @@ export default function CentersPageHeader() {
       <div className="container mx-auto pt-16 pb-10">
         <div className="relative rounded-lg flex items-center gap-4">
           <img
-            src="/icons/center.png"
+            src="https://ik.imagekit.io/vaxify/icons/center.png"
             alt=""
             className="w-20 h-20"
             draggable={false}

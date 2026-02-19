@@ -12,8 +12,11 @@ import com.vaxify.app.dtos.SlotRequestDTO;
 import com.vaxify.app.dtos.SlotResponseDTO;
 import com.vaxify.app.entities.Hospital;
 import com.vaxify.app.entities.Slot;
+import com.vaxify.app.repository.AppointmentRepository;
 import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.repository.SlotRepository;
+import com.vaxify.app.entities.Appointment;
+import com.vaxify.app.entities.enums.AppointmentStatus;
 import com.vaxify.app.service.SlotService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class SlotServiceImpl implements SlotService {
 
     private final SlotRepository slotRepository;
     private final HospitalRepository hospitalRepository;
+    private final AppointmentRepository appointmentRepository;
     private final ModelMapper modelMapper;
 
     // create slot
@@ -45,6 +49,10 @@ public class SlotServiceImpl implements SlotService {
 
         if (dto.getDate().getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
             throw new RuntimeException("Cannot create slots on Sunday");
+        }
+
+        if (dto.getStartTime() != null && dto.getEndTime() != null && !dto.getStartTime().isBefore(dto.getEndTime())) {
+            throw new RuntimeException("Start time must be before end time.");
         }
 
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
@@ -99,6 +107,11 @@ public class SlotServiceImpl implements SlotService {
         if (slot.getCapacity() < slot.getBookedCount()) {
             throw new RuntimeException("New capacity cannot be less than value of confirmed bookings ("
                     + slot.getBookedCount() + ")");
+        }
+
+        if (slot.getStartTime() != null && slot.getEndTime() != null
+                && !slot.getStartTime().isBefore(slot.getEndTime())) {
+            throw new RuntimeException("Start time must be before end time.");
         }
 
         // hospital change (only if hospitalId provided)
@@ -156,7 +169,6 @@ public class SlotServiceImpl implements SlotService {
                 .toList();
     }
 
-    // delete slot
     @Override
     @Transactional
     public void deleteSlot(Long slotId) {
@@ -164,8 +176,22 @@ public class SlotServiceImpl implements SlotService {
         Slot slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new RuntimeException("Slot not found"));
 
-        if (slot.getBookedCount() > 0) {
-            throw new RuntimeException("Cannot delete a slot with active bookings.");
+        // check if there are any ACTIVE (BOOKED) appointments
+        List<Appointment> appointments = appointmentRepository.findBySlot(slot);
+
+        boolean hasActiveBookings = appointments.stream()
+                .anyMatch(a -> a.getStatus() == AppointmentStatus.BOOKED);
+
+        if (hasActiveBookings) {
+            throw new RuntimeException(
+                    "Cannot delete a slot with active PENDING/BOOKED appointments. Please cancel them first.");
+        }
+
+        // if appointments are completed or cancelled, we must still delete them to
+        // remove the db constraint
+        // before we can delete the slot.
+        if (!appointments.isEmpty()) {
+            appointmentRepository.deleteAll(appointments);
         }
 
         slotRepository.deleteById(slotId);

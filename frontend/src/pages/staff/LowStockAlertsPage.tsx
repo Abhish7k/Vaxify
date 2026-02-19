@@ -99,7 +99,7 @@ export default function LowStockAlertsPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2">
             <img
-              src="https://www.thiings.co/_next/image?url=https%3A%2F%2Flftz25oez4aqbxpq.public.blob.vercel-storage.com%2Fimage-rYQA0MBt7kN6Ap9xch2dYMInv4FzEX.png&w=1000&q=75"
+              src="https://ik.imagekit.io/vaxify/icons/alert.png"
               alt=""
               className="h-10 w-10"
             />

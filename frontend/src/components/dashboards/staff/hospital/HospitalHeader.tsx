@@ -41,7 +41,7 @@ export const HospitalHeader = ({
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div className="flex flex-col md:flex-row items-start md:items-center gap-2 transition-all">
         <img
-          src="/icons/hospital-2.png"
+          src="https://ik.imagekit.io/vaxify/icons/hospital-2.png"
           alt=""
           className="size-24"
           draggable={false}

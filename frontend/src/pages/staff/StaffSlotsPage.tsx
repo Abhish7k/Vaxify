@@ -146,6 +146,11 @@ export default function StaffSlotsPage() {
       return;
     }
 
+    if (startTime >= endTime) {
+      toast.error("Start time must be before end time.");
+      return;
+    }
+
     try {
       setCreateLoading(true);
       const formattedDate = format(date, "yyyy-MM-dd");
@@ -180,8 +185,10 @@ export default function StaffSlotsPage() {
       await slotsApi.deleteSlot(slotToDelete.id);
       toast.success("Slot deleted successfully");
       if (hospitalId) fetchSlots(hospitalId);
-    } catch (error) {
-      toast.error("Failed to delete slot");
+    } catch (error: any) {
+      console.error(error);
+      const errorMessage = error.response?.data?.message || "Failed to delete slot";
+      toast.error(errorMessage);
     } finally {
       setDeleteLoading(false);
       setIsDeleteAlertOpen(false);

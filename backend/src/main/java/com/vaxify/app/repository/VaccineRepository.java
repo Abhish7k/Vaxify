@@ -12,4 +12,6 @@ import java.util.List;
 @Repository
 public interface VaccineRepository extends JpaRepository<Vaccine, Long> {
     List<Vaccine> findByHospital(Hospital hospital);
+
+    List<Vaccine> findByHospitalIn(List<Hospital> hospitals);
 }

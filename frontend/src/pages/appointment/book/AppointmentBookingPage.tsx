@@ -185,7 +185,7 @@ const AppointmentBookingPage = () => {
             </Card>
           </div>
         ) : (
-          <>
+          <div>
             <motion.div className="w-full" variants={itemVariants}>
               <VaccineSelectionSection
                 vaccines={vaccines.map((v) => ({
@@ -216,7 +216,7 @@ const AppointmentBookingPage = () => {
                 isLoadingSlots={isLoadingSlots}
               />
             </motion.div>
-          </>
+          </div>
         )}
       </div>
 

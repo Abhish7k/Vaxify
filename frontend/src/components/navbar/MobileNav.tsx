@@ -24,7 +24,7 @@ const MobileNav = () => {
                 to="/"
                 className="flex items-center gap-2 text-2xl font-bold text-indigo-600"
               >
-                <img src="/public/logo.svg" alt="" width={30} />
+                <img src="/logo.svg" alt="" width={30} />
                 Vaxify
               </Link>
             </SheetTitle>
