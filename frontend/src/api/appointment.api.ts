@@ -3,9 +3,21 @@ import type {
   Appointment,
   BookAppointmentRequest,
   TimeSlot,
+  HospitalTimeSlot,
 } from "@/types/appointment";
 
 export const appointmentApi = {
+  // get all slots for a hospital
+  getHospitalSlots: async (hospitalId: string): Promise<HospitalTimeSlot[]> => {
+    const response = await api.get<any[]>(`/slots/hospital/${hospitalId}`);
+
+    return response.data.map((s: any) => ({
+      time: s.startTime,
+      date: s.date,
+      available: s.status === "AVAILABLE" && s.bookedCount < s.capacity,
+    }));
+  },
+
   // get available slots for a center on a specific date
   getSlots: async (centerId: string, date: string): Promise<TimeSlot[]> => {
     const formattedDate = date.includes("T") ? date.split("T")[0] : date;

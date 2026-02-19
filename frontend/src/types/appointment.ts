@@ -42,3 +42,7 @@ export interface TimeSlot {
   time: string;
   available: boolean;
 }
+
+export interface HospitalTimeSlot extends TimeSlot {
+  date: string;
+}
