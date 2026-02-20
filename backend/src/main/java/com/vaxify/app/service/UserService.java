@@ -2,16 +2,16 @@ package com.vaxify.app.service;
 
 import java.util.List;
 
-import com.vaxify.app.dtos.UserDTO;
-import com.vaxify.app.dtos.UserStatsDTO;
+import com.vaxify.app.dtos.user.UserResponse;
+import com.vaxify.app.dtos.user.UserStatsResponse;
 
 public interface UserService {
 
-    public UserDTO getProfile(String email);
+    public UserResponse getProfile(String email);
 
-    UserStatsDTO getUserStats(String email);
+    UserStatsResponse getUserStats(String email);
 
-    List<UserDTO> getAllUsers();
+    List<UserResponse> getAllUsers();
 
     void deleteUser(Long id);
 }

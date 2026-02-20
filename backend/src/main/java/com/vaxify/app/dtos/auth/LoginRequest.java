@@ -1,4 +1,4 @@
-package com.vaxify.app.dtos;
+package com.vaxify.app.dtos.auth;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,6 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LoginRequest {
+
     private String email;
+
     private String password;
+
 }

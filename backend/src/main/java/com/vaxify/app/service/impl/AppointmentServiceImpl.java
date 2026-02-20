@@ -8,7 +8,9 @@ import com.vaxify.app.entities.enums.SlotStatus;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.repository.*;
 import com.vaxify.app.service.AppointmentService;
-import com.vaxify.app.service.EmailService;
+import com.vaxify.app.service.NotificationService;
+import com.vaxify.app.service.VaccineService;
+import com.vaxify.app.mapper.AppointmentMapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         private final SlotRepository slotRepository;
 
         private final UserRepository userRepository;
-        private final EmailService emailService;
+        private final AppointmentMapper appointmentMapper;
+        private final VaccineService vaccineService;
+
+        private final NotificationService notificationService;
 
         @Override
         @Transactional
@@ -79,7 +84,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 vaccineRepository.save(vaccine);
 
-                checkStockAlerts(vaccine);
+                vaccineService.checkStockAlerts(vaccine);
 
                 Appointment appointment = Appointment.builder().user(user).slot(selectedSlot).vaccine(vaccine)
                                 .status(AppointmentStatus.BOOKED).build();
@@ -94,7 +99,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 Appointment saved = appointmentRepository.save(appointment);
 
-                return mapToResponse(saved);
+                notificationService.sendAppointmentConfirmation(saved);
+
+                return appointmentMapper.toResponse(saved);
         }
 
         @Override
@@ -102,8 +109,12 @@ public class AppointmentServiceImpl implements AppointmentService {
                 User user = userRepository.findByEmail(userEmail)
                                 .orElseThrow(() -> new VaxifyException("User not found"));
 
-                return appointmentRepository.findAll().stream().filter(a -> a.getUser().getId().equals(user.getId()))
-                                .map(this::mapToResponse).collect(Collectors.toList());
+                List<AppointmentResponse> responses = appointmentRepository.findAll().stream()
+                                .filter(a -> a.getUser().getId().equals(user.getId()))
+                                .map(appointmentMapper::toResponse)
+                                .collect(Collectors.toList());
+
+                return responses;
         }
 
         @Override
@@ -120,11 +131,15 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 // refund vaccine stock
                 Vaccine vaccine = appointment.getVaccine();
+
                 vaccine.setStock(vaccine.getStock() + 1);
+
                 vaccineRepository.save(vaccine);
 
                 Slot slot = appointment.getSlot();
+
                 slot.setBookedCount(slot.getBookedCount() - 1);
+
                 if (slot.getStatus() == SlotStatus.FULL && slot.getBookedCount() < slot.getCapacity()) {
                         slot.setStatus(SlotStatus.AVAILABLE);
                 }
@@ -132,20 +147,26 @@ public class AppointmentServiceImpl implements AppointmentService {
                 slotRepository.save(slot);
 
                 appointmentRepository.save(appointment);
+
+                notificationService.sendAppointmentCancellation(appointment);
         }
 
         @Override
         public AppointmentResponse getAppointmentById(Long id) {
                 Appointment appointment = appointmentRepository.findById(id)
                                 .orElseThrow(() -> new VaxifyException("Appointment not found"));
-                return mapToResponse(appointment);
+
+                return appointmentMapper.toResponse(appointment);
         }
 
         @Override
         @Transactional(readOnly = true)
         public List<AppointmentResponse> getAppointmentsByHospital(Long hospitalId) {
-                return appointmentRepository.findBySlotCenterId(hospitalId).stream().map(this::mapToResponse)
+                List<AppointmentResponse> responses = appointmentRepository.findBySlotCenterId(hospitalId).stream()
+                                .map(appointmentMapper::toResponse)
                                 .collect(Collectors.toList());
+
+                return responses;
         }
 
         @Override
@@ -158,59 +179,16 @@ public class AppointmentServiceImpl implements AppointmentService {
                 if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
                         throw new VaxifyException("Cannot complete a cancelled appointment");
                 }
+
                 if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
                         throw new VaxifyException("Appointment is already completed");
                 }
 
                 appointment.setStatus(AppointmentStatus.COMPLETED);
-                appointmentRepository.save(appointment);
+
+                Appointment saved = appointmentRepository.save(appointment);
+
+                notificationService.sendVaccinationCompletion(saved);
         }
 
-        // checks stock levels and sends alerts if low
-        // vaccineService should ideally own this, but kept here for now per request
-        // triggers on stock updates
-        private AppointmentResponse mapToResponse(Appointment a) {
-                return AppointmentResponse.builder().id(a.getId()).centerId(a.getSlot().getCenter().getId())
-                                .centerName(a.getSlot().getCenter().getName())
-                                .centerAddress(a.getSlot().getCenter().getAddress()).vaccineId(a.getVaccine().getId())
-                                .vaccineName(a.getVaccine().getName()).date(a.getSlot().getDate().toString())
-                                .slot(a.getSlot().getStartTime().toString()).status(a.getStatus())
-                                .createdAt(a.getCreatedAt()).patientName(a.getUser().getName())
-                                .patientEmail(a.getUser().getEmail()).patientPhone(a.getUser().getPhone()).build();
-        }
-
-        public void checkStockAlerts(Vaccine vaccine) {
-                int stock = vaccine.getStock();
-                int capacity = vaccine.getCapacity();
-
-                if (capacity == 0)
-                        return;
-
-                // < 20% critical
-                if (stock < (capacity * 0.2)) {
-                        sendStockAlert(vaccine, "CRITICAL: Vaccine Stock Critical (<20%) - Booking Blocked Warning",
-                                        "The stock for vaccine '" + vaccine.getName() + "' is CRITICAL (" + stock + "/"
-                                                        + capacity + ").\n" +
-                                                        "Bookings may be blocked soon if stock runs out. Please restock immediately.");
-                }
-                // < 40% warning
-                else if (stock < (capacity * 0.4)) {
-                        sendStockAlert(vaccine, "WARNING: Vaccine Stock Low (<40%)",
-                                        "The stock for vaccine '" + vaccine.getName() + "' is running low (" + stock
-                                                        + "/" + capacity + ").\n" +
-                                                        "Please arrange for restocking.");
-                }
-        }
-
-        private void sendStockAlert(Vaccine vaccine, String subject, String message) {
-                try {
-                        if (vaccine.getHospital() != null && vaccine.getHospital().getStaffUser() != null) {
-                                String staffEmail = vaccine.getHospital().getStaffUser().getEmail();
-                                emailService.sendSimpleEmail(staffEmail, subject, message);
-                        }
-                } catch (Exception e) {
-                        // ignore email errors to not fail the transaction
-                        System.err.println("Failed to send stock alert: " + e.getMessage());
-                }
-        }
 }

@@ -1,6 +1,9 @@
 package com.vaxify.app.dtos.hospital;
 
-import com.vaxify.app.dtos.VaccineResponseDTO;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.vaxify.app.dtos.vaccine.VaccineResponse;
 import com.vaxify.app.entities.enums.HospitalStatus;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +24,6 @@ public class HospitalResponse {
     private String staffName;
     private String staffEmail;
     private String staffPhone;
-    private java.time.LocalDateTime staffCreatedAt;
-    private java.util.List<VaccineResponseDTO> availableVaccines;
+    private LocalDateTime staffCreatedAt;
+    private List<VaccineResponse> availableVaccines;
 }

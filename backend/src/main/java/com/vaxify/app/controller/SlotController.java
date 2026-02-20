@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.vaxify.app.dtos.SlotRequestDTO;
-import com.vaxify.app.dtos.SlotResponseDTO;
+import com.vaxify.app.dtos.slot.SlotRequest;
+import com.vaxify.app.dtos.slot.SlotResponse;
 import com.vaxify.app.service.SlotService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,38 +23,38 @@ public class SlotController {
 
     // create slot
     @PostMapping("/staff")
-    public ResponseEntity<SlotResponseDTO> createSlot(@RequestBody SlotRequestDTO dto) {
+    public ResponseEntity<SlotResponse> createSlot(@RequestBody SlotRequest dto) {
 
-        SlotResponseDTO response = slotService.createSlot(dto);
+        SlotResponse response = slotService.createSlot(dto);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     // update slot
     @PutMapping("/staff/{slotId}")
-    public ResponseEntity<SlotResponseDTO> updateSlot(@PathVariable Long slotId, @RequestBody SlotRequestDTO dto) {
+    public ResponseEntity<SlotResponse> updateSlot(@PathVariable Long slotId, @RequestBody SlotRequest dto) {
 
-        SlotResponseDTO response = slotService.updateSlot(slotId, dto);
+        SlotResponse response = slotService.updateSlot(slotId, dto);
         return ResponseEntity.ok(response);
     }
 
     // get slot by id
     @GetMapping("/{slotId}")
-    public ResponseEntity<SlotResponseDTO> getSlotById(@PathVariable Long slotId) {
+    public ResponseEntity<SlotResponse> getSlotById(@PathVariable Long slotId) {
 
         return ResponseEntity.ok(slotService.getSlotById(slotId));
     }
 
     // get all slots
     @GetMapping
-    public ResponseEntity<List<SlotResponseDTO>> getAllSlots() {
+    public ResponseEntity<List<SlotResponse>> getAllSlots() {
 
         return ResponseEntity.ok(slotService.getAllSlots());
     }
 
     // get slot by hospital
     @GetMapping("/hospital/{hospitalId}")
-    public ResponseEntity<List<SlotResponseDTO>> getSlotsByHospital(@PathVariable Long hospitalId) {
+    public ResponseEntity<List<SlotResponse>> getSlotsByHospital(@PathVariable Long hospitalId) {
 
         return ResponseEntity.ok(
                 slotService.getSlotsByHospital(hospitalId));
@@ -62,7 +62,7 @@ public class SlotController {
 
     // get slot by hospital and date
     @GetMapping("/hospital/{hospitalId}/date")
-    public ResponseEntity<List<SlotResponseDTO>> getSlotsByHospitalAndDate(
+    public ResponseEntity<List<SlotResponse>> getSlotsByHospitalAndDate(
             @PathVariable Long hospitalId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 

@@ -6,17 +6,18 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.vaxify.app.dtos.VaccineRequestDTO;
-import com.vaxify.app.dtos.VaccineResponseDTO;
+import com.vaxify.app.dtos.vaccine.VaccineRequest;
+import com.vaxify.app.dtos.vaccine.VaccineResponse;
 import com.vaxify.app.entities.Hospital;
 import com.vaxify.app.entities.User;
 import com.vaxify.app.entities.Vaccine;
 import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.repository.UserRepository;
 import com.vaxify.app.repository.VaccineRepository;
-import com.vaxify.app.service.AppointmentService;
+import com.vaxify.app.service.NotificationService;
 import com.vaxify.app.service.VaccineService;
-
+import com.vaxify.app.exception.VaxifyException;
+import com.vaxify.app.mapper.VaccineMapper;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,37 +28,42 @@ public class VaccineServiceImpl implements VaccineService {
     private final HospitalRepository hospitalRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-    private final AppointmentService appointmentService;
+    private final NotificationService notificationService;
+    private final VaccineMapper vaccineMapper;
 
     @Override
     @Transactional
-    public VaccineResponseDTO createVaccine(VaccineRequestDTO dto, String staffEmail) {
+    public VaccineResponse createVaccine(VaccineRequest dto, String staffEmail) {
         Hospital hospital = getHospitalByStaffEmail(staffEmail);
 
         Vaccine vaccine = modelMapper.map(dto, Vaccine.class);
+
         vaccine.setHospital(hospital);
 
         // defaults if null
         if (vaccine.getStock() == null)
             vaccine.setStock(0);
+
         if (vaccine.getCapacity() == null)
             vaccine.setCapacity(0);
 
         validateStockAndCapacity(vaccine.getStock(), vaccine.getCapacity());
 
-        return toResponse(vaccineRepository.save(vaccine));
+        Vaccine saved = vaccineRepository.save(vaccine);
+
+        return vaccineMapper.toResponse(saved);
     }
 
     @Override
     @Transactional
-    public VaccineResponseDTO updateVaccine(Long id, VaccineRequestDTO dto, String staffEmail) {
+    public VaccineResponse updateVaccine(Long id, VaccineRequest dto, String staffEmail) {
         Vaccine vaccine = vaccineRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vaccine not found"));
+                .orElseThrow(() -> new VaxifyException("Vaccine not found"));
 
         // verify ownership
         Hospital staffHospital = getHospitalByStaffEmail(staffEmail);
         if (!vaccine.getHospital().getId().equals(staffHospital.getId())) {
-            throw new RuntimeException("Unauthorized: This vaccine does not belong to your hospital");
+            throw new VaxifyException("Unauthorized: This vaccine does not belong to your hospital");
         }
 
         // map updates
@@ -66,6 +72,7 @@ public class VaccineServiceImpl implements VaccineService {
         // defaults if null (in case mapping set them to null or they were null)
         if (vaccine.getStock() == null)
             vaccine.setStock(0);
+
         if (vaccine.getCapacity() == null)
             vaccine.setCapacity(0);
 
@@ -73,25 +80,22 @@ public class VaccineServiceImpl implements VaccineService {
 
         Vaccine saved = vaccineRepository.save(vaccine);
 
-        // check stock alerts (since user might have manually lowered stock)
-        try {
-            appointmentService.checkStockAlerts(saved);
-        } catch (Exception e) {
-            // ignore
-        }
+        checkStockAlerts(saved);
 
-        return toResponse(saved);
+        return vaccineMapper.toResponse(saved);
     }
 
     private void validateStockAndCapacity(Integer stock, Integer capacity) {
         if (stock < 0) {
-            throw new RuntimeException("Stock cannot be negative");
+            throw new VaxifyException("Stock cannot be negative");
         }
+
         if (capacity <= 0) {
-            throw new RuntimeException("Capacity must be greater than zero");
+            throw new VaxifyException("Capacity must be greater than zero");
         }
+
         if (stock > capacity) {
-            throw new RuntimeException("Stock cannot be more than the capacity");
+            throw new VaxifyException("Stock cannot be more than the capacity");
         }
     }
 
@@ -99,12 +103,13 @@ public class VaccineServiceImpl implements VaccineService {
     @Transactional
     public void deleteVaccine(Long id, String staffEmail) {
         Vaccine vaccine = vaccineRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vaccine not found"));
+                .orElseThrow(() -> new VaxifyException("Vaccine not found"));
 
         // verify ownership
         Hospital staffHospital = getHospitalByStaffEmail(staffEmail);
+
         if (!vaccine.getHospital().getId().equals(staffHospital.getId())) {
-            throw new RuntimeException("Unauthorized: This vaccine does not belong to your hospital");
+            throw new VaxifyException("Unauthorized: This vaccine does not belong to your hospital");
         }
 
         vaccineRepository.delete(vaccine);
@@ -112,15 +117,16 @@ public class VaccineServiceImpl implements VaccineService {
 
     @Override
     @Transactional(readOnly = true)
-    public VaccineResponseDTO getVaccineById(Long id) {
+    public VaccineResponse getVaccineById(Long id) {
         Vaccine vaccine = vaccineRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vaccine not found"));
-        return toResponse(vaccine);
+                .orElseThrow(() -> new VaxifyException("Vaccine not found"));
+
+        return vaccineMapper.toResponse(vaccine);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<VaccineResponseDTO> getAllVaccines() {
+    public List<VaccineResponse> getAllVaccines() {
         return vaccineRepository.findAll()
                 .stream()
                 .filter(v -> {
@@ -130,26 +136,26 @@ public class VaccineServiceImpl implements VaccineService {
                     }
                     return true;
                 })
-                .map(this::toResponse)
+                .map(vaccineMapper::toResponse)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<VaccineResponseDTO> getVaccinesByStaff(String staffEmail) {
+    public List<VaccineResponse> getVaccinesByStaff(String staffEmail) {
         Hospital hospital = getHospitalByStaffEmail(staffEmail);
 
         return vaccineRepository.findByHospital(hospital)
                 .stream()
-                .map(this::toResponse)
+                .map(vaccineMapper::toResponse)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<VaccineResponseDTO> getVaccinesByHospitalId(Long hospitalId) {
+    public List<VaccineResponse> getVaccinesByHospitalId(Long hospitalId) {
         Hospital hospital = hospitalRepository.findById(hospitalId)
-                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+                .orElseThrow(() -> new VaxifyException("Hospital not found"));
 
         return vaccineRepository.findByHospital(hospital)
                 .stream()
@@ -160,24 +166,35 @@ public class VaccineServiceImpl implements VaccineService {
                     }
                     return true;
                 })
-                .map(this::toResponse)
+                .map(vaccineMapper::toResponse)
                 .toList();
     }
 
     // helper
     private Hospital getHospitalByStaffEmail(String email) {
         User staffUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Staff user not found"));
+                .orElseThrow(() -> new VaxifyException("Staff user not found"));
 
         return hospitalRepository.findByStaffUser(staffUser)
-                .orElseThrow(() -> new RuntimeException("Hospital not found for this staff"));
+                .orElseThrow(() -> new VaxifyException("Hospital not found for this staff"));
     }
 
-    private VaccineResponseDTO toResponse(Vaccine vaccine) {
-        VaccineResponseDTO response = modelMapper.map(vaccine, VaccineResponseDTO.class);
-        if (vaccine.getCreatedAt() != null) {
-            response.setLastUpdated(vaccine.getCreatedAt().toString());
+    @Override
+    public void checkStockAlerts(Vaccine vaccine) {
+        int stock = vaccine.getStock();
+        int capacity = vaccine.getCapacity();
+
+        if (capacity == 0)
+            return;
+
+        // < 20% critical
+        if (stock < (capacity * 0.2)) {
+            notificationService.sendVaccineStockCritical(vaccine, stock, capacity);
         }
-        return response;
+        // < 40% warning
+        else if (stock < (capacity * 0.4)) {
+            notificationService.sendVaccineStockLow(vaccine, stock, capacity);
+        }
     }
+
 }

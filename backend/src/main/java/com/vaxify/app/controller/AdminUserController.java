@@ -1,6 +1,6 @@
 package com.vaxify.app.controller;
 
-import com.vaxify.app.dtos.UserDTO;
+import com.vaxify.app.dtos.user.UserResponse;
 import com.vaxify.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +19,7 @@ public class AdminUserController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserDTO> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
     }
 

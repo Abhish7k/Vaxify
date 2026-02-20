@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.vaxify.app.entities.enums.SlotStatus;
 
@@ -40,6 +42,7 @@ public class Slot {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hospital_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Hospital center;
 
     @Column(name = "slot_date", nullable = false)

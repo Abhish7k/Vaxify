@@ -1,24 +1,28 @@
 package com.vaxify.app.service;
 
 import java.util.List;
-import com.vaxify.app.dtos.*;
+import com.vaxify.app.dtos.vaccine.VaccineRequest;
+import com.vaxify.app.dtos.vaccine.VaccineResponse;
+import com.vaxify.app.entities.Vaccine;
 
 public interface VaccineService {
 
-    VaccineResponseDTO createVaccine(VaccineRequestDTO dto, String staffEmail);
+    VaccineResponse createVaccine(VaccineRequest dto, String staffEmail);
 
-    VaccineResponseDTO updateVaccine(Long id, VaccineRequestDTO dto, String staffEmail);
+    VaccineResponse updateVaccine(Long id, VaccineRequest dto, String staffEmail);
 
     void deleteVaccine(Long id, String staffEmail);
 
-    VaccineResponseDTO getVaccineById(Long id);
+    VaccineResponse getVaccineById(Long id);
 
     // for admin or general listing
-    List<VaccineResponseDTO> getAllVaccines();
+    List<VaccineResponse> getAllVaccines();
 
     // for staff dashboard
-    List<VaccineResponseDTO> getVaccinesByStaff(String staffEmail);
+    List<VaccineResponse> getVaccinesByStaff(String staffEmail);
 
     // for public booking page
-    List<VaccineResponseDTO> getVaccinesByHospitalId(Long hospitalId);
+    List<VaccineResponse> getVaccinesByHospitalId(Long hospitalId);
+
+    void checkStockAlerts(Vaccine vaccine);
 }

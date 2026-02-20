@@ -78,9 +78,11 @@ export function UpdateStockDialog({
       });
 
       onSuccess();
+
       onClose();
     } catch (error) {
       console.error(error);
+
       toast.error("Failed to update stock", {
         style: {
           backgroundColor: "#ffe5e5",

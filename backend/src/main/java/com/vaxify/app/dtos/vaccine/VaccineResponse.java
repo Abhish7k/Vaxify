@@ -1,4 +1,4 @@
-package com.vaxify.app.dtos;
+package com.vaxify.app.dtos.vaccine;
 
 import lombok.*;
 
@@ -6,13 +6,20 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VaccineResponseDTO {
+public class VaccineResponse {
 
     private Long id;
+
     private String name;
+
     private String type;
+
     private String manufacturer;
+
     private Integer stock;
+
     private Integer capacity;
+
     private String lastUpdated;
+
 }

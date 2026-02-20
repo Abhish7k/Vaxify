@@ -4,8 +4,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.vaxify.app.dtos.UserDTO;
-import com.vaxify.app.dtos.UserStatsDTO;
+import com.vaxify.app.dtos.user.UserResponse;
+import com.vaxify.app.dtos.user.UserStatsResponse;
 import com.vaxify.app.dtos.appointment.AppointmentResponse;
 import com.vaxify.app.entities.User;
 import com.vaxify.app.entities.enums.AppointmentStatus;
@@ -14,6 +14,7 @@ import com.vaxify.app.entities.Appointment;
 import com.vaxify.app.exception.ResourceNotFoundException;
 import com.vaxify.app.repository.UserRepository;
 import com.vaxify.app.repository.AppointmentRepository;
+import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.service.UserService;
 
 import java.time.LocalDate;
@@ -30,17 +31,18 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final AppointmentRepository appointmentRepository;
-    private final com.vaxify.app.repository.HospitalRepository hospitalRepository;
+    private final HospitalRepository hospitalRepository;
 
     @Override
-    public UserDTO getProfile(String email) {
+    public UserResponse getProfile(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email ID " + email));
-        return modelMapper.map(user, UserDTO.class);
+
+        return modelMapper.map(user, UserResponse.class);
     }
 
     @Override
-    public UserStatsDTO getUserStats(String email) {
+    public UserStatsResponse getUserStats(String email) {
         if (!userRepository.existsByEmail(email)) {
             throw new ResourceNotFoundException("User not found with email ID " + email);
         }
@@ -58,6 +60,7 @@ public class UserServiceImpl implements UserService {
                 .findFirst();
 
         String vaccinationStatus = "Not Vaccinated";
+
         if (completedCount >= 2) {
             vaccinationStatus = "Fully Vaccinated";
         } else if (completedCount == 1) {
@@ -66,11 +69,11 @@ public class UserServiceImpl implements UserService {
 
         List<AppointmentResponse> recent = allAppointments.stream()
                 .sorted(Comparator.comparing(Appointment::getCreatedAt).reversed())
-                .limit(5)
+                .limit(3)
                 .map(this::mapToAppointmentResponse)
                 .collect(Collectors.toList());
 
-        return UserStatsDTO.builder()
+        return UserStatsResponse.builder()
                 .upcomingAppointmentDate(upcoming.map(a -> a.getSlot().getDate().toString()).orElse("No upcoming"))
                 .vaccinationStatus(vaccinationStatus)
                 .totalAppointments(allAppointments.size())
@@ -81,9 +84,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> modelMapper.map(user, UserDTO.class))
+                .map(user -> modelMapper.map(user, UserResponse.class))
                 .collect(Collectors.toList());
     }
 

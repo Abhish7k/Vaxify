@@ -2,7 +2,6 @@ package com.vaxify.app.service;
 
 import com.vaxify.app.dtos.appointment.AppointmentResponse;
 import com.vaxify.app.dtos.appointment.BookAppointmentRequest;
-import com.vaxify.app.entities.Vaccine;
 
 import java.util.List;
 
@@ -18,6 +17,4 @@ public interface AppointmentService {
     List<AppointmentResponse> getAppointmentsByHospital(Long hospitalId);
 
     void completeAppointment(Long appointmentId);
-
-    void checkStockAlerts(Vaccine vaccine);
 }

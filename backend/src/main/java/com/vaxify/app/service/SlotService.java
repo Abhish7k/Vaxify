@@ -3,21 +3,21 @@ package com.vaxify.app.service;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.vaxify.app.dtos.SlotRequestDTO;
-import com.vaxify.app.dtos.SlotResponseDTO;
+import com.vaxify.app.dtos.slot.SlotRequest;
+import com.vaxify.app.dtos.slot.SlotResponse;
 
 public interface SlotService {
-    SlotResponseDTO createSlot(SlotRequestDTO dto);
+    SlotResponse createSlot(SlotRequest dto);
 
-    SlotResponseDTO updateSlot(Long slotId, SlotRequestDTO dto);
+    SlotResponse updateSlot(Long slotId, SlotRequest dto);
 
-    SlotResponseDTO getSlotById(Long slotId);
+    SlotResponse getSlotById(Long slotId);
 
-    List<SlotResponseDTO> getAllSlots();
+    List<SlotResponse> getAllSlots();
 
-    List<SlotResponseDTO> getSlotsByHospital(Long hospitalId);
+    List<SlotResponse> getSlotsByHospital(Long hospitalId);
 
-    List<SlotResponseDTO> getSlotsByHospitalAndDate(Long hospitalId, LocalDate date);
+    List<SlotResponse> getSlotsByHospitalAndDate(Long hospitalId, LocalDate date);
 
     void deleteSlot(Long slotId);
 }

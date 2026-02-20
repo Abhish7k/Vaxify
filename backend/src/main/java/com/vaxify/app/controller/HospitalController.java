@@ -3,14 +3,14 @@ package com.vaxify.app.controller;
 import com.vaxify.app.dtos.hospital.HospitalResponse;
 import com.vaxify.app.dtos.hospital.HospitalSummaryResponse;
 import com.vaxify.app.dtos.hospital.UpdateHospitalRequest;
+import com.vaxify.app.dtos.hospital.StaffHospitalRegistrationRequest;
+import com.vaxify.app.service.HospitalService;
+import com.vaxify.app.util.SecurityUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import com.vaxify.app.service.HospitalService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
-import com.vaxify.app.dtos.StaffHospitalRegistrationDTO;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/hospitals")
@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 public class HospitalController {
 
     private final HospitalService hospitalService;
+    private final SecurityUtils securityUtils;
 
     @GetMapping
     public ResponseEntity<List<HospitalSummaryResponse>> getAllApprovedHospitals() {
@@ -30,19 +31,8 @@ public class HospitalController {
         return ResponseEntity.ok(hospitalService.getHospitalById(id));
     }
 
-    // @PostMapping("/register")
-    // public HospitalResponse registerHospital(
-    // @Valid @RequestBody StaffHospitalRegisterRequest request,
-    // @AuthenticationPrincipal UserDetails principal
-    // ) {
-    // return hospitalService.registerHospital(
-    // request,
-    // principal.getUsername() // email
-    // );
-    // }
-
     @PostMapping("/register")
-    public ResponseEntity<String> registerHospitalStaff(@RequestBody StaffHospitalRegistrationDTO dto) {
+    public ResponseEntity<String> registerHospitalStaff(@RequestBody StaffHospitalRegistrationRequest dto) {
         hospitalService.registerHospitalStaff(dto);
 
         return ResponseEntity.ok("Hospital registration submitted for approval");
@@ -51,9 +41,7 @@ public class HospitalController {
     @GetMapping("/my")
     public HospitalResponse getMyHospital() {
 
-        String email = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+        String email = securityUtils.getCurrentUserEmail();
 
         return hospitalService.getMyHospital(email);
     }
@@ -61,9 +49,7 @@ public class HospitalController {
     @PutMapping("/my")
     public HospitalResponse updateHospital(@RequestBody UpdateHospitalRequest request) {
 
-        String email = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+        String email = securityUtils.getCurrentUserEmail();
 
         return hospitalService.updateHospital(request, email);
     }

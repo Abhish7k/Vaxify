@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class  S3ServiceImpl implements S3Service {
+public class S3ServiceImpl implements S3Service {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
@@ -96,5 +96,18 @@ public class  S3ServiceImpl implements S3Service {
                 .build();
 
         return s3Presigner.presignPutObject(presignRequest).url().toString();
+    }
+
+    @Override
+    public String resolveUrl(String path) {
+        if (path == null || path.isEmpty() || path.startsWith("http")) {
+            return path;
+        }
+
+        try {
+            return generatePresignedUrl(path);
+        } catch (Exception e) {
+            return path;
+        }
     }
 }

@@ -8,8 +8,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.vaxify.app.dtos.SlotRequestDTO;
-import com.vaxify.app.dtos.SlotResponseDTO;
+import com.vaxify.app.dtos.slot.SlotRequest;
+import com.vaxify.app.dtos.slot.SlotResponse;
 import com.vaxify.app.entities.Hospital;
 import com.vaxify.app.entities.Slot;
 import com.vaxify.app.repository.AppointmentRepository;
@@ -17,7 +17,9 @@ import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.repository.SlotRepository;
 import com.vaxify.app.entities.Appointment;
 import com.vaxify.app.entities.enums.AppointmentStatus;
+import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.service.SlotService;
+import com.vaxify.app.mapper.SlotMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,34 +31,35 @@ public class SlotServiceImpl implements SlotService {
     private final HospitalRepository hospitalRepository;
     private final AppointmentRepository appointmentRepository;
     private final ModelMapper modelMapper;
+    private final SlotMapper slotMapper;
 
     // create slot
     @Override
     @Transactional
-    public SlotResponseDTO createSlot(SlotRequestDTO dto) {
+    public SlotResponse createSlot(SlotRequest dto) {
 
         // check for past date/time
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
 
         if (dto.getDate().isBefore(today)) {
-            throw new RuntimeException("Cannot create slots for a past date.");
+            throw new VaxifyException("Cannot create slots for a past date.");
         }
 
         if (dto.getDate().isEqual(today) && dto.getStartTime().isBefore(now)) {
-            throw new RuntimeException("Cannot create slots for a past time today.");
+            throw new VaxifyException("Cannot create slots for a past time today.");
         }
 
         if (dto.getDate().getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
-            throw new RuntimeException("Cannot create slots on Sunday");
+            throw new VaxifyException("Cannot create slots on Sunday");
         }
 
         if (dto.getStartTime() != null && dto.getEndTime() != null && !dto.getStartTime().isBefore(dto.getEndTime())) {
-            throw new RuntimeException("Start time must be before end time.");
+            throw new VaxifyException("Start time must be before end time.");
         }
 
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+                .orElseThrow(() -> new VaxifyException("Hospital not found"));
 
         // check for duplicate slot
         // fetch all slots for the day and check time
@@ -65,7 +68,7 @@ public class SlotServiceImpl implements SlotService {
                 .anyMatch(s -> s.getStartTime().equals(dto.getStartTime()));
 
         if (exists) {
-            throw new RuntimeException("Slot already exists for this time on the selected date.");
+            throw new VaxifyException("Slot already exists for this time on the selected date.");
         }
 
         Slot slot = new Slot();
@@ -75,18 +78,17 @@ public class SlotServiceImpl implements SlotService {
         slot.setCenter(hospital);
 
         slot.setBookedCount(0); // default
-        // slot.setStatus(dto.getStatus()); // already mapped if names match
 
-        return mapToResponseDTO(slotRepository.save(slot));
+        return slotMapper.toResponse(slotRepository.save(slot));
     }
 
     // update slot
     @Override
     @Transactional
-    public SlotResponseDTO updateSlot(Long slotId, SlotRequestDTO dto) {
+    public SlotResponse updateSlot(Long slotId, SlotRequest dto) {
 
         Slot slot = slotRepository.findById(slotId)
-                .orElseThrow(() -> new RuntimeException("Slot not found"));
+                .orElseThrow(() -> new VaxifyException("Slot not found"));
 
         // strict + skipNullEnabled = true → safe partial update
         modelMapper.map(dto, slot);
@@ -96,76 +98,76 @@ public class SlotServiceImpl implements SlotService {
         LocalTime now = LocalTime.now();
 
         if (slot.getDate().isBefore(today)) {
-            throw new RuntimeException("Cannot move or keep a slot in a past date.");
+            throw new VaxifyException("Cannot move or keep a slot in a past date.");
         }
 
         if (slot.getDate().isEqual(today) && slot.getStartTime().isBefore(now)) {
-            throw new RuntimeException("Cannot move or keep a slot in a past time today.");
+            throw new VaxifyException("Cannot move or keep a slot in a past time today.");
         }
 
         // validation: capacity cannot be less than current bookings
         if (slot.getCapacity() < slot.getBookedCount()) {
-            throw new RuntimeException("New capacity cannot be less than value of confirmed bookings ("
+            throw new VaxifyException("New capacity cannot be less than value of confirmed bookings ("
                     + slot.getBookedCount() + ")");
         }
 
         if (slot.getStartTime() != null && slot.getEndTime() != null
                 && !slot.getStartTime().isBefore(slot.getEndTime())) {
-            throw new RuntimeException("Start time must be before end time.");
+            throw new VaxifyException("Start time must be before end time.");
         }
 
         // hospital change (only if hospitalId provided)
         if (dto.getHospitalId() != null) {
             Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                    .orElseThrow(() -> new RuntimeException("Hospital not found"));
+                    .orElseThrow(() -> new VaxifyException("Hospital not found"));
             slot.setCenter(hospital);
         }
 
-        return mapToResponseDTO(slotRepository.save(slot));
+        return slotMapper.toResponse(slotRepository.save(slot));
     }
 
     // get slot by id
     @Override
     @Transactional(readOnly = true)
-    public SlotResponseDTO getSlotById(Long slotId) {
+    public SlotResponse getSlotById(Long slotId) {
 
         Slot slot = slotRepository.findById(slotId)
-                .orElseThrow(() -> new RuntimeException("Slot not found"));
+                .orElseThrow(() -> new VaxifyException("Slot not found"));
 
-        return mapToResponseDTO(slot);
+        return slotMapper.toResponse(slot);
     }
 
     // get all slots
     @Override
     @Transactional(readOnly = true)
-    public List<SlotResponseDTO> getAllSlots() {
+    public List<SlotResponse> getAllSlots() {
 
         return slotRepository.findAll()
                 .stream()
-                .map(this::mapToResponseDTO)
+                .map(slotMapper::toResponse)
                 .toList();
     }
 
     // get slots by hospital
     @Override
     @Transactional(readOnly = true)
-    public List<SlotResponseDTO> getSlotsByHospital(Long hospitalId) {
+    public List<SlotResponse> getSlotsByHospital(Long hospitalId) {
 
         return slotRepository.findByCenterId(hospitalId)
                 .stream()
-                .map(this::mapToResponseDTO)
+                .map(slotMapper::toResponse)
                 .toList();
     }
 
     // get slots by hospital and date
     @Override
     @Transactional(readOnly = true)
-    public List<SlotResponseDTO> getSlotsByHospitalAndDate(
+    public List<SlotResponse> getSlotsByHospitalAndDate(
             Long hospitalId, LocalDate date) {
 
         return slotRepository.findByCenterIdAndDate(hospitalId, date)
                 .stream()
-                .map(this::mapToResponseDTO)
+                .map(slotMapper::toResponse)
                 .toList();
     }
 
@@ -174,7 +176,7 @@ public class SlotServiceImpl implements SlotService {
     public void deleteSlot(Long slotId) {
 
         Slot slot = slotRepository.findById(slotId)
-                .orElseThrow(() -> new RuntimeException("Slot not found"));
+                .orElseThrow(() -> new VaxifyException("Slot not found"));
 
         // check if there are any ACTIVE (BOOKED) appointments
         List<Appointment> appointments = appointmentRepository.findBySlot(slot);
@@ -183,7 +185,7 @@ public class SlotServiceImpl implements SlotService {
                 .anyMatch(a -> a.getStatus() == AppointmentStatus.BOOKED);
 
         if (hasActiveBookings) {
-            throw new RuntimeException(
+            throw new VaxifyException(
                     "Cannot delete a slot with active PENDING/BOOKED appointments. Please cancel them first.");
         }
 
@@ -195,17 +197,5 @@ public class SlotServiceImpl implements SlotService {
         }
 
         slotRepository.deleteById(slotId);
-    }
-
-    // entity → dto
-    private SlotResponseDTO mapToResponseDTO(Slot slot) {
-
-        SlotResponseDTO dto = modelMapper.map(slot, SlotResponseDTO.class);
-
-        // manual mapping for relationship fields
-        dto.setHospitalId(slot.getCenter().getId());
-        dto.setHospitalName(slot.getCenter().getName());
-
-        return dto;
     }
 }

@@ -1,8 +1,8 @@
 package com.vaxify.app.controller;
 
-import com.vaxify.app.dtos.AuthResponse;
-import com.vaxify.app.dtos.LoginRequest;
-import com.vaxify.app.dtos.SignupRequest;
+import com.vaxify.app.dtos.auth.AuthResponse;
+import com.vaxify.app.dtos.auth.LoginRequest;
+import com.vaxify.app.dtos.auth.SignupRequest;
 import com.vaxify.app.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

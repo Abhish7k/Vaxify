@@ -96,7 +96,9 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
       });
 
       setOpen(false);
+
       reset(); // reset form
+
       onSuccess();
     } catch (error) {
       toast.error("Failed to add vaccine", {
@@ -105,6 +107,7 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
           color: "#b00000",
         },
       });
+
       console.error(error);
     }
   };
@@ -139,12 +142,14 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="name">Vaccine Name</Label>
+
             <Input
               id="name"
               placeholder="e.g. Covaxin"
               {...register("name")}
               disabled={isSubmitting}
             />
+
             {errors.name && (
               <p className="text-sm text-destructive">{errors.name.message}</p>
             )}
@@ -152,6 +157,7 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
 
           <div className="grid gap-2">
             <Label htmlFor="type">Vaccine Type</Label>
+
             <Select
               disabled={isSubmitting}
               value={isOtherType ? "Other" : typeValue}
@@ -165,9 +171,13 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
                 <SelectItem value="Inactivated Virus">
                   Inactivated Virus
                 </SelectItem>
+
                 <SelectItem value="Viral Vector">Viral Vector</SelectItem>
+
                 <SelectItem value="mRNA">mRNA</SelectItem>
+
                 <SelectItem value="Protein Subunit">Protein Subunit</SelectItem>
+
                 <SelectItem value="Other">Other (Enter manually)</SelectItem>
               </SelectContent>
             </Select>
@@ -183,26 +193,32 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
                 className="mt-2"
               />
             )}
+
             {errors.type && (
               <p className="text-sm text-destructive">{errors.type.message}</p>
             )}
           </div>
+
           <div className="grid gap-2">
             <Label htmlFor="manufacturer">Manufacturer</Label>
+
             <Input
               id="manufacturer"
               placeholder="e.g. Bharat Biotech"
               {...register("manufacturer")}
               disabled={isSubmitting}
             />
+
             {errors.manufacturer && (
               <p className="text-sm text-destructive">
                 {errors.manufacturer.message}
               </p>
             )}
           </div>
+
           <div className="grid gap-2">
             <Label htmlFor="stock">Initial Stock</Label>
+
             <Input
               id="stock"
               type="number"
@@ -210,12 +226,15 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
               {...register("stock")}
               disabled={isSubmitting}
             />
+
             {errors.stock && (
               <p className="text-sm text-destructive">{errors.stock.message}</p>
             )}
           </div>
+
           <div className="grid gap-2">
             <Label htmlFor="capacity">Storage Capacity</Label>
+
             <Input
               id="capacity"
               type="number"
@@ -224,12 +243,14 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
               {...register("capacity")}
               disabled={isSubmitting}
             />
+
             {errors.capacity && (
               <p className="text-sm text-destructive">
                 {errors.capacity.message}
               </p>
             )}
           </div>
+
           <DialogFooter className="pt-4">
             <Button
               type="button"
@@ -239,6 +260,7 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
             >
               Cancel
             </Button>
+
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Adding..." : "Add Vaccine"}
             </Button>

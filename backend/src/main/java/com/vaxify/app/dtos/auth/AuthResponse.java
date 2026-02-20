@@ -1,4 +1,4 @@
-package com.vaxify.app.dtos;
+package com.vaxify.app.dtos.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,6 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class AuthResponse {
+
     private String token;
-    private AuthDTO user;
+
+    private AuthUserResponse user;
+
 }

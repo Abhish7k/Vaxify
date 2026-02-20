@@ -13,4 +13,6 @@ public interface S3Service {
     String generatePresignedUrl(String fileName);
 
     String generatePresignedUploadUrl(String fileName, String contentType);
+
+    String resolveUrl(String path);
 }

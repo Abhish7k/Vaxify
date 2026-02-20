@@ -77,34 +77,41 @@ export function BulkCreateSlotDialog({
   const handleBulkCreate = async () => {
     if (!hospitalId || !startDate || !endDate) {
       toast.error("Please select a valid date range");
+
       return;
     }
 
     if (startDate > endDate) {
       toast.error("Start date cannot be after end date");
+
       return;
     }
 
     if (selectedDays.length === 0) {
       toast.error("Please select at least one day of the week");
+
       return;
     }
 
     if (startTime >= endTime) {
       toast.error("Start time must be before end time");
+
       return;
     }
 
     // validation for past date/time check for today
     const now = new Date();
     const isTodaySelected = format(startDate, "yyyy-MM-dd") === format(now, "yyyy-MM-dd");
+
     if (isTodaySelected) {
       const [hours, minutes] = startTime.split(":").map(Number);
       const startDateTime = new Date(startDate);
+
       startDateTime.setHours(hours, minutes, 0, 0);
 
       if (startDateTime < now) {
         toast.error("Cannot create slots for a past time today. Please adjust the start time.");
+
         return;
       }
     }
@@ -122,7 +129,9 @@ export function BulkCreateSlotDialog({
 
       if (targetDates.length === 0) {
         toast.error("No matching dates in the selected range");
+
         setLoading(false);
+
         return;
       }
 
@@ -143,11 +152,15 @@ export function BulkCreateSlotDialog({
       await Promise.all(promises);
 
       toast.success(`Successfully created ${targetDates.length} slots`);
+
       setIsOpen(false);
+
       onSuccess();
     } catch (error: any) {
       console.error(error);
+
       const errorMessage = error.response?.data?.message || "Failed to create some slots. Please try again.";
+
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -162,9 +175,11 @@ export function BulkCreateSlotDialog({
           Bulk Create
         </Button>
       </DialogTrigger>
+
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Bulk Create Slots</DialogTitle>
+
           <DialogDescription>
             Create appointment slots for multiple days at once.
           </DialogDescription>
@@ -177,6 +192,7 @@ export function BulkCreateSlotDialog({
               <Label className="text-sm font-semibold flex items-center gap-2">
                 Start Date
               </Label>
+
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -194,6 +210,7 @@ export function BulkCreateSlotDialog({
                     )}
                   </Button>
                 </PopoverTrigger>
+
                 <PopoverContent
                   className="min-w-[280px] p-0 shadow-2xl border-none rounded-xl"
                   align="start"
@@ -209,10 +226,12 @@ export function BulkCreateSlotDialog({
                 </PopoverContent>
               </Popover>
             </div>
+
             <div className="grid gap-2.5">
               <Label className="text-sm font-semibold flex items-center gap-2">
                 End Date
               </Label>
+
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -230,6 +249,7 @@ export function BulkCreateSlotDialog({
                     )}
                   </Button>
                 </PopoverTrigger>
+
                 <PopoverContent
                   className="min-w-[280px] p-0 shadow-2xl border-none rounded-xl"
                   align="start"
@@ -252,6 +272,7 @@ export function BulkCreateSlotDialog({
             <Label className="text-sm font-semibold flex items-center gap-2">
               Repeat On
             </Label>
+
             <div className="flex flex-wrap gap-2">
               {WEEKDAYS.map((day) => {
                 const isSunday = day.id === 0;
@@ -288,8 +309,10 @@ export function BulkCreateSlotDialog({
               <Label className="text-sm font-semibold flex items-center gap-2">
                 Start
               </Label>
+
               <div className="relative group">
                 <Clock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+
                 <Input
                   type="time"
                   value={startTime}
@@ -298,12 +321,15 @@ export function BulkCreateSlotDialog({
                 />
               </div>
             </div>
+
             <div className="grid gap-2.5">
               <Label className="text-sm font-semibold flex items-center gap-2">
                 End
               </Label>
+
               <div className="relative group">
                 <Clock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+
                 <Input
                   type="time"
                   value={endTime}
@@ -312,12 +338,15 @@ export function BulkCreateSlotDialog({
                 />
               </div>
             </div>
+
             <div className="grid gap-2.5">
               <Label className="text-sm font-semibold flex items-center gap-2">
                 Max
               </Label>
+
               <div className="relative group">
                 <Users className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+
                 <Input
                   type="number"
                   value={capacity}

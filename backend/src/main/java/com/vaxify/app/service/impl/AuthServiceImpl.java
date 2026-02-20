@@ -1,8 +1,8 @@
 package com.vaxify.app.service.impl;
 
-import com.vaxify.app.dtos.AuthResponse;
-import com.vaxify.app.dtos.LoginRequest;
-import com.vaxify.app.dtos.SignupRequest;
+import com.vaxify.app.dtos.auth.AuthResponse;
+import com.vaxify.app.dtos.auth.LoginRequest;
+import com.vaxify.app.dtos.auth.SignupRequest;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.entities.enums.Role;
 import com.vaxify.app.entities.User;
