@@ -57,8 +57,6 @@ const AdminUsersPage = () => {
 
       const data = await userApi.getAllUsers();
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       setUsers(data);
     } catch (error) {
       console.error("Failed to fetch users", error);

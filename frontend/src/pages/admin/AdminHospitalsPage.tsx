@@ -61,8 +61,6 @@ const AdminHospitalsPage = () => {
     try {
       const data = await hospitalApi.getAdminHospitals();
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       setHospitals(data);
     } catch (error) {
       toast.error("Failed to load hospitals", {

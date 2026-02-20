@@ -45,8 +45,6 @@ export default function MyAppointmentsPage() {
 
       const data = await appointmentApi.getMyAppointments();
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       setAppointments(data);
     } catch (error) {
       console.error("Failed to fetch appointments", error);

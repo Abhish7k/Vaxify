@@ -61,8 +61,6 @@ const RegisterForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       //   await registerRequest(
       //     formData.fullName,
       //     formData.email,
@@ -77,8 +75,6 @@ const RegisterForm: React.FC = () => {
           color: "#0f7a28",
         },
       });
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
 
       navigate("/login");
     } catch (error) {

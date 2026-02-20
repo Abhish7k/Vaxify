@@ -16,13 +16,20 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
   // if user is authenticated but not authorized with the right role
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    if (user.role === "user") {
-      return <Navigate to="/dashboard" replace />;
+    if (user.role === "admin") {
+      return <Navigate to="/admin/dashboard" replace />;
     }
 
     if (user.role === "staff") {
       return <Navigate to="/staff/dashboard" replace />;
     }
+
+    if (user.role === "user") {
+      return <Navigate to="/dashboard" replace />;
+    }
+
+    // fallback for unknown roles
+    return <Navigate to="/login" replace />;
   }
 
   // render the child route component

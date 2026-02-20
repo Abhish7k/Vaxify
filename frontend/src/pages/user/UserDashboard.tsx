@@ -41,8 +41,7 @@ export default function UserDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const minDelay = new Promise((resolve) => setTimeout(resolve, 400));
-        const [data] = await Promise.all([userApi.getStats(), minDelay]);
+        const data = await userApi.getStats();
         setStats(data);
       } catch (error) {
         console.error("Failed to fetch stats", error);

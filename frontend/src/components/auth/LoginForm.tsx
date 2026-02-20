@@ -24,8 +24,7 @@ const signInSchema = z.object({
   email: z.email("Please enter a valid email"),
   password: z
     .string()
-    .min(1, "Please enter your email")
-    .min(6, "Password must be at least 8 characters"),
+    .min(6, "Password must be at least 6 characters"),
 });
 
 type SignInSchemaType = z.infer<typeof signInSchema>;
@@ -71,6 +70,7 @@ const LoginForm: React.FC = () => {
       });
     } finally {
       await new Promise((resolve) => setTimeout(resolve, 400));
+
       setIsLoading(false);
     }
   };

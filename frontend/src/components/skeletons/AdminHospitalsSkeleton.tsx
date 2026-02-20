@@ -44,7 +44,7 @@ export function AdminHospitalCardSkeleton() {
 export function AdminHospitalsSkeleton() {
   return (
     <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
+      {[1, 2].map((i) => (
         <AdminHospitalCardSkeleton key={i} />
       ))}
     </div>

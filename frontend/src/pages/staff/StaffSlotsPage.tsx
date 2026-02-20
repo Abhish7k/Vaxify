@@ -92,8 +92,6 @@ export default function StaffSlotsPage() {
 
       const data = await slotsApi.getSlotsByHospital(hospitalId);
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       // sort by date and time
       data.sort((a, b) => {
         const dateA = new Date(a.date + "T" + a.startTime);

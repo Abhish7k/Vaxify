@@ -52,7 +52,12 @@ export const useAuth = () => {
   };
 
   const redirectToDashboard = (role: Role) => {
-    switch (role) {
+    const normalizedRole = role?.toLowerCase();
+
+    switch (normalizedRole) {
+      case "user":
+        navigate("/dashboard");
+        break;
       case "staff":
         navigate("/staff/dashboard");
         break;
@@ -60,7 +65,7 @@ export const useAuth = () => {
         navigate("/admin/dashboard");
         break;
       default:
-        navigate("/dashboard");
+        navigate("/");
     }
   };
 

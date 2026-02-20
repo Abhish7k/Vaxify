@@ -37,7 +37,9 @@ export default function StaffAppointmentsPage() {
   const fetchAppointments = async () => {
     try {
       setLoading(true);
+
       const hospital = await hospitalApi.getMyHospital();
+
       if (!hospital) {
         return;
       }
@@ -112,7 +114,10 @@ export default function StaffAppointmentsPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <StaffAppointmentsHeaderSection />
+      <StaffAppointmentsHeaderSection
+        onRefresh={fetchAppointments}
+        loading={loading}
+      />
 
       <StaffAppointmentsTabsSection
         value={activeStatus}
@@ -120,7 +125,7 @@ export default function StaffAppointmentsPage() {
       />
 
       {loading ? (
-        <div className="p-10 text-center text-muted-foreground">
+        <div className="p-20 text-center text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
           Loading appointments...
         </div>

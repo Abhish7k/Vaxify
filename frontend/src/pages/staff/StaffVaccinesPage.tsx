@@ -43,8 +43,6 @@ export default function StaffVaccinesPage() {
     try {
       const data = await vaccineApi.getMyVaccines();
 
-      await new Promise((resolve) => setTimeout(resolve, 400));
-
       setVaccines(data);
     } catch (error) {
       console.error("Fetch failed", error);

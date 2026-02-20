@@ -16,12 +16,12 @@ const step1Schema = z
   .object({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
-    
+
     phone: z
       .string().min(10, "Enter a valid phone number").max(10, "Enter a valid phone number"),
     email: z.email("Enter a valid email address"),
 
-    password: z.string().min(6, "Password must be at least 6 characters").max(20, "Password must be at most 20 characters") ,
+    password: z.string().min(6, "Password must be at least 6 characters").max(20, "Password must be at most 20 characters"),
 
     confirmPassword: z.string(),
   })
@@ -40,7 +40,7 @@ const step2Schema = z.object({
   pincode: z.string().min(6, "Enter a valid 6-digit pincode"),
 
   hospitalRegistrationId: z.string().min(3, "Hospital registration ID is required"),
-  
+
   document: z.string().min(1, "Verification document is required"),
 });
 
@@ -92,7 +92,7 @@ const RegisterStaff = () => {
   const onNext = async () => {
     // validate only the current step (using the active schema)
     const isStepValid = await trigger();
-    
+
     if (isStepValid) {
       if (step === 1) {
         // using setTimeout to move to next step ensures components mount 
@@ -112,8 +112,6 @@ const RegisterStaff = () => {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       // combine data from all fields across steps
       const data = getValues();
 
@@ -159,7 +157,7 @@ const RegisterStaff = () => {
         error.response?.data?.message || "Staff Registration failed";
 
       toast.error(errorMessage, {
-       style: {
+        style: {
           backgroundColor: "#ffe5e5",
           color: "#b00000",
         },
@@ -186,14 +184,12 @@ const RegisterStaff = () => {
         </p>
         <div className="flex justify-center gap-2 mt-2">
           <div
-            className={`h-1 w-12 rounded-full transition-colors ${
-              step >= 1 ? "bg-primary" : "bg-muted"
-            }`}
+            className={`h-1 w-12 rounded-full transition-colors ${step >= 1 ? "bg-primary" : "bg-muted"
+              }`}
           />
           <div
-            className={`h-1 w-12 rounded-full transition-colors ${
-              step >= 2 ? "bg-primary" : "bg-muted"
-            }`}
+            className={`h-1 w-12 rounded-full transition-colors ${step >= 2 ? "bg-primary" : "bg-muted"
+              }`}
           />
         </div>
       </CardHeader>

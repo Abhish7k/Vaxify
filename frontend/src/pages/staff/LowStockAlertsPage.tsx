@@ -40,8 +40,6 @@ export default function LowStockAlertsPage() {
     try {
       const data = await vaccineApi.getMyVaccines();
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       setVaccines(data);
     } catch (error) {
       console.error("Fetch failed", error);
