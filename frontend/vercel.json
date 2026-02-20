@@ -4,6 +4,10 @@
   },
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://api.abhish7k.xyz/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
