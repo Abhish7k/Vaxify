@@ -19,8 +19,11 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender emailSender;
 
-    @Value("${app.mail.from-address:vaxify.vms@gmail.com}")
+    @Value("${MAIL_FROM_ADDRESS:no-reply@vaxify.xyz}")
     private String fromEmail;
+
+    @Value("${MAIL_FROM_NAME:Vaxify Team}")
+    private String fromName;
 
     @Override
     @Async
@@ -28,10 +31,11 @@ public class EmailServiceImpl implements EmailService {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
 
-            message.setFrom(fromEmail);
+            message.setFrom(fromName + " <" + fromEmail + ">");
             message.setTo(to);
             message.setSubject(subject);
             message.setText(text);
+
             emailSender.send(message);
 
             log.info("Email sent to {}", to);
@@ -47,7 +51,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom(fromEmail);
+            helper.setFrom(fromEmail, fromName);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
@@ -55,7 +59,7 @@ public class EmailServiceImpl implements EmailService {
             emailSender.send(message);
 
             log.info("HTML Email sent to {}", to);
-        } catch (MessagingException e) {
+        } catch (MessagingException | java.io.UnsupportedEncodingException e) {
             log.error("Failed to send HTML email to {}", to, e);
         }
     }
