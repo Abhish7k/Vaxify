@@ -32,11 +32,13 @@ const StaffVaccinesPage = lazy(() => import("@/pages/staff/StaffVaccinesPage"));
 const StaffSlotsPage = lazy(() => import("@/pages/staff/StaffSlotsPage"));
 const LowStockAlertsPage = lazy(() => import("@/pages/staff/LowStockAlertsPage"));
 const MyHospitalPage = lazy(() => import("@/pages/staff/MyHospitalPage"));
+const FAQsPage = lazy(() => import("@/pages/info/FAQsPage"));
+const PrivacyPolicyPage = lazy(() => import("@/pages/info/PrivacyPolicyPage"));
+const TermsOfServicePage = lazy(() => import("@/pages/info/TermsOfServicePage"));
 
 import HomePage from "@/pages/HomePage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import CentersPage from "@/pages/CentersPage";
-
 
 export const router = createBrowserRouter([
   {
@@ -58,6 +60,18 @@ export const router = createBrowserRouter([
       {
         path: "/about",
         element: <AboutUsPage />,
+      },
+      {
+        path: "/faqs",
+        element: <FAQsPage />,
+      },
+      {
+        path: "/privacy-policy",
+        element: <PrivacyPolicyPage />,
+      },
+      {
+        path: "/terms-of-service",
+        element: <TermsOfServicePage />,
       },
     ],
   },

@@ -102,19 +102,20 @@ const footerLinks: FooterSection[] = [
   {
     label: "Company",
     links: [
-      { title: "About", href: "#" },
-      { title: "FAQs", href: "#" },
-      { title: "Privacy Policy", href: "#" },
-      { title: "Terms of Service", href: "#" },
+      { title: "About", href: "/about" },
+      { title: "FAQs", href: "/faqs" },
+      { title: "Privacy Policy", href: "/privacy-policy" },
+      { title: "Terms of Service", href: "/terms-of-service" },
     ],
   },
   {
     label: "Resources",
     links: [
-      { title: "Help Center", href: "#" },
-      { title: "Documentation", href: "#" },
-      { title: "Changelog", href: "#" },
-      { title: "Contact Support", href: "#" },
+      {
+        title: "GitHub Repository",
+        href: "https://github.com/Abhish7k/vaxify-mono",
+      },
+      { title: "Contact Support", href: "mailto:contact@vaxify.xyz" },
     ],
   },
 ];

@@ -88,13 +88,8 @@ const CenterDetailsPage = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <motion.div
-        className="max-w-6xl mx-auto px-8 py-10"
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-      >
+    <div className="min-h-screen mb-20">
+      <motion.div className="max-w-6xl mx-auto px-8 py-20" variants={containerVariants} initial="hidden" animate="show">
         {/* back btn */}
         <motion.div className="mb-6" variants={itemVariants}>
           <button

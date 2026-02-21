@@ -5,7 +5,6 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 export default function AboutUsPage() {
-
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
@@ -47,25 +46,28 @@ export default function AboutUsPage() {
         </p>
       </section>
 
-
       {/* team */}
       <section className="mt-32">
         <h2 className="mb-12 text-xl font-medium">Our Team</h2>
 
         <div className="space-y-6">
           {team.map((member, index) => (
-            <div key={index} className="group"
+            <div
+              key={index}
+              className="group"
               onMouseEnter={() => setHovered(member.name)}
               onMouseLeave={() => setHovered(null)}
             >
               <div className="flex items-center justify-between py-4">
                 <div className="flex items-center gap-6">
-                  <p className={cn(
-                    "text-3xl font-medium group-hover:translate-x-5 transition-all duration-500 will-change-transform",
-                    hovered && hovered !== member.name
-                      ? "opacity-50"
-                      : "opacity-100"
-                  )}>
+                  <p
+                    className={cn(
+                      "text-3xl font-medium group-hover:translate-x-5 transition-all duration-500 will-change-transform",
+                      hovered && hovered !== member.name
+                        ? "opacity-50"
+                        : "opacity-100",
+                    )}
+                  >
                     {member.name}
                   </p>
                 </div>
@@ -89,14 +91,13 @@ export default function AboutUsPage() {
                   </a>
                 </div>
               </div>
-
               <Separator />
             </div>
           ))}
         </div>
       </section>
 
-      {/* footer */}
+      {/* footer info */}
       <section className="mt-32 max-w-3xl">
         <p className="text-muted-foreground">
           Built as a real-world healthcare system project with usability at its

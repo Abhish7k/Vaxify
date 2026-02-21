@@ -91,7 +91,6 @@ export default function CentersPage() {
     return data;
   }, [centers, search, selectedVaccines, sort]);
 
-
   return (
     <motion.div
       variants={container}
