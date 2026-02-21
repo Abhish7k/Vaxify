@@ -18,12 +18,9 @@ export default function MyAppointmentsPage() {
   const [activeStatus, setActiveStatus] = useState<AppointmentStatus>("BOOKED");
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedTicket, setSelectedTicket] = useState<Appointment | null>(
-    null,
-  );
+  const [selectedTicket, setSelectedTicket] = useState<Appointment | null>(null);
 
-  const [appointmentToCancel, setAppointmentToCancel] =
-    useState<Appointment | null>(null);
+  const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
@@ -75,18 +72,12 @@ export default function MyAppointmentsPage() {
   };
 
   return (
-    <div className="space-y-8 container mx-auto mt-10 px-4 sm:px-8 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 container mx-auto px-4 sm:px-8 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* header */}
-      <MyAppointmentsHeaderSection
-        onRefresh={handleRefresh}
-        loading={isLoading}
-      />
+      <MyAppointmentsHeaderSection onRefresh={handleRefresh} loading={isLoading} />
 
       {/* tabs */}
-      <MyAppointmentsTabsSection
-        value={activeStatus}
-        onChange={setActiveStatus}
-      />
+      <MyAppointmentsTabsSection value={activeStatus} onChange={setActiveStatus} />
 
       {/* list */}
       {isLoading ? (
@@ -124,18 +115,13 @@ export default function MyAppointmentsPage() {
             }
           }}
           onViewTicket={(appointmentId) => {
-            const appointment = appointments.find(
-              (a) => a.id === appointmentId,
-            );
+            const appointment = appointments.find((a) => a.id === appointmentId);
             if (appointment) setSelectedTicket(appointment);
           }}
         />
       )}
 
-      <AppointmentTicketDialog
-        appointment={selectedTicket}
-        onClose={() => setSelectedTicket(null)}
-      />
+      <AppointmentTicketDialog appointment={selectedTicket} onClose={() => setSelectedTicket(null)} />
 
       <AppointmentCancelDialog
         appointment={appointmentToCancel}

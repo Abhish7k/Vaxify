@@ -26,10 +26,11 @@ function StatCard({ title, value, subtitle, icon, loading }: StatCardProps) {
         <div className="flex items-center justify-between relative z-10">
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
+
             {loading ? (
               <div className="h-8 w-16 bg-muted animate-pulse rounded" />
             ) : (
-              <p className="text-2xl font-semibold tracking-tight">{value}</p>
+              <p className="text-xl font-semibold tracking-tight">{value}</p>
             )}
             <p className="text-xs text-muted-foreground">{subtitle}</p>
           </div>
@@ -41,12 +42,7 @@ function StatCard({ title, value, subtitle, icon, loading }: StatCardProps) {
           variants={imageAnimation}
           className="absolute -right-8 -bottom-8 w-32 h-32 opacity-90 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full flex items-center justify-center p-4"
         >
-          <img
-            src={icon}
-            alt=""
-            className="w-full h-full object-contain"
-            draggable={false}
-          />
+          <img src={icon} alt="" className="w-full h-full object-contain" draggable={false} />
         </motion.div>
       </Card>
     </motion.div>
@@ -58,10 +54,7 @@ interface UserDashboardStatsGridProps {
   loading: boolean;
 }
 
-export default function UserDashboardStatsGrid({
-  stats,
-  loading,
-}: UserDashboardStatsGridProps) {
+export default function UserDashboardStatsGrid({ stats, loading }: UserDashboardStatsGridProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
@@ -69,16 +62,9 @@ export default function UserDashboardStatsGrid({
         value={
           stats.upcomingAppointmentDate === "No upcoming"
             ? "None"
-            : new Date(stats.upcomingAppointmentDate).toLocaleDateString(
-              "en-US",
-              { month: "short", day: "numeric" },
-            )
+            : new Date(stats.upcomingAppointmentDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })
         }
-        subtitle={
-          stats.upcomingAppointmentDate === "No upcoming"
-            ? "Schedule one today"
-            : "Your next visit"
-        }
+        subtitle={stats.upcomingAppointmentDate === "No upcoming" ? "Schedule one today" : "Your next visit"}
         icon="https://ik.imagekit.io/vaxify/icons/upcoming.png"
         loading={loading}
       />

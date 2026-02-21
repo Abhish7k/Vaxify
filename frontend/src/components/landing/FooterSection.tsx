@@ -39,18 +39,13 @@ export function Footer() {
             className="space-y-4"
           >
             <div>
-              <Link
-                to="/"
-                className="flex items-center gap-2 text-2xl font-bold text-indigo-600 w-fit"
-              >
+              <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-indigo-600 w-fit">
                 <img src="/logo.svg" alt="" className="w-8 h-8" />
                 Vaxify
               </Link>
             </div>
 
-            <p className="text-slate-400 text-xs mt-8">
-              © {new Date().getFullYear()} Vaxify. All rights reserved.
-            </p>
+            <p className="text-slate-400 text-xs mt-8">© {new Date().getFullYear()} Vaxify. All rights reserved.</p>
           </motion.div>
 
           {/* links grid */}
@@ -64,21 +59,34 @@ export function Footer() {
                 custom={index + 1}
                 variants={containerVariants}
               >
-                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900">
-                  {section.label}
-                </h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900">{section.label}</h3>
 
                 <ul className="mt-6 space-y-3 text-sm">
-                  {section.links.map((link) => (
-                    <li key={link.title}>
-                      <Link
-                        to={link.href}
-                        className="inline-flex items-center text-slate-500 transition-colors hover:text-indigo-600"
-                      >
-                        {link.title}
-                      </Link>
-                    </li>
-                  ))}
+                  {section.links.map((link) => {
+                    const isExternal = link.href.startsWith("http");
+
+                    return (
+                      <li key={link.title}>
+                        {isExternal ? (
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center text-slate-500 transition-colors hover:text-indigo-600"
+                          >
+                            {link.title}
+                          </a>
+                        ) : (
+                          <Link
+                            to={link.href}
+                            className="inline-flex items-center text-slate-500 transition-colors hover:text-indigo-600"
+                          >
+                            {link.title}
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </motion.div>
             ))}
@@ -93,10 +101,10 @@ const footerLinks: FooterSection[] = [
   {
     label: "Product",
     links: [
-      { title: "Features", href: "#" },
-      { title: "Hospitals", href: "#" },
-      { title: "Appointments", href: "#" },
-      { title: "Dashboards", href: "#" },
+      { title: "Features", href: "/" },
+      { title: "Hospitals", href: "/" },
+      { title: "Appointments", href: "/" },
+      { title: "Dashboards", href: "/" },
     ],
   },
   {

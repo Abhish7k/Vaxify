@@ -1,13 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronRight, MoreVertical, Check, X, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Appointment } from "@/types/appointment";
@@ -46,15 +39,11 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
 }: StaffDashboardUpcomingAppointmentsComponentProps) => {
   const [actionLoading, setActionLoading] = React.useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [pendingAction, setPendingAction] = React.useState<
-    "complete" | "cancel" | null
-  >(null);
+  const [pendingAction, setPendingAction] = React.useState<"complete" | "cancel" | null>(null);
   const [pendingId, setPendingId] = React.useState<string | null>(null);
 
   // filter for upcoming/booked status and sort by date/time
-  const upcomingList = appointments
-    .filter((a) => ["BOOKED", "UPCOMING", "scheduled"].includes(a.status))
-    .slice(0, 5);
+  const upcomingList = appointments.filter((a) => ["BOOKED", "UPCOMING", "scheduled"].includes(a.status)).slice(0, 5);
 
   const handleActionClick = (id: string, action: "complete" | "cancel") => {
     setPendingId(id);
@@ -93,11 +82,7 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
 
         <div className="flex items-center gap-2">
           <Link to="/staff/appointments">
-            <Button
-              variant="outline"
-              size="sm"
-              className="cursor-pointer active:scale-95 transition-all group"
-            >
+            <Button variant="outline" size="sm" className="cursor-pointer active:scale-95 transition-all group">
               View all
               <ChevronRight className="h-4 w-4 ml-1 group-hover:translate-x-0.5 transition-all duration-300" />
             </Button>
@@ -110,21 +95,11 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
           <Table>
             <TableHeader>
               <TableRow className="border-b bg-muted/30">
-                <TableHead className="text-muted-foreground font-medium">
-                  Patient
-                </TableHead>
-                <TableHead className="text-muted-foreground font-medium">
-                  Date
-                </TableHead>
-                <TableHead className="text-muted-foreground font-medium">
-                  Time
-                </TableHead>
-                <TableHead className="text-muted-foreground font-medium">
-                  Vaccine
-                </TableHead>
-                <TableHead className="text-muted-foreground font-medium">
-                  Status
-                </TableHead>
+                <TableHead className="text-muted-foreground font-medium">Patient</TableHead>
+                <TableHead className="text-muted-foreground font-medium">Date</TableHead>
+                <TableHead className="text-muted-foreground font-medium">Time</TableHead>
+                <TableHead className="text-muted-foreground font-medium">Vaccine</TableHead>
+                <TableHead className="text-muted-foreground font-medium">Status</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
@@ -133,45 +108,25 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell
-                      colSpan={6}
-                      className="h-12 animate-pulse bg-muted/20"
-                    />
+                    <TableCell colSpan={6} className="h-12 animate-pulse bg-muted/20" />
                   </TableRow>
                 ))
               ) : upcomingList.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="h-24 text-center text-muted-foreground"
-                  >
+                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                     No upcoming appointments.
                   </TableCell>
                 </TableRow>
               ) : (
                 upcomingList.map((item) => (
-                  <TableRow
-                    key={item.id}
-                    className="border-b last:border-0 hover:bg-muted/30 transition-colors"
-                  >
-                    <TableCell className="py-4 font-medium">
-                      {item.patientName}
-                    </TableCell>
+                  <TableRow key={item.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                    <TableCell className="py-4 font-medium">{item.patientName}</TableCell>
 
-                    <TableCell className="py-4 font-mono text-xs">
-                      {item.date}
-                    </TableCell>
-                    <TableCell className="py-4 font-mono text-xs">
-                      {formatTime(item.timeSlot || item.slot)}
-                    </TableCell>
+                    <TableCell className="py-4 font-mono text-xs">{item.date}</TableCell>
+                    <TableCell className="py-4 font-mono text-xs">{formatTime(item.timeSlot || item.slot)}</TableCell>
+                    <TableCell className="py-4">{item.vaccine || item.vaccineName}</TableCell>
                     <TableCell className="py-4">
-                      {item.vaccine || item.vaccineName}
-                    </TableCell>
-                    <TableCell className="py-4">
-                      <Badge
-                        variant="outline"
-                        className="capitalize bg-blue-50/50 text-blue-600 border-blue-100"
-                      >
+                      <Badge variant="outline" className="capitalize bg-blue-50/50 text-blue-600 border-blue-100">
                         {item.status.toLowerCase()}
                       </Badge>
                     </TableCell>
@@ -181,29 +136,21 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
                       ) : (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 hover:bg-muted"
-                            >
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted">
                               <MoreVertical className="h-4 w-4 text-muted-foreground" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40">
                             <DropdownMenuItem
                               className="text-emerald-600 cursor-pointer flex items-center gap-2"
-                              onClick={() =>
-                                handleActionClick(item.id, "complete")
-                              }
+                              onClick={() => handleActionClick(item.id, "complete")}
                             >
                               <Check className="h-4 w-4" />
                               Mark Complete
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-destructive cursor-pointer flex items-center gap-2"
-                              onClick={() =>
-                                handleActionClick(item.id, "cancel")
-                              }
+                              onClick={() => handleActionClick(item.id, "cancel")}
                             >
                               <X className="h-4 w-4" />
                               Cancel
@@ -224,9 +171,7 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {pendingAction === "complete"
-                ? "Complete Appointment?"
-                : "Cancel Appointment?"}
+              {pendingAction === "complete" ? "Complete Appointment?" : "Cancel Appointment?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAction === "complete"

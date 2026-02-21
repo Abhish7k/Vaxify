@@ -3,6 +3,7 @@ import { HowItWorks } from "@/components/landing/HowItWorksSection";
 import { Features } from "@/components/landing/FeaturesSection";
 import { FaqSection } from "@/components/landing/FaqSection";
 import { CTASection } from "@/components/landing/CTASection";
+import { Footer } from "@/components/landing/FooterSection";
 
 const HomePage = () => {
   return (
@@ -16,6 +17,8 @@ const HomePage = () => {
       <FaqSection />
 
       <CTASection />
+
+      <Footer />
     </div>
   );
 };

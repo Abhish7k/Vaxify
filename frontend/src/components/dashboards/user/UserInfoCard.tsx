@@ -1,14 +1,6 @@
 import * as React from "react";
 import { motion, type Variants } from "framer-motion";
-import {
-  User,
-  Mail,
-  Phone,
-  Hash,
-  Calendar,
-  ClipboardList,
-  Loader2,
-} from "lucide-react";
+import { User, Mail, Phone, Hash, Calendar, ClipboardList, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -23,10 +15,7 @@ export default function UserInfoCard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profileData, statsData] = await Promise.all([
-          userApi.getProfile(),
-          userApi.getStats(),
-        ]);
+        const [profileData, statsData] = await Promise.all([userApi.getProfile(), userApi.getStats()]);
         setProfile(profileData);
         setStats(statsData);
       } catch (error) {
@@ -74,19 +63,14 @@ export default function UserInfoCard() {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
       whileHover="hover"
-      className="w-full max-w-lg mx-auto"
+      className="w-full max-w-md mx-auto"
     >
-      <Card
-        className={cn(
-          "relative overflow-hidden rounded-2xl border bg-card p-8 shadow-sm",
-        )}
-      >
+      <Card className={cn("relative overflow-hidden rounded-2xl border bg-card p-8 shadow-sm")}>
         {/* gradient background */}
         <div
           className="absolute inset-0 z-0 opacity-40 dark:opacity-20"
           style={{
-            background:
-              "radial-gradient(circle at 50% 20%, hsl(211,100%,85%) 0%, transparent 65%)",
+            background: "radial-gradient(circle at 50% 20%, hsl(211,100%,85%) 0%, transparent 65%)",
           }}
         />
 
@@ -102,6 +86,7 @@ export default function UserInfoCard() {
             src="https://ik.imagekit.io/vaxify/icons/profile.png"
             alt="User profile"
             className="h-32 w-32 object-contain"
+            draggable={false}
           />
         </motion.div>
 
@@ -126,23 +111,13 @@ export default function UserInfoCard() {
           <div className="mt-6 space-y-3 text-sm">
             {/* basic info */}
             {basicInfo.map((item, index) => (
-              <InfoRow
-                key={index}
-                icon={<item.icon className="h-4 w-4" />}
-                label={item.label}
-                value={item.value}
-              />
+              <InfoRow key={index} icon={<item.icon className="h-4 w-4" />} label={item.label} value={item.value} />
             ))}
 
             {/* metadata section */}
             <div className="mt-6 pt-6 border-t border-border/50 space-y-3">
               {metadataInfo.map((item, index) => (
-                <InfoRow
-                  key={index}
-                  icon={<item.icon className="h-4 w-4" />}
-                  label={item.label}
-                  value={item.value}
-                />
+                <InfoRow key={index} icon={<item.icon className="h-4 w-4" />} label={item.label} value={item.value} />
               ))}
             </div>
           </div>
@@ -176,12 +151,8 @@ function InfoRow({
   return (
     <div className="flex items-center gap-2">
       <span className="text-muted-foreground shrink-0">{icon}</span>
-      <span className="text-xs text-muted-foreground min-w-0 truncate">
-        {label}
-      </span>
-      <span className="font-medium text-right flex-1 min-w-0 truncate">
-        {value}
-      </span>
+      <span className="text-xs text-muted-foreground min-w-0 truncate">{label}</span>
+      <span className="font-medium text-right flex-1 min-w-0 truncate">{value}</span>
     </div>
   );
 }

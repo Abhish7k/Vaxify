@@ -36,7 +36,7 @@ export function HeroSectionComponent() {
         </div>
 
         <section>
-          <div className="relative pt-24 md:pt-28">
+          <div className="relative pt-24 md:pt-16">
             <div
               aria-hidden
               className="absolute inset-0 -z-10 size-full [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,var(--background)_75%)]"
@@ -45,10 +45,11 @@ export function HeroSectionComponent() {
             <div className="mx-auto max-w-7xl px-6">
               <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
                 <AnimatedGroup variants={transitionVariants}>
-                  <div className="hover:bg-background bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-black/5 transition-all duration-300 cursor-default">
-                    <span className="text-foreground text-sm">
+                  <div className="hover:bg-background bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-0.5 sm:p-1 pl-3 sm:pl-4 shadow-md shadow-black/5 transition-all duration-300 cursor-default">
+                    <span className="text-foreground text-xs md:text-sm">
                       Introducing Vaccine Availability Insights
                     </span>
+
                     <span className="block h-4 w-0.5 border-l bg-white "></span>
 
                     <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
@@ -63,14 +64,14 @@ export function HeroSectionComponent() {
                     </div>
                   </div>
 
-                  <h1 className="mt-8 max-w-5xl mx-auto text-balance text-3xl sm:text-5xl lg:text-6xl lg:mt-16 xl:text-7xl transition-all">
+                  <h1 className="mt-8 max-w-5xl mx-auto text-balance text-3xl sm:text-4xl md:text-5xl transition-all">
                     Simplifying Vaccination <br /> Management for Everyone{" "}
                   </h1>
 
-                  <p className="mx-auto mt-8 max-w-2xl text-balance text-sm sm:text-lg">
-                    A modern vaccination platform designed to make booking,
-                    tracking, and managing vaccinations feel clear, effortless,
-                    and dependable
+                  <p className="mx-auto mt-5 max-w-2xl text-balance text-sm md:text-base transition-all">
+                    A modern vaccination platform designed to make booking, tracking, and
+                    <br className="hidden md:block" />
+                    managing vaccinations feel clear, effortless, and dependable
                   </p>
                 </AnimatedGroup>
 
@@ -86,15 +87,15 @@ export function HeroSectionComponent() {
                     },
                     ...transitionVariants,
                   }}
-                  className="mt-12 flex flex-col items-center justify-center gap-3 md:flex-row"
+                  className="mt-8 flex flex-col items-center justify-center gap-3 md:flex-row"
                 >
                   <Link
                     key={1}
                     to="/centers"
-                    className="group relative px-6 py-1.5 flex transform items-center justify-center gap-2 overflow-visible whitespace-nowrap rounded-md text-white bg-indigo-600/80 font-medium transition-all 
+                    className="group relative px-3 md:px-5 py-1.5 flex transform items-center justify-center gap-2 overflow-visible whitespace-nowrap rounded-md text-white bg-indigo-600/80 font-medium transition-all 
           duration-300 hover:ring-2 hover:ring-offset-1 hover:ring-indigo-500 active:scale-90"
                   >
-                    <span className="group relative z-10 flex items-center gap-2 transition-all">
+                    <span className="group relative z-10 flex items-center gap-2 text-sm md:text-base transition-all">
                       Discover centers
                     </span>
                   </Link>
@@ -115,18 +116,20 @@ export function HeroSectionComponent() {
                 ...transitionVariants,
               }}
             >
-              <div className="relative mt-8 overflow-hidden px-4 sm:mt-12 md:mt-20 z-50">
+              <div className="relative mt-10 overflow-hidden px-4 sm:mt-12 md:mt-16 z-50">
                 <div
                   aria-hidden
                   className="bg-linear-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
                 />
-                <div className="inset-shadow-2xs ring-background bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-2 shadow-lg shadow-zinc-950/15 ring-1">
+
+                <div className="inset-shadow-2xs ring-background bg-background relative mx-auto max-w-5xl overflow-hidden rounded-2xl border p-2 shadow-lg shadow-zinc-950/15 ring-1">
                   <img
-                    className="z-2 border-border/25 aspect-15/8 relative rounded-2xl border"
+                    className="z-2 border-border/25 relative rounded-2xl border w-full h-auto object-cover object-top"
                     src="https://ik.imagekit.io/vaxify/hero-dash.png"
                     alt="app screen"
                     width="2700"
                     height="1440"
+                    draggable={false}
                   />
                 </div>
               </div>

@@ -40,8 +40,12 @@ export default function StaffDashboard() {
   const fetchData = async () => {
     try {
       setLoading(true);
+
       const hospital = await hospitalApi.getMyHospital();
-      if (!hospital) return;
+
+      if (!hospital) {
+        return;
+      }
 
       const [appointmentsData, vaccinesData] = await Promise.all([
         appointmentApi.getStaffAppointments(String(hospital.id)),
@@ -49,9 +53,10 @@ export default function StaffDashboard() {
       ]);
 
       setAppointments(appointmentsData);
+
       setVaccines(vaccinesData);
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      console.error("error fetching dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -70,38 +75,23 @@ export default function StaffDashboard() {
     >
       {/* page header */}
       <motion.div variants={itemVariants}>
-        <h1 className="text-2xl font-semibold mb-2">
-          Hospital Staff Dashboard
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Overview of vaccination activity and appointments
-        </p>
+        <h1 className="text-2xl font-semibold mb-2">Hospital Staff Dashboard</h1>
+        <p className="text-sm text-muted-foreground">Overview of vaccination activity and appointments</p>
       </motion.div>
 
       {/* stats grid */}
       <motion.div variants={itemVariants}>
-        <StaffStatsGrid
-          appointments={appointments}
-          vaccines={vaccines}
-          loading={loading}
-        />
+        <StaffStatsGrid appointments={appointments} vaccines={vaccines} loading={loading} />
       </motion.div>
 
       {/* appointments */}
       <motion.div variants={itemVariants}>
-        <StaffAppointmentsSection
-          appointments={appointments}
-          loading={loading}
-          onRefresh={fetchData}
-        />
+        <StaffAppointmentsSection appointments={appointments} loading={loading} onRefresh={fetchData} />
       </motion.div>
 
       {/* charts */}
       <motion.div variants={itemVariants}>
-        <StaffDashboardChartsSection
-          appointments={appointments}
-          loading={loading}
-        />
+        <StaffDashboardChartsSection appointments={appointments} loading={loading} />
       </motion.div>
     </motion.div>
   );
