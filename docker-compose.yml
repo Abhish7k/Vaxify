@@ -34,10 +34,10 @@ services:
       - MAIL_AUTH=${MAIL_AUTH}
       - MAIL_TLS=${MAIL_TLS}
       - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
-      - ALLOWED_ORIGINS=https://vaxify.abhish7k.xyz
+      - ALLOWED_ORIGINS=https://vaxify.abhish7k.xyz,https://vaxify.xyz,https://www.vaxify.xyz
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`api.abhish7k.xyz`)"
+      - "traefik.http.routers.backend.rule=Host(`api.vaxify.xyz`) || Host(`api.abhish7k.xyz`)"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
     restart: always
