@@ -20,10 +20,7 @@ const userRegisterSchema = z
 
     email: z.email("Enter a valid email"),
 
-    password: z
-      .string()
-      .min(6, "Password must be at least 6 characters")
-      .max(20),
+    password: z.string().min(6, "Password must be at least 6 characters").max(20),
 
     confirmPassword: z.string(),
 
@@ -73,8 +70,7 @@ const RegisterUser = () => {
       console.log("Register error: ", error);
 
       // extract error message from backend response if available
-      const errorMessage =
-        error.response?.data?.message || "Register failed. Please try again.";
+      const errorMessage = error.response?.data?.message || "Register failed. Please try again.";
 
       toast.error(errorMessage, {
         style: {
@@ -88,7 +84,7 @@ const RegisterUser = () => {
   };
 
   return (
-    <Card className="">
+    <Card className="my-10">
       <CardHeader className="pb-4">
         <CardTitle className="text-xl text-center">Register as User</CardTitle>
 
@@ -106,11 +102,7 @@ const RegisterUser = () => {
 
               <Input placeholder="John" {...register("firstName")} />
 
-              {errors.firstName && (
-                <p className="text-sm text-red-500">
-                  {errors.firstName.message}
-                </p>
-              )}
+              {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -118,11 +110,7 @@ const RegisterUser = () => {
 
               <Input placeholder="Doe" {...register("lastName")} />
 
-              {errors.lastName && (
-                <p className="text-sm text-red-500">
-                  {errors.lastName.message}
-                </p>
-              )}
+              {errors.lastName && <p className="text-sm text-red-500">{errors.lastName.message}</p>}
             </div>
           </div>
 
@@ -130,15 +118,9 @@ const RegisterUser = () => {
           <div className="space-y-2">
             <Label>Email</Label>
 
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              {...register("email")}
-            />
+            <Input type="email" placeholder="you@example.com" {...register("email")} />
 
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
           </div>
 
           {/* phone */}
@@ -147,9 +129,7 @@ const RegisterUser = () => {
 
             <Input placeholder="+91XXXXXXXXXX" {...register("phone")} />
 
-            {errors.phone && (
-              <p className="text-sm text-red-500">{errors.phone.message}</p>
-            )}
+            {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
           </div>
 
           {/* address */}
@@ -158,49 +138,30 @@ const RegisterUser = () => {
 
             <Input placeholder="City, State" {...register("address")} />
 
-            {errors.address && (
-              <p className="text-sm text-red-500">{errors.address.message}</p>
-            )}
+            {errors.address && <p className="text-sm text-red-500">{errors.address.message}</p>}
           </div>
 
           {/* password */}
           <div className="space-y-2">
             <Label>Password</Label>
 
-            <Input
-              type="password"
-              placeholder="••••••••"
-              {...register("password")}
-            />
+            <Input type="password" placeholder="••••••••" {...register("password")} />
 
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
-            )}
+            {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
           </div>
 
           {/* confirm password */}
           <div className="space-y-2">
             <Label>Confirm Password</Label>
 
-            <Input
-              type="password"
-              placeholder="••••••••"
-              {...register("confirmPassword")}
-            />
+            <Input type="password" placeholder="••••••••" {...register("confirmPassword")} />
 
             {errors.confirmPassword && (
-              <p className="text-sm text-red-500">
-                {errors.confirmPassword.message}
-              </p>
+              <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
             )}
           </div>
 
-          <Button
-            type="submit"
-            className="w-full cursor-pointer"
-            size="lg"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full cursor-pointer" size="lg" disabled={isLoading}>
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
                 <LoaderCircle className="animate-spin" />
@@ -213,10 +174,7 @@ const RegisterUser = () => {
 
           <p className="text-center text-sm text-slate-600">
             Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-indigo-600 font-medium hover:underline"
-            >
+            <Link to="/login" className="text-indigo-600 font-medium hover:underline">
               Sign In
             </Link>
           </p>

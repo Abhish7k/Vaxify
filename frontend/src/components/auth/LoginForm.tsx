@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -18,13 +11,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import PasswordInput from "./PasswordInput";
 import { useAuth } from "@/auth/useAuth";
+import QuickDemoLogins from "./QuickDemoLogins";
 
 // zod schema
 const signInSchema = z.object({
   email: z.email("Please enter a valid email"),
-  password: z
-    .string()
-    .min(6, "Password must be at least 6 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type SignInSchemaType = z.infer<typeof signInSchema>;
@@ -80,9 +72,7 @@ const LoginForm: React.FC = () => {
       <CardHeader>
         <CardTitle>Login to your account</CardTitle>
 
-        <CardDescription>
-          Enter your credentials below to login to your account
-        </CardDescription>
+        <CardDescription>Enter your credentials below to login to your account</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -101,24 +91,16 @@ const LoginForm: React.FC = () => {
               {...register("email")}
             />
 
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
           </div>
 
           {/* password */}
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
 
-            <PasswordInput
-              id="password"
-              className="w-full"
-              {...register("password")}
-            />
+            <PasswordInput id="password" className="w-full" {...register("password")} />
 
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
-            )}
+            {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
           </div>
 
           {/* submit button */}
@@ -145,21 +127,18 @@ const LoginForm: React.FC = () => {
             </div>
 
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-slate-500">
-                Or continue with
-              </span>
+              <span className="bg-white px-2 text-slate-500">Or continue with</span>
             </div>
           </div>
+
+          <QuickDemoLogins />
         </form>
       </CardContent>
 
       <CardFooter className="pt-2 flex justify-center">
         <p className="text-sm text-slate-600">
           Don't have an account ?{" "}
-          <Link
-            to="/register"
-            className="text-blue-600 hover:underline font-medium"
-          >
+          <Link to="/register" className="text-blue-600 hover:underline font-medium">
             Sign up
           </Link>
         </p>
