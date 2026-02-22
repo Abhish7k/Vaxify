@@ -73,7 +73,7 @@ export default function StaffDashboard() {
       initial="hidden"
       animate="visible"
     >
-      {/* page header */}
+      {/* header */}
       <motion.div variants={itemVariants}>
         <h1 className="text-2xl font-semibold mb-2">Hospital Staff Dashboard</h1>
         <p className="text-sm text-muted-foreground">Overview of vaccination activity and appointments</p>
@@ -84,7 +84,7 @@ export default function StaffDashboard() {
         <StaffStatsGrid appointments={appointments} vaccines={vaccines} loading={loading} />
       </motion.div>
 
-      {/* appointments */}
+      {/* appts */}
       <motion.div variants={itemVariants}>
         <StaffAppointmentsSection appointments={appointments} loading={loading} onRefresh={fetchData} />
       </motion.div>

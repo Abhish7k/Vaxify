@@ -53,6 +53,17 @@ export default function BookingSummaryPage() {
     }
   };
 
+  const formattedDate = new Date(date).toDateString();
+
+  const day = formattedDate.split(" ")[0];
+  const month = formattedDate.split(" ")[1];
+  const dateday = formattedDate.split(" ")[2];
+  const year = formattedDate.split(" ")[3];
+
+  const finalDate = `${day}, ${dateday} ${month}, ${year}`;
+
+  const finalSlot = slot?.slice(0, 5);
+
   return (
     <div className="py-10 max-w-3xl mx-auto px-10 space-y-6 animate-in slide-in-from-bottom-5 fade-in duration-500">
       <h1 className="text-xl font-semibold">Review your booking</h1>
@@ -71,14 +82,15 @@ export default function BookingSummaryPage() {
 
           <div>
             <span className="text-muted-foreground">Date & Time</span>
+
             <p className="font-medium">
-              {new Date(date).toDateString()} • {slot}
+              {finalDate} • {finalSlot}
             </p>
           </div>
         </CardContent>
       </Card>
 
-      <div className="flex justify-between">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <GoBackButton label="Edit booking" />
 
         <Button

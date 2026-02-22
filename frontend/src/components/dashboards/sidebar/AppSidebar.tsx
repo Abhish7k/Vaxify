@@ -6,6 +6,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { DashboardRoleBasedNavigationLinks } from "@/constants/dashboard-navigation";
 import { Link } from "react-router-dom";
@@ -13,6 +14,8 @@ import MainNavMenu from "./MainNavMenu";
 
 const AppSidebar = () => {
   const { user } = useAuth();
+  const { isMobile, setOpenMobile } = useSidebar();
+
   const userRole = user?.role;
 
   const menuItems = DashboardRoleBasedNavigationLinks[userRole!];
@@ -22,7 +25,13 @@ const AppSidebar = () => {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton
+              size="lg"
+              asChild
+              onClick={() => {
+                if (isMobile) setOpenMobile(false);
+              }}
+            >
               <Link to="/">
                 <div className="">
                   <img src="/logo.svg" alt="" width={30} className="ml-1" />

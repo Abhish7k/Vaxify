@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 import type { AdminHospital, HospitalStatus } from "@/types/admin-hospital";
 import AdminHospitalsTabsSection from "@/components/admin/hospitals-page/AdminHospitalsTabsSection";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
 
 const container = {
   hidden: { opacity: 0 },
@@ -42,14 +42,10 @@ const AdminHospitalsPage = () => {
 
     try {
       const data = await hospitalApi.getAdminHospitals();
+
       setHospitals(data);
     } catch (error) {
-      toast.error("Failed to load hospitals", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to load hospitals");
     } finally {
       setLoading(false);
     }
@@ -63,12 +59,7 @@ const AdminHospitalsPage = () => {
 
       setHospitals(data);
     } catch (error) {
-      toast.error("Failed to load hospitals", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to load hospitals");
     } finally {
       setLoading(false);
     }
@@ -81,21 +72,12 @@ const AdminHospitalsPage = () => {
   const handleApproveHospital = async (hospital: AdminHospital) => {
     try {
       await hospitalApi.approveHospital(hospital.id);
-      toast.success("Approved hospital successfully", {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
+
+      toastUtils.success("Approved hospital successfully");
 
       fetchHospitals(); // refresh
     } catch (error) {
-      toast.error("Failed to approve hospital", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to approve hospital");
     }
   };
 
@@ -103,21 +85,11 @@ const AdminHospitalsPage = () => {
     try {
       await hospitalApi.rejectHospital(hospital.id);
 
-      toast.success("Rejected hospital successfully", {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
+      toastUtils.success("Rejected hospital successfully");
 
       fetchHospitals(); // refresh
     } catch (error) {
-      toast.error("Failed to reject hospital", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to reject hospital");
     }
   };
 
@@ -125,21 +97,11 @@ const AdminHospitalsPage = () => {
     try {
       await hospitalApi.deleteHospital(hospital.id);
 
-      toast.success("Deleted hospital and associated staff account", {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
+      toastUtils.success("Deleted hospital and associated staff account");
 
       fetchHospitals(); // refresh
     } catch (error) {
-      toast.error("Failed to delete hospital", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to delete hospital");
     }
   };
 
@@ -152,18 +114,12 @@ const AdminHospitalsPage = () => {
     >
       {/* header */}
       <motion.div variants={item}>
-        <AdminHospitalsHeaderSection
-          loading={loading}
-          onRefresh={handleRefresh}
-        />
+        <AdminHospitalsHeaderSection loading={loading} onRefresh={handleRefresh} />
       </motion.div>
 
       {/* tabs */}
       <motion.div variants={item}>
-        <AdminHospitalsTabsSection
-          value={activeStatus}
-          onChange={setActiveStatus}
-        />
+        <AdminHospitalsTabsSection value={activeStatus} onChange={setActiveStatus} />
       </motion.div>
 
       {/* list */}

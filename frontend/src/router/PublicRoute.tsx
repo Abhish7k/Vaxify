@@ -5,7 +5,13 @@ export const PublicRoute = () => {
   const { isAuthenticated, user } = useAuth();
 
   if (isAuthenticated && user) {
-    if (user.role === "staff") {
+    const role = user.role?.toLowerCase();
+
+    if (role === "admin") {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+
+    if (role === "staff") {
       return <Navigate to="/staff/dashboard" replace />;
     }
 

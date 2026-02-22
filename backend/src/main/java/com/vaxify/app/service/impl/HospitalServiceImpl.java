@@ -12,11 +12,11 @@ import com.vaxify.app.mapper.HospitalMapper;
 import com.vaxify.app.repository.*;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.service.HospitalService;
+import com.vaxify.app.service.UserService;
 import com.vaxify.app.service.NotificationService;
 import com.vaxify.app.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +29,7 @@ import java.util.List;
 public class HospitalServiceImpl implements HospitalService {
 
         private final HospitalRepository hospitalRepository;
-        private final UserRepository userRepository;
-        private final PasswordEncoder passwordEncoder;
+        private final UserService userService;
         private final VaccineRepository vaccineRepository;
 
         private final HospitalMapper hospitalMapper;
@@ -40,8 +39,7 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         @Transactional
         public HospitalResponse registerHospital(StaffHospitalRegisterRequest request, String staffEmail) {
-                User staffUser = userRepository.findByEmail(staffEmail)
-                                .orElseThrow(() -> new VaxifyException("Staff user not found"));
+                User staffUser = getStaffUser(staffEmail);
 
                 if (staffUser.getRole() != Role.STAFF) {
                         throw new AccessDeniedException("Only hospital staff can register hospitals");
@@ -62,29 +60,23 @@ public class HospitalServiceImpl implements HospitalService {
 
                 Hospital saved = hospitalRepository.save(hospital);
 
-                List<Vaccine> vaccines = vaccineRepository.findByHospital(saved);
-
-                return hospitalMapper.toResponse(saved, vaccines, true, true);
+                return toHospitalResponse(saved, true, true);
         }
 
         @Override
         public HospitalResponse getMyHospital(String staffEmail) {
-                User staffUser = userRepository.findByEmail(staffEmail)
-                                .orElseThrow(() -> new VaxifyException("Staff user not found"));
+                User staffUser = getStaffUser(staffEmail);
 
                 Hospital hospital = hospitalRepository.findByStaffUser(staffUser)
                                 .orElseThrow(() -> new VaxifyException("No hospital found for this staff"));
 
-                List<Vaccine> vaccines = vaccineRepository.findByHospital(hospital);
-
-                return hospitalMapper.toResponse(hospital, vaccines, true, true);
+                return toHospitalResponse(hospital, true, true);
         }
 
         @Override
         @Transactional
         public HospitalResponse updateHospital(UpdateHospitalRequest request, String staffEmail) {
-                User staffUser = userRepository.findByEmail(staffEmail)
-                                .orElseThrow(() -> new VaxifyException("Staff user not found"));
+                User staffUser = getStaffUser(staffEmail);
 
                 Hospital hospital = hospitalRepository.findByStaffUser(staffUser)
                                 .orElseThrow(() -> new VaxifyException("No hospital found for this staff"));
@@ -98,9 +90,7 @@ public class HospitalServiceImpl implements HospitalService {
 
                 Hospital saved = hospitalRepository.save(hospital);
 
-                List<Vaccine> vaccines = vaccineRepository.findByHospital(saved);
-
-                return hospitalMapper.toResponse(saved, vaccines, true, true);
+                return toHospitalResponse(saved, true, true);
         }
 
         @Override
@@ -110,14 +100,13 @@ public class HospitalServiceImpl implements HospitalService {
 
                 boolean isPrivileged = securityUtils.isPrivileged();
 
-                List<Vaccine> vaccines = vaccineRepository.findByHospital(hospital);
-
-                return hospitalMapper.toResponse(hospital, vaccines, false, isPrivileged);
+                return toHospitalResponse(hospital, false, isPrivileged);
         }
 
         @Override
         public List<HospitalSummaryResponse> getApprovedHospitals() {
                 List<Hospital> hospitals = hospitalRepository.findByStatusWithStaff(HospitalStatus.APPROVED);
+
                 List<Vaccine> allVaccines = vaccineRepository.findByHospitalIn(hospitals);
 
                 return hospitalMapper.toSummaryResponses(hospitals, allVaccines);
@@ -126,6 +115,7 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         public List<HospitalResponse> getAllHospitals() {
                 List<Hospital> hospitals = hospitalRepository.findAllWithStaff();
+
                 List<Vaccine> allVaccines = vaccineRepository.findByHospitalIn(hospitals);
 
                 return hospitalMapper.toResponses(hospitals, allVaccines, false, true);
@@ -134,6 +124,7 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         public List<HospitalResponse> getPendingHospitals() {
                 List<Hospital> hospitals = hospitalRepository.findByStatusWithStaff(HospitalStatus.PENDING);
+
                 List<Vaccine> allVaccines = vaccineRepository.findByHospitalIn(hospitals);
 
                 return hospitalMapper.toResponses(hospitals, allVaccines, true, true);
@@ -152,9 +143,7 @@ public class HospitalServiceImpl implements HospitalService {
                         notificationService.sendHospitalApproved(saved);
                 }
 
-                List<Vaccine> vaccines = vaccineRepository.findByHospital(saved);
-
-                return hospitalMapper.toResponse(saved, vaccines, true, true);
+                return toHospitalResponse(saved, true, true);
         }
 
         @Override
@@ -170,9 +159,7 @@ public class HospitalServiceImpl implements HospitalService {
                         notificationService.sendHospitalRejected(saved);
                 }
 
-                List<Vaccine> vaccines = vaccineRepository.findByHospital(saved);
-
-                return hospitalMapper.toResponse(saved, vaccines, true, true);
+                return toHospitalResponse(saved, true, true);
         }
 
         private Hospital getPendingHospital(Long id) {
@@ -186,22 +173,21 @@ public class HospitalServiceImpl implements HospitalService {
                 return hospital;
         }
 
+        private User getStaffUser(String email) {
+                return userService.findByEmail(email);
+        }
+
+        private HospitalResponse toHospitalResponse(Hospital hospital, boolean includeLowStock, boolean isPrivileged) {
+                List<Vaccine> vaccines = vaccineRepository.findByHospital(hospital);
+
+                return hospitalMapper.toResponse(hospital, vaccines, includeLowStock, isPrivileged);
+        }
+
         @Override
         @Transactional
         public void registerHospitalStaff(StaffHospitalRegistrationRequest dto) {
-                if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-                        throw new VaxifyException("Email already registered");
-                }
-
-                User staffUser = new User();
-                staffUser.setName(dto.getStaffName());
-                staffUser.setEmail(dto.getEmail());
-                staffUser.setPassword(passwordEncoder.encode(dto.getPassword()));
-                staffUser.setPhone(dto.getPhone());
-                staffUser.setRole(Role.STAFF);
-                staffUser.setCreatedAt(LocalDateTime.now());
-
-                userRepository.save(staffUser);
+                User staffUser = userService.createStaffUser(dto.getStaffName(), dto.getEmail(), dto.getPassword(),
+                                dto.getPhone());
 
                 Hospital hospital = new Hospital();
                 hospital.setName(dto.getHospitalName());
@@ -231,7 +217,7 @@ public class HospitalServiceImpl implements HospitalService {
                 hospitalRepository.delete(hospital);
 
                 if (staffUser != null) {
-                        userRepository.delete(staffUser);
+                        userService.deleteUser(staffUser.getId());
                 }
         }
 }

@@ -16,18 +16,24 @@ export default function ConfirmBookingFooter({
   selectedSlot,
   onConfirm,
 }: Props) {
+  const formattedDate = selectedDate ? new Date(selectedDate).toDateString() : "";
+
+  const day = formattedDate.split(" ")[0];
+  const month = formattedDate.split(" ")[1];
+  const date = formattedDate.split(" ")[2];
+
+  const finalDate = `${day}, ${date} ${month}`;
+
+  const finalSlot = selectedSlot?.slice(0, 5);
+
   return (
     <div className="fixed bottom-0 inset-x-0 z-50 bg-background/95 backdrop-blur mb-10">
       <div className="max-w-6xl mx-10 xl:mx-auto px-4 sm:px-6 lg:px-10 py-4 flex items-center justify-between gap-4 border rounded-xl shadow-lg">
         <div className="flex flex-col text-sm">
-          <span className="font-medium">
-            {vaccineName || "Select a vaccine"}
-          </span>
+          <span className="font-medium">{vaccineName || "Select a vaccine"}</span>
 
           <span className="text-xs text-muted-foreground">
-            {selectedDate && selectedSlot
-              ? `${new Date(selectedDate).toDateString()} • ${selectedSlot}`
-              : "Select date & time"}
+            {selectedDate && selectedSlot ? `${finalDate} • ${finalSlot}` : "Select date & time"}
           </span>
         </div>
 

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { userApi, type UserProfile, type UserStats } from "@/api/user.api";
 import { useEffect, useState } from "react";
+import { toastUtils } from "@/lib/toast";
 
 export default function UserInfoCard() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -16,10 +17,14 @@ export default function UserInfoCard() {
     const fetchData = async () => {
       try {
         const [profileData, statsData] = await Promise.all([userApi.getProfile(), userApi.getStats()]);
+
         setProfile(profileData);
+
         setStats(statsData);
       } catch (error) {
         console.error("Failed to fetch profile", error);
+
+        toastUtils.error("Failed to fetch profile");
       } finally {
         setLoading(false);
       }
@@ -62,10 +67,9 @@ export default function UserInfoCard() {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
-      whileHover="hover"
       className="w-full max-w-md mx-auto"
     >
-      <Card className={cn("relative overflow-hidden rounded-2xl border bg-card p-8 shadow-sm")}>
+      <Card className={cn("relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-8 shadow-sm ")}>
         {/* gradient background */}
         <div
           className="absolute inset-0 z-0 opacity-40 dark:opacity-20"
@@ -101,6 +105,7 @@ export default function UserInfoCard() {
           <div className="flex flex-col items-center space-y-1">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-semibold">{profile.name}</h2>
+
               <Badge className="border border-blue-600/20 bg-blue-600/10 text-blue-600 focus-visible:ring-blue-600/20 dark:bg-blue-400/10 dark:text-blue-400 dark:focus-visible:ring-blue-400/40">
                 {profile.role}
               </Badge>
@@ -108,16 +113,26 @@ export default function UserInfoCard() {
           </div>
 
           {/* dynamic info rows */}
-          <div className="mt-6 space-y-3 text-sm">
+          <div className="mt-10 space-y-3 text-sm">
             {/* basic info */}
             {basicInfo.map((item, index) => (
-              <InfoRow key={index} icon={<item.icon className="h-4 w-4" />} label={item.label} value={item.value} />
+              <InfoRow
+                key={index}
+                icon={<item.icon className="h-4 w-4" />}
+                label={item.label}
+                value={item.value}
+              />
             ))}
 
             {/* metadata section */}
             <div className="mt-6 pt-6 border-t border-border/50 space-y-3">
               {metadataInfo.map((item, index) => (
-                <InfoRow key={index} icon={<item.icon className="h-4 w-4" />} label={item.label} value={item.value} />
+                <InfoRow
+                  key={index}
+                  icon={<item.icon className="h-4 w-4" />}
+                  label={item.label}
+                  value={item.value}
+                />
               ))}
             </div>
           </div>
@@ -151,8 +166,10 @@ function InfoRow({
   return (
     <div className="flex items-center gap-2">
       <span className="text-muted-foreground shrink-0">{icon}</span>
+
       <span className="text-xs text-muted-foreground min-w-0 truncate">{label}</span>
-      <span className="font-medium text-right flex-1 min-w-0 truncate">{value}</span>
+
+      <span className="text-xs sm:text-sm font-medium text-right flex-1 min-w-0 truncate">{value}</span>
     </div>
   );
 }

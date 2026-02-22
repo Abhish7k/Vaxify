@@ -9,8 +9,10 @@ import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.repository.*;
 import com.vaxify.app.service.AppointmentService;
 import com.vaxify.app.service.NotificationService;
+import com.vaxify.app.service.UserService;
 import com.vaxify.app.service.VaccineService;
 import com.vaxify.app.mapper.AppointmentMapper;
+import com.vaxify.app.util.VaccineUtils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         private final VaccineRepository vaccineRepository;
         private final SlotRepository slotRepository;
 
-        private final UserRepository userRepository;
+        private final UserService userService;
         private final AppointmentMapper appointmentMapper;
         private final VaccineService vaccineService;
 
@@ -39,63 +41,35 @@ public class AppointmentServiceImpl implements AppointmentService {
         @Override
         @Transactional
         public AppointmentResponse bookAppointment(BookAppointmentRequest request, String userEmail) {
-                User user = userRepository.findByEmail(userEmail)
-                                .orElseThrow(() -> new VaxifyException("User not found"));
+                User user = userService.findByEmail(userEmail);
+
+                if (user.getPhone() == null || user.getPhone().isEmpty()) {
+                        throw new VaxifyException("Phone number is required to book an appointment");
+                }
 
                 Vaccine vaccine = vaccineRepository.findById(request.getVaccineId())
                                 .orElseThrow(() -> new VaxifyException("Vaccine not found"));
 
                 LocalDate slotDate = LocalDate.parse(request.getDate());
 
-                List<Slot> slots = slotRepository.findByCenterIdAndDate(request.getCenterId(), slotDate);
-
-                // compare localtime objects to handle format differences (e.g. 09:00 vs
-                // 09:00:00)
                 LocalTime requestedTime = LocalTime.parse(request.getSlot());
 
-                // Time Travel Check
-                LocalDateTime slotDateTime = LocalDateTime.of(slotDate, requestedTime);
+                Slot selectedSlot = getAvailableSlot(request.getCenterId(), slotDate, requestedTime);
 
-                if (slotDateTime.isBefore(LocalDateTime.now())) {
-                        throw new VaxifyException("Cannot book a slot for a time that has already passed.");
-                }
+                validateBooking(vaccine, selectedSlot, slotDate, requestedTime);
 
-                Slot selectedSlot = slots.stream().filter(s -> s.getStartTime().equals(requestedTime)).findFirst()
-                                .orElseThrow(() -> new VaxifyException(
-                                                "No available slot found for the selected time"));
+                // mutate state
+                decrementVaccineStock(vaccine);
 
-                if (selectedSlot.getStatus() == SlotStatus.FULL
-                                || selectedSlot.getBookedCount() >= selectedSlot.getCapacity()) {
-                        throw new VaxifyException("Selected slot is already full");
-                }
+                incrementSlotBookings(selectedSlot);
 
-                // check and deduct vaccine stock
-                if (vaccine.getStock() <= 0) {
-                        throw new VaxifyException("Vaccine is out of stock");
-                }
-
-                // Block booking if stock is critically low (< 20% of capacity)
-                if (vaccine.getCapacity() != null && vaccine.getCapacity() > 0
-                                && vaccine.getStock() < (vaccine.getCapacity() * 0.2)) {
-                        throw new VaxifyException("Booking suspended: Vaccine stock is critically low (< 20%)");
-                }
-
-                vaccine.setStock(vaccine.getStock() - 1);
-
-                vaccineRepository.save(vaccine);
-
-                vaccineService.checkStockAlerts(vaccine);
-
-                Appointment appointment = Appointment.builder().user(user).slot(selectedSlot).vaccine(vaccine)
-                                .status(AppointmentStatus.BOOKED).build();
-
-                selectedSlot.setBookedCount(selectedSlot.getBookedCount() + 1);
-
-                if (selectedSlot.getBookedCount() >= selectedSlot.getCapacity()) {
-                        selectedSlot.setStatus(SlotStatus.FULL);
-                }
-
-                slotRepository.save(selectedSlot);
+                // persist
+                Appointment appointment = Appointment.builder()
+                                .user(user)
+                                .slot(selectedSlot)
+                                .vaccine(vaccine)
+                                .status(AppointmentStatus.BOOKED)
+                                .build();
 
                 Appointment saved = appointmentRepository.save(appointment);
 
@@ -104,10 +78,58 @@ public class AppointmentServiceImpl implements AppointmentService {
                 return appointmentMapper.toResponse(saved);
         }
 
+        private Slot getAvailableSlot(Long centerId, LocalDate date, LocalTime time) {
+                List<Slot> slots = slotRepository.findByCenterIdAndDate(centerId, date);
+
+                return slots.stream()
+                                .filter(s -> s.getStartTime().equals(time))
+                                .findFirst()
+                                .orElseThrow(() -> new VaxifyException(
+                                                "No available slot found for the selected time"));
+        }
+
+        private void validateBooking(Vaccine vaccine, Slot slot, LocalDate date, LocalTime time) {
+                // time travel check
+                if (LocalDateTime.of(date, time).isBefore(LocalDateTime.now())) {
+                        throw new VaxifyException("Cannot book a slot for a time that has already passed");
+                }
+
+                // slot capacity check
+                if (slot.getStatus() == SlotStatus.FULL || slot.getBookedCount() >= slot.getCapacity()) {
+                        throw new VaxifyException("Selected slot is already full");
+                }
+
+                // stock check
+                if (vaccine.getStock() <= 0) {
+                        throw new VaxifyException("Vaccine is out of stock");
+                }
+
+                if (VaccineUtils.isStockCritical(vaccine)) {
+                        throw new VaxifyException("Booking suspended: Vaccine stock is critically low (< 20%)");
+                }
+        }
+
+        private void decrementVaccineStock(Vaccine vaccine) {
+                vaccine.setStock(vaccine.getStock() - 1);
+
+                vaccineRepository.save(vaccine);
+
+                vaccineService.checkStockAlerts(vaccine);
+        }
+
+        private void incrementSlotBookings(Slot slot) {
+                slot.setBookedCount(slot.getBookedCount() + 1);
+
+                if (slot.getBookedCount() >= slot.getCapacity()) {
+                        slot.setStatus(SlotStatus.FULL);
+                }
+
+                slotRepository.save(slot);
+        }
+
         @Override
         public List<AppointmentResponse> getMyAppointments(String userEmail) {
-                User user = userRepository.findByEmail(userEmail)
-                                .orElseThrow(() -> new VaxifyException("User not found"));
+                User user = userService.findByEmail(userEmail);
 
                 List<AppointmentResponse> responses = appointmentRepository.findAll().stream()
                                 .filter(a -> a.getUser().getId().equals(user.getId()))
@@ -129,7 +151,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 appointment.setStatus(AppointmentStatus.CANCELLED);
 
-                // refund vaccine stock
+                // refund vax stock
                 Vaccine vaccine = appointment.getVaccine();
 
                 vaccine.setStock(vaccine.getStock() + 1);
@@ -175,7 +197,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 Appointment appointment = appointmentRepository.findById(appointmentId)
                                 .orElseThrow(() -> new VaxifyException("Appointment not found"));
 
-                // ensure its not cancelled or already completed
+                // check not cancelled/done
                 if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
                         throw new VaxifyException("Cannot complete a cancelled appointment");
                 }
@@ -190,5 +212,4 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 notificationService.sendVaccinationCompletion(saved);
         }
-
 }

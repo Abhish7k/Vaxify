@@ -3,13 +3,9 @@ import { User } from "lucide-react";
 
 const QuickDemoLogins = () => {
   const fillCredentials = () => {
-    const emailInput = document.querySelector(
-      'input[type="email"]',
-    ) as HTMLInputElement;
+    const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
 
-    const passwordInput = document.querySelector(
-      'input[type="password"]',
-    ) as HTMLInputElement;
+    const passwordInput = document.querySelector('input[type="password"]') as HTMLInputElement;
 
     if (emailInput) emailInput.value = "user@test.com";
 
@@ -17,7 +13,7 @@ const QuickDemoLogins = () => {
   };
 
   return (
-    <div className="mt-6 flex justify-center w-full">
+    <div className="mt-6 flex justify-center w-full mb-20 sm:mb-0">
       <Button
         variant="outline"
         size="sm"

@@ -3,7 +3,7 @@ import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { userApi, type UserProfile } from "@/api/user.api";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import AdminUsersTable from "@/components/admin/users-page/UsersTable";
 import { AdminUsersTableSkeleton } from "@/components/skeletons/AdminUsersTableSkeleton";
@@ -45,7 +45,7 @@ const AdminUsersPage = () => {
     } catch (error) {
       console.error("Failed to fetch users", error);
 
-      toast.error("Failed to load users");
+      toastUtils.error("Failed to load users");
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,7 @@ const AdminUsersPage = () => {
     } catch (error) {
       console.error("Failed to fetch users", error);
 
-      toast.error("Failed to load users");
+      toastUtils.error("Failed to load users");
     } finally {
       setLoading(false);
     }
@@ -74,31 +74,19 @@ const AdminUsersPage = () => {
   const handleDeleteUser = async (user: UserProfile) => {
     try {
       await userApi.deleteUser(user.id);
-      toast.success("User deleted successfully", {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
+
+      toastUtils.success("User deleted successfully");
+
       fetchUsers();
     } catch (error) {
       console.error("Failed to delete user", error);
-      toast.error("Failed to delete user", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+
+      toastUtils.error("Failed to delete user");
     }
   };
 
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="px-5 py-5 md:px-10 space-y-8"
-    >
+    <motion.div variants={container} initial="hidden" animate="show" className="px-5 py-5 md:px-10 space-y-8">
       {/* header */}
       <motion.div
         variants={item}
@@ -106,9 +94,7 @@ const AdminUsersPage = () => {
       >
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage and view all registered users across the platform
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">Manage and view all registered users across the platform</p>
         </div>
 
         <Button
@@ -118,20 +104,14 @@ const AdminUsersPage = () => {
           disabled={loading}
           className="gap-2 text-xs sm:text-sm transition-all min-w-[120px]"
         >
-          <RotateCcw
-            className={cn("size-3.5 sm:size-4", loading && "animate-spin")}
-          />
+          <RotateCcw className={cn("size-3.5 sm:size-4", loading && "animate-spin")} />
           {loading ? "Refreshing..." : "Refresh Data"}
         </Button>
       </motion.div>
 
       {/* users data table */}
       <motion.div variants={item} className="w-full">
-        {loading ? (
-          <AdminUsersTableSkeleton />
-        ) : (
-          <AdminUsersTable users={users} onDelete={handleDeleteUser} />
-        )}
+        {loading ? <AdminUsersTableSkeleton /> : <AdminUsersTable users={users} onDelete={handleDeleteUser} />}
       </motion.div>
     </motion.div>
   );

@@ -27,16 +27,15 @@ public class NotificationServiceImpl implements NotificationService {
 
         String subject = "Hospital Registration Received - Vaxify";
 
-        String body = String.format(
+        String content = String.format(
                 "Dear %s,\n\n" +
                         "You have successfully registered your hospital '%s' on Vaxify.\n" +
                         "Your application is currently PENDING approval from the admin.\n" +
-                        "You will be notified once the status changes.\n\n" +
-                        "Regards,\nVaxify Team",
+                        "You will be notified once the status changes.",
                 hospital.getStaffUser().getName(),
                 hospital.getName());
 
-        emailService.sendSimpleEmail(hospital.getStaffUser().getEmail(), subject, body);
+        sendWithSignature(hospital.getStaffUser().getEmail(), subject, content);
     }
 
     @Override
@@ -46,15 +45,14 @@ public class NotificationServiceImpl implements NotificationService {
 
         String subject = "Hospital Registration Approved - Vaxify";
 
-        String body = String.format(
+        String content = String.format(
                 "Dear %s,\n\n" +
                         "Your hospital registration for '%s' has been APPROVED by the admin.\n" +
-                        "You can now login and manage your hospital dashboard.\n\n" +
-                        "Regards,\nVaxify Team",
+                        "You can now login and manage your hospital dashboard.",
                 hospital.getStaffUser().getName(),
                 hospital.getName());
 
-        emailService.sendSimpleEmail(hospital.getStaffUser().getEmail(), subject, body);
+        sendWithSignature(hospital.getStaffUser().getEmail(), subject, content);
     }
 
     @Override
@@ -64,15 +62,14 @@ public class NotificationServiceImpl implements NotificationService {
 
         String subject = "Hospital Registration Rejected - Vaxify";
 
-        String body = String.format(
+        String content = String.format(
                 "Dear %s,\n\n" +
                         "Your hospital registration for '%s' has been REJECTED by the admin.\n" +
-                        "Please contact support for more details.\n\n" +
-                        "Regards,\nVaxify Team",
+                        "Please contact support for more details.",
                 hospital.getStaffUser().getName(),
                 hospital.getName());
 
-        emailService.sendSimpleEmail(hospital.getStaffUser().getEmail(), subject, body);
+        sendWithSignature(hospital.getStaffUser().getEmail(), subject, content);
     }
 
     @Override
@@ -117,7 +114,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         String subject = "Appointment Confirmation - Vaxify";
 
-        String body = String.format(
+        String content = String.format(
                 "Dear %s,\n\n" +
                         "Your vaccination appointment has been successfully booked.\n\n" +
                         "Details:\n" +
@@ -127,8 +124,7 @@ public class NotificationServiceImpl implements NotificationService {
                         "- Time: %s\n" +
                         "- Center: %s\n" +
                         "- Address: %s\n\n" +
-                        "Please arrive 15 minutes before your scheduled time.\n\n" +
-                        "Regards,\nVaxify Team",
+                        "Please arrive 15 minutes before your scheduled time.",
                 appointment.getUser().getName(),
                 appointment.getId(),
                 appointment.getVaccine().getName(),
@@ -137,7 +133,7 @@ public class NotificationServiceImpl implements NotificationService {
                 appointment.getSlot().getCenter().getName(),
                 appointment.getSlot().getCenter().getAddress());
 
-        emailService.sendSimpleEmail(appointment.getUser().getEmail(), subject, body);
+        sendWithSignature(appointment.getUser().getEmail(), subject, content);
     }
 
     @Override
@@ -147,16 +143,15 @@ public class NotificationServiceImpl implements NotificationService {
 
         String subject = "Appointment Cancelled - Vaxify";
 
-        String body = String.format(
+        String content = String.format(
                 "Dear %s,\n\n" +
                         "The vaccination appointment #%d for %s has been CANCELLED.\n" +
-                        "If you did not request this, please contact support.\n\n" +
-                        "Regards,\nVaxify Team",
+                        "If you did not request this, please contact support.",
                 appointment.getUser().getName(),
                 appointment.getId(),
                 appointment.getVaccine().getName());
 
-        emailService.sendSimpleEmail(appointment.getUser().getEmail(), subject, body);
+        sendWithSignature(appointment.getUser().getEmail(), subject, content);
     }
 
     @Override
@@ -166,15 +161,20 @@ public class NotificationServiceImpl implements NotificationService {
 
         String subject = "Vaccination Completed - Vaxify";
 
-        String body = String.format(
+        String content = String.format(
                 "Dear %s,\n\n" +
                         "Congratulations! Your vaccination for '%s' has been marked as COMPLETED.\n" +
                         "You can download your certificate from the Vaxify dashboard.\n\n" +
-                        "Thank you for doing your part!\n\n" +
-                        "Regards,\nVaxify Team",
+                        "Thank you for doing your part!",
                 appointment.getUser().getName(),
                 appointment.getVaccine().getName());
 
-        emailService.sendSimpleEmail(appointment.getUser().getEmail(), subject, body);
+        sendWithSignature(appointment.getUser().getEmail(), subject, content);
+    }
+
+    private void sendWithSignature(String to, String subject, String content) {
+        String body = content + "\n\nRegards,\nVaxify Team";
+
+        emailService.sendSimpleEmail(to, subject, body);
     }
 }

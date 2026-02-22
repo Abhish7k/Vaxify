@@ -4,10 +4,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.vaxify.app.dtos.user.UpdateProfileRequest;
 import com.vaxify.app.dtos.user.UserResponse;
 import com.vaxify.app.dtos.user.UserStatsResponse;
-import com.vaxify.app.dtos.appointment.AppointmentResponse;
 import com.vaxify.app.entities.User;
+import com.vaxify.app.dtos.appointment.AppointmentResponse;
 import com.vaxify.app.entities.enums.AppointmentStatus;
 import com.vaxify.app.entities.enums.Role;
 import com.vaxify.app.entities.Appointment;
@@ -18,10 +19,12 @@ import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.service.UserService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,11 +35,31 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AppointmentRepository appointmentRepository;
     private final HospitalRepository hospitalRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse getProfile(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email ID " + email));
+
+        return modelMapper.map(user, UserResponse.class);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateProfile(String email, UpdateProfileRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+
+        userRepository.save(user);
 
         return modelMapper.map(user, UserResponse.class);
     }
@@ -123,5 +146,29 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.delete(user);
+    }
+
+    @Override
+    @Transactional
+    public User createStaffUser(String name, String email, String password, String phone) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new com.vaxify.app.exception.VaxifyException("Email already registered");
+        }
+
+        User staffUser = new User();
+        staffUser.setName(name);
+        staffUser.setEmail(email);
+        staffUser.setPassword(passwordEncoder.encode(password));
+        staffUser.setPhone(phone);
+        staffUser.setRole(Role.STAFF);
+        staffUser.setCreatedAt(LocalDateTime.now());
+
+        return userRepository.save(staffUser);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new com.vaxify.app.exception.VaxifyException("User not found: " + email));
     }
 }
