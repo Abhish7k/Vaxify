@@ -5,6 +5,7 @@ import com.vaxify.app.dtos.hospital.HospitalResponse;
 import com.vaxify.app.dtos.hospital.HospitalSummaryResponse;
 import com.vaxify.app.entities.Hospital;
 import com.vaxify.app.entities.Vaccine;
+import com.vaxify.app.util.VaccineUtils;
 import com.vaxify.app.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -24,12 +25,11 @@ public class HospitalMapper {
                 List<VaccineResponse> vaccineResponses = vaccines == null ? List.of()
                                 : vaccines.stream()
                                                 .filter(v -> {
-                                                        if (includeLowStock)
+                                                        if (includeLowStock) {
                                                                 return true;
-                                                        if (v.getCapacity() != null && v.getCapacity() > 0) {
-                                                                return v.getStock() >= (v.getCapacity() * 0.2);
                                                         }
-                                                        return true;
+
+                                                        return !VaccineUtils.isStockCritical(v);
                                                 })
                                                 .map(this::toVaccineResponse)
                                                 .collect(Collectors.toList());

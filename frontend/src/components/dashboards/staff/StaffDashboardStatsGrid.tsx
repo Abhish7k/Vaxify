@@ -11,11 +11,7 @@ interface StaffStatsGridProps {
   loading: boolean;
 }
 
-export default function StaffStatsGrid({
-  appointments,
-  vaccines,
-  loading,
-}: StaffStatsGridProps) {
+export default function StaffStatsGrid({ appointments, vaccines, loading }: StaffStatsGridProps) {
   const totalAppointments = appointments.length;
 
   const upcoming = appointments.filter((a) =>
@@ -24,13 +20,9 @@ export default function StaffStatsGrid({
 
   const todayStr = format(new Date(), "yyyy-MM-dd");
 
-  const todayAppointments = appointments.filter(
-    (a) => a.date === todayStr,
-  ).length;
+  const todayAppointments = appointments.filter((a) => a.date === todayStr).length;
 
-  const lowStockCount = vaccines.filter(
-    (v) => v.stock / v.capacity < 0.2,
-  ).length;
+  const lowStockCount = vaccines.filter((v) => v.stock / v.capacity < 0.2).length;
 
   const stats = [
     {
@@ -88,7 +80,7 @@ function StatCard({ title, value, subtitle, icon, loading }: StatCardProps) {
 
   return (
     <motion.div whileHover="hover" className="h-full">
-      <Card className="p-6 relative overflow-hidden group border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+      <Card className="p-6 relative overflow-hidden group border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300">
         <div className="flex items-center justify-between relative z-10">
           {/* left */}
           <div className="space-y-1">
@@ -103,23 +95,18 @@ function StatCard({ title, value, subtitle, icon, loading }: StatCardProps) {
             <p className="text-xs text-muted-foreground">{subtitle}</p>
           </div>
 
-          {/* right icon space */}
+          {/* icon space */}
           <div className="w-12 h-12 shrink-0" />
         </div>
 
-        {/* animated image backdrop */}
+        {/* bg image */}
         <motion.div
           variants={imageAnimation}
           className={cn(
             "absolute -right-8 -bottom-8 w-32 h-32 opacity-85 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full flex items-center justify-center p-4",
           )}
         >
-          <img
-            src={icon}
-            alt=""
-            className="w-full h-full object-contain"
-            draggable={false}
-          />
+          <img src={icon} alt="" className="w-full h-full object-contain" draggable={false} />
         </motion.div>
       </Card>
     </motion.div>

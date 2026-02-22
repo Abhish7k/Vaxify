@@ -43,9 +43,7 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(
-                user.getEmail(),
-                user.getRole().name());
+        String token = generateToken(user);
 
         return new AuthResponse(token, userMapper.toDto(user));
     }
@@ -62,10 +60,12 @@ public class AuthServiceImpl implements AuthService {
             throw new VaxifyException("Invalid credentials");
         }
 
-        String token = jwtUtil.generateToken(
-                user.getEmail(),
-                user.getRole().name());
+        String token = generateToken(user);
 
         return new AuthResponse(token, userMapper.toDto(user));
+    }
+
+    private String generateToken(User user) {
+        return jwtUtil.generateToken(user.getEmail(), user.getRole().name());
     }
 }

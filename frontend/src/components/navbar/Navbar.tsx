@@ -14,10 +14,7 @@ const Navbar = () => {
         <div className="flex gap-10 items-center">
           {/* Logo */}
           <div className="">
-            <Link
-              to="/"
-              className="flex items-center gap-2 text-2xl font-bold text-indigo-600"
-            >
+            <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-indigo-600">
               <img src="/logo.svg" alt="" width={30} />
               Vaxify
             </Link>
@@ -29,7 +26,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="flex gap-5 items-center">
+        <div className="flex gap-3 sm:gap-5 items-center">
           {isAuthenticated ? (
             // user dropdown menu for nav
             <div className="flex items-center gap-5">

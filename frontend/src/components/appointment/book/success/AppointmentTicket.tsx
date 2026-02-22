@@ -25,12 +25,8 @@ export function AppointmentBookingSuccess(props: AppointmentTicketProps) {
       )}
     >
       <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Booking Confirmed!
-        </h1>
-        <p className="text-muted-foreground">
-          Your appointment has been successfully scheduled.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Booking Confirmed!</h1>
+        <p className="text-muted-foreground">Your appointment has been successfully scheduled.</p>
       </div>
 
       <div className="w-full mt-4">
@@ -49,10 +45,7 @@ export function AppointmentBookingSuccess(props: AppointmentTicketProps) {
         </Link>
 
         <Link to="/dashboard">
-          <Button
-            variant="outline"
-            className="w-full cursor-pointer active:scale-95 transition-all"
-          >
+          <Button variant="outline" className="w-full cursor-pointer active:scale-95 transition-all">
             Go to Dashboard
           </Button>
         </Link>

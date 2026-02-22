@@ -1,4 +1,4 @@
-import type { AuthUser } from "@/types/auth";
+import type { AuthUser, Role } from "@/types/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
@@ -16,6 +16,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // centralized normalization
+  const normalizeUser = (userData: AuthUser | null): AuthUser | null => {
+    if (!userData) return null;
+    return {
+      ...userData,
+      role: userData.role?.toLowerCase() as Role,
+    };
+  };
+
+  const setAuthUser = (userData: AuthUser | null) => {
+    const normalized = normalizeUser(userData);
+    setUser(normalized);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUserString = localStorage.getItem("storedUser");
@@ -28,12 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const storedUser = JSON.parse(storedUserString) as AuthUser;
 
-      setUser((prevUser) => {
-        if (prevUser?.id === storedUser.id) {
-          return prevUser;
-        }
-        return storedUser;
-      });
+      setAuthUser(storedUser);
     } catch (error) {
       console.error("Failed to parse stored user", error);
 
@@ -45,11 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, setAuthUser: setUser, loading }}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, setAuthUser, loading }}>{!loading && children}</AuthContext.Provider>;
 };
 
 // to access the auth context
@@ -57,9 +62,7 @@ export const useAuthContext = () => {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error(
-      "useAuthContext muse be called within an AuthProvider comp",
-    );
+    throw new Error("useAuthContext muse be called within an AuthProvider comp");
   }
 
   return context;

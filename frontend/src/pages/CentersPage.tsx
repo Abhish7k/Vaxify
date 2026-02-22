@@ -54,10 +54,7 @@ export default function CentersPage() {
   }, []);
 
   const allVaccines = useMemo(
-    () =>
-      Array.from(
-        new Set(centers.flatMap((c) => c.availableVaccines || [])),
-      ) as string[],
+    () => Array.from(new Set(centers.flatMap((c) => c.availableVaccines || []))) as string[],
     [centers],
   );
 
@@ -67,37 +64,23 @@ export default function CentersPage() {
     // search filter
     if (search.trim()) {
       const q = search.toLowerCase();
-      data = data.filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.address.toLowerCase().includes(q),
-      );
+
+      data = data.filter((c) => c.name.toLowerCase().includes(q) || c.address.toLowerCase().includes(q));
     }
 
-    // vaccine filter
+    // vax filter
     if (selectedVaccines.length > 0) {
-      data = data.filter((c) =>
-        selectedVaccines.every((v) => c.availableVaccines?.includes(v)),
-      );
+      data = data.filter((c) => selectedVaccines.every((v) => c.availableVaccines?.includes(v)));
     }
 
     // sort
-    data.sort((a, b) =>
-      sort === "name-asc"
-        ? a.name.localeCompare(b.name)
-        : b.name.localeCompare(a.name),
-    );
+    data.sort((a, b) => (sort === "name-asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)));
 
     return data;
   }, [centers, search, selectedVaccines, sort]);
 
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="max-w-7xl mx-auto px-5 mb-20"
-    >
+    <motion.div variants={container} initial="hidden" animate="show" className="max-w-7xl mx-auto px-5 mb-20">
       <motion.div variants={item}>
         <CenterPageHeader />
       </motion.div>

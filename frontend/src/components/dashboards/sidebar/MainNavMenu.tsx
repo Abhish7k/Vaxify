@@ -5,6 +5,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import type { SidebarNavGroup } from "@/types/sidebar";
 import { NavLink } from "react-router-dom";
@@ -14,6 +15,8 @@ type MainNavMenuProps = {
 };
 
 const MainNavMenu = ({ groups }: MainNavMenuProps) => {
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <>
       {groups?.map((group, groupIdx) => (
@@ -24,7 +27,12 @@ const MainNavMenu = ({ groups }: MainNavMenuProps) => {
             <SidebarMenu>
               {group.items?.map((item, itemIdx) => (
                 <SidebarMenuItem key={itemIdx}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    onClick={() => {
+                      if (isMobile) setOpenMobile(false);
+                    }}
+                  >
                     <NavLink to={item.path}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.label}</span>

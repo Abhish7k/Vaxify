@@ -1,7 +1,7 @@
 export type Role = "user" | "staff" | "admin";
 
 export interface AuthUser {
-  id: string;
+  id: number;
   email: string;
   role: Role;
   name?: string;

@@ -34,7 +34,7 @@ export function TicketCard({
   return (
     <div
       className={cn(
-        "relative w-full max-w-sm mx-auto bg-card text-card-foreground rounded-2xl shadow-lg font-sans z-10 overflow-hidden border",
+        "relative w-[90%] sm:w-full max-w-sm mx-auto bg-card text-card-foreground rounded-2xl shadow-lg font-sans z-10 overflow-hidden border",
         className,
       )}
     >
@@ -45,9 +45,7 @@ export function TicketCard({
         </div>
 
         <h1 className="text-xl font-semibold mt-4">Vaccination Ticket</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Appointment Confirmed
-        </p>
+        <p className="text-muted-foreground mt-1 text-sm">Appointment Confirmed</p>
       </div>
 
       {/* content */}
@@ -60,10 +58,9 @@ export function TicketCard({
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
               Reference
             </p>
-            <p className="font-mono font-medium text-sm mt-1">
-              {appointmentId}
-            </p>
+            <p className="font-mono font-medium text-sm mt-1">{appointmentId}</p>
           </div>
+
           <div className="text-right">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
               Status
@@ -77,7 +74,7 @@ export function TicketCard({
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
             Date & Time
           </p>
-          <p className="font-medium mt-1">
+          <p className="font-medium mt-1 text-sm sm:text-base">
             {formattedDate} • {slot}
           </p>
         </div>
@@ -87,11 +84,10 @@ export function TicketCard({
           <div className="p-2 bg-background rounded-md shadow-sm shrink-0">
             <MapPin className="h-4 w-4 text-primary" />
           </div>
+
           <div className="overflow-hidden">
-            <p className="font-semibold text-sm truncate">{center.name}</p>
-            <p className="text-muted-foreground text-xs mt-0.5 truncate">
-              {center.address}
-            </p>
+            <p className="font-semibold text-xs sm:text-sm truncate">{center.name}</p>
+            <p className="text-muted-foreground text-xs sm:text-sm mt-0.5 ">{center.address}</p>
           </div>
         </div>
 
@@ -110,8 +106,5 @@ export function TicketCard({
 
 //  helper components
 const DashedLine = () => (
-  <div
-    className="w-full border-t-2 border-dashed border-border"
-    aria-hidden="true"
-  />
+  <div className="w-full border-t-2 border-dashed border-border" aria-hidden="true" />
 );

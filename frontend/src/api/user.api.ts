@@ -22,6 +22,20 @@ export const userApi = {
   getProfile: async (): Promise<UserProfile> => {
     const response = await api.get<UserProfile>("/users/profile");
 
+    if (response.data) {
+      response.data.role = response.data.role.toLowerCase();
+    }
+
+    return response.data;
+  },
+
+  updateProfile: async (data: { name?: string; phone?: string }): Promise<UserProfile> => {
+    const response = await api.patch<UserProfile>("/users/profile", data);
+
+    if (response.data) {
+      response.data.role = response.data.role.toLowerCase();
+    }
+
     return response.data;
   },
 
@@ -42,6 +56,13 @@ export const userApi = {
 
   getAllUsers: async (): Promise<UserProfile[]> => {
     const response = await api.get<UserProfile[]>("/admin/users");
+
+    if (response.data) {
+      return response.data.map((u) => ({
+        ...u,
+        role: u.role.toLowerCase(),
+      }));
+    }
 
     return response.data;
   },

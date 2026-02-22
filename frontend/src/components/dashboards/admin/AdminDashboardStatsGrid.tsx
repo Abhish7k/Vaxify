@@ -2,11 +2,7 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import type { AdminStats } from "@/api/admin.api";
 
-export default function AdminDashboardStatsGrid({
-  stats,
-}: {
-  stats: AdminStats | null;
-}) {
+export default function AdminDashboardStatsGrid({ stats }: { stats: AdminStats | null }) {
   const statsConfig = [
     {
       title: "Total Hospitals",
@@ -62,13 +58,11 @@ function StatCard({ title, value, subtitle, icon }: StatCardProps) {
 
   return (
     <motion.div whileHover="hover" className="h-full">
-      <Card className="p-6 h-full relative overflow-hidden group border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+      <Card className="p-6 h-full relative overflow-hidden group border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300">
         <div className="flex items-center justify-between relative z-10">
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl font-semibold tracking-tight">
-              {value.toLocaleString()}
-            </p>
+            <p className="text-2xl font-semibold tracking-tight">{value.toLocaleString()}</p>
             <p className="text-xs text-muted-foreground">{subtitle}</p>
           </div>
           <div className="w-12 h-12 shrink-0" />
@@ -78,12 +72,7 @@ function StatCard({ title, value, subtitle, icon }: StatCardProps) {
           variants={imageAnimation}
           className="absolute -right-8 -bottom-8 w-32 h-32 opacity-90 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full flex items-center justify-center p-4"
         >
-          <img
-            src={icon}
-            alt=""
-            className="w-full h-full object-contain"
-            draggable={false}
-          />
+          <img src={icon} alt="" className="w-full h-full object-contain" draggable={false} />
         </motion.div>
       </Card>
     </motion.div>

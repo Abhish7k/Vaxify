@@ -115,42 +115,30 @@ export function AppointmentScheduler({
     return `${hour12}:${m} ${suffix}`;
   };
 
-  const selectedDateLabel = new Date(
-    currentYear,
-    currentMonth,
-    selectedDate,
-  ).toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
+  const selectedDateLabel = new Date(currentYear, currentMonth, selectedDate).toLocaleDateString(
+    "en-US",
+    {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    },
+  );
 
   return (
-    <div className="flex flex-col lg:flex-row w-full max-w-3xl md:max-w-5xl border rounded-xl bg-card overflow-hidden shadow-xl transition-all">
+    <div className="flex flex-col lg:flex-row w-full border rounded-xl bg-card overflow-hidden shadow-xl transition-all">
       {/* calendar */}
       <div className="flex-1 p-6">
         <div className="flex justify-between mb-4">
           <h3 className="text-lg font-medium">
-            {monthNames[currentMonth]}{" "}
-            <span className="text-muted-foreground">{currentYear}</span>
+            {monthNames[currentMonth]} <span className="text-muted-foreground">{currentYear}</span>
           </h3>
 
           <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handlePrevMonth}
-              className="cursor-pointer"
-            >
+            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="cursor-pointer">
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleNextMonth}
-              className="cursor-pointer"
-            >
+            <Button variant="ghost" size="icon" onClick={handleNextMonth} className="cursor-pointer">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -164,10 +152,7 @@ export function AppointmentScheduler({
           ))}
 
           {calendarDays.map((day, idx) => {
-            if (!day)
-              return (
-                <div key={`empty-${currentYear}-${currentMonth}-${idx}`} />
-              );
+            if (!day) return <div key={`empty-${currentYear}-${currentMonth}-${idx}`} />;
 
             const isAvailable = (() => {
               const cellDate = new Date(currentYear, currentMonth, day);
@@ -188,12 +173,9 @@ export function AppointmentScheduler({
                 disabled={!isAvailable}
                 onClick={() => handleDateClick(day)}
                 className={cn(
-                  "aspect-square flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer transition-all p-2 lg:px-5",
-                  day === selectedDate &&
-                  "bg-primary text-primary-foreground shadow",
-                  day !== selectedDate &&
-                  isAvailable &&
-                  "bg-secondary/50 hover:bg-secondary",
+                  "aspect-square flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer transition-all p-2 lg:p-3",
+                  day === selectedDate && "bg-primary text-primary-foreground shadow",
+                  day !== selectedDate && isAvailable && "bg-secondary/50 hover:bg-secondary",
                   !isAvailable && "text-muted-foreground/40 cursor-not-allowed",
                 )}
               >
@@ -234,15 +216,9 @@ export function AppointmentScheduler({
                 (() => {
                   if (!selectedDate) return false;
                   const today = new Date();
-                  const selDateObj = new Date(
-                    currentYear,
-                    currentMonth,
-                    selectedDate,
-                  );
+                  const selDateObj = new Date(currentYear, currentMonth, selectedDate);
                   // check if selected date is today (ignoring time)
-                  const isToday =
-                    selDateObj.setHours(0, 0, 0, 0) ===
-                    today.setHours(0, 0, 0, 0);
+                  const isToday = selDateObj.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
 
                   if (!isToday) return false;
 
@@ -258,24 +234,15 @@ export function AppointmentScheduler({
               onClick={() => handleTimeClick(slot.time)}
               className={cn(
                 "w-full py-2 rounded-lg text-sm transition cursor-pointer",
-                selectedTime === slot.time &&
-                "bg-primary text-primary-foreground",
-                slot.available &&
-                selectedTime !== slot.time &&
-                "bg-secondary/50 hover:bg-secondary",
+                selectedTime === slot.time && "bg-primary text-primary-foreground",
+                slot.available && selectedTime !== slot.time && "bg-secondary/50 hover:bg-secondary",
                 (!slot.available ||
                   (() => {
                     // repeat logic for styling
                     if (!selectedDate) return false;
                     const today = new Date();
-                    const selDateObj = new Date(
-                      currentYear,
-                      currentMonth,
-                      selectedDate,
-                    );
-                    const isToday =
-                      selDateObj.setHours(0, 0, 0, 0) ===
-                      today.setHours(0, 0, 0, 0);
+                    const selDateObj = new Date(currentYear, currentMonth, selectedDate);
+                    const isToday = selDateObj.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
                     if (!isToday) return false;
                     const [h, m] = slot.time.split(":").map(Number);
                     const now = new Date();
@@ -283,7 +250,7 @@ export function AppointmentScheduler({
                     slotDate.setHours(h, m, 0, 0);
                     return slotDate < now;
                   })()) &&
-                "text-muted-foreground/40 cursor-not-allowed opacity-50 bg-muted/20",
+                  "text-muted-foreground/40 cursor-not-allowed opacity-50 bg-muted/20",
               )}
             >
               {formatTime(slot.time)}
