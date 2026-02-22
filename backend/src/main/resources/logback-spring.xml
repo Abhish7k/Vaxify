@@ -7,8 +7,6 @@
     <springProperty scope="context" name="lokiUser" source="loki.username"/>
     <springProperty scope="context" name="lokiPass" source="loki.password"/>
 
-    <property name="LOG_FILE" value="logs/vaxify-backend.log"/>
-    <property name="JSON_LOG_FILE" value="logs/vaxify-backend-json.log"/>
 
     <!-- standard console appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -17,22 +15,8 @@
         </encoder>
     </appender>
 
-    <!-- industry standard json file appender -->
-    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${JSON_LOG_FILE}</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/archived/json/vaxify-backend.%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
-            <maxFileSize>10MB</maxFileSize>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeContext>true</includeContext>
-            <includeCallerData>true</includeCallerData>
-            <customFields>{"app":"${appName}"}</customFields>
-        </encoder>
-    </appender>
 
-    <!-- loki appender - sends logs directly to grafana cloud/loki -->
+    <!-- loki appender - sends logs directly to grafana loki -->
     <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
         <http>
             <url>${lokiUrl}</url>
@@ -49,40 +33,15 @@
         </format>
     </appender>
 
-    <!-- simple text file appender (fallback) -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_FILE}</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/archived/text/vaxify-backend.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>10MB</maxFileSize>
-            <maxHistory>7</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%t] %-40.40logger{39} : %m%n%wEx</pattern>
-        </encoder>
-    </appender>
+    <!-- send only our appn logs to grafana loki (ignoring root app init logs) -->
+    <logger name="com.vaxify.app.service" level="INFO">
+        <appender-ref ref="LOKI"/>
+    </logger>
+    <logger name="com.vaxify.app.controller" level="INFO">
+        <appender-ref ref="LOKI"/>
+    </logger>
 
-    <!-- dev profile: console + json file + loki -->
-    <springProfile name="dev">
-        <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="JSON_FILE"/>
-            <appender-ref ref="LOKI"/>
-        </root>
-        <logger name="com.vaxify.app" level="DEBUG"/>
-    </springProfile>
-
-    <!-- prod profile: console + json + loki -->
-    <springProfile name="prod">
-        <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="JSON_FILE"/>
-            <appender-ref ref="LOKI"/>
-        </root>
-        <logger name="com.vaxify.app" level="INFO"/>
-    </springProfile>
-
-    <!-- fallback -->
+    <!-- default console logging for evrythng else (spring, tomcat, etc) -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
