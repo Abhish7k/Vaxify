@@ -86,7 +86,12 @@ const AdminUsersPage = () => {
   };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="px-5 py-5 md:px-10 space-y-8">
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="px-5 py-5 md:px-10 space-y-8"
+    >
       {/* header */}
       <motion.div
         variants={item}
@@ -94,7 +99,9 @@ const AdminUsersPage = () => {
       >
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage and view all registered users across the platform</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage and view all registered users across the platform
+          </p>
         </div>
 
         <Button
@@ -111,7 +118,11 @@ const AdminUsersPage = () => {
 
       {/* users data table */}
       <motion.div variants={item} className="w-full">
-        {loading ? <AdminUsersTableSkeleton /> : <AdminUsersTable users={users} onDelete={handleDeleteUser} />}
+        {loading ? (
+          <AdminUsersTableSkeleton />
+        ) : (
+          <AdminUsersTable users={users} onDelete={handleDeleteUser} />
+        )}
       </motion.div>
     </motion.div>
   );
