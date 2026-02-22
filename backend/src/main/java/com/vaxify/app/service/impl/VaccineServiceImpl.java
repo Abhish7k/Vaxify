@@ -20,8 +20,11 @@ import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.mapper.VaccineMapper;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VaccineServiceImpl implements VaccineService {
 
     private final VaccineRepository vaccineRepository;
@@ -50,6 +53,8 @@ public class VaccineServiceImpl implements VaccineService {
         validateStockAndCapacity(vaccine.getStock(), vaccine.getCapacity());
 
         Vaccine saved = vaccineRepository.save(vaccine);
+
+        log.info("New vaccine created: {} (Hospital: {})", saved.getName(), hospital.getName());
 
         return vaccineMapper.toResponse(saved);
     }
@@ -111,6 +116,9 @@ public class VaccineServiceImpl implements VaccineService {
         if (!vaccine.getHospital().getId().equals(staffHospital.getId())) {
             throw new VaxifyException("Unauthorized: This vaccine does not belong to your hospital");
         }
+
+        log.info("Deleting vaccine: {} (ID: {}) belonging to hospital: {}",
+                vaccine.getName(), id, staffHospital.getName());
 
         vaccineRepository.delete(vaccine);
     }
@@ -189,10 +197,16 @@ public class VaccineServiceImpl implements VaccineService {
 
         // < 20% critical
         if (stock < (capacity * 0.2)) {
+            log.warn("CRITICAL STOCK ALERT: Vaccine {} is at {}% ({} units left) [Hospital ID: {}]",
+                    vaccine.getName(), (stock * 100 / capacity), stock, vaccine.getHospital().getId());
+
             notificationService.sendVaccineStockCritical(vaccine, stock, capacity);
         }
         // < 40% warning
         else if (stock < (capacity * 0.4)) {
+            log.info("Low stock warning: Vaccine {} is at {}% ({} units left) [Hospital ID: {}]",
+                    vaccine.getName(), (stock * 100 / capacity), stock, vaccine.getHospital().getId());
+
             notificationService.sendVaccineStockLow(vaccine, stock, capacity);
         }
     }

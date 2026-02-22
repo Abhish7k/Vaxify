@@ -23,9 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class HospitalServiceImpl implements HospitalService {
 
         private final HospitalRepository hospitalRepository;
@@ -133,6 +136,7 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         @Transactional
         public HospitalResponse approveHospital(Long hospitalId) {
+                log.info("Processing request to APPROVE hospital ID: {}", hospitalId);
                 Hospital hospital = getPendingHospital(hospitalId);
 
                 hospital.setStatus(HospitalStatus.APPROVED);
@@ -149,6 +153,7 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         @Transactional
         public HospitalResponse rejectHospital(Long hospitalId) {
+                log.info("Processing request to REJECT hospital ID: {}", hospitalId);
                 Hospital hospital = getPendingHospital(hospitalId);
 
                 hospital.setStatus(HospitalStatus.REJECTED);
@@ -186,6 +191,7 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         @Transactional
         public void registerHospitalStaff(StaffHospitalRegistrationRequest dto) {
+                log.info("Processing new hospital registration for: {}", dto.getHospitalName());
                 User staffUser = userService.createStaffUser(dto.getStaffName(), dto.getEmail(), dto.getPassword(),
                                 dto.getPhone());
 
@@ -217,6 +223,7 @@ public class HospitalServiceImpl implements HospitalService {
                 hospitalRepository.delete(hospital);
 
                 if (staffUser != null) {
+                        log.info("Deleting hospital staff user: {}", staffUser.getEmail());
                         userService.deleteUser(staffUser.getId());
                 }
         }

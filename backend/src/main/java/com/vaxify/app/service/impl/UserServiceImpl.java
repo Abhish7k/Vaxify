@@ -26,9 +26,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final ModelMapper modelMapper;
@@ -139,12 +141,14 @@ public class UserServiceImpl implements UserService {
 
         // If staff user, delete associated hospital first to fix FK constraint
         if (user.getRole() == Role.STAFF) {
+            log.info("Deleting staff user: {} and its associated hospital", user.getEmail());
             hospitalRepository.findByStaffUser(user).ifPresent(hospital -> {
 
                 hospitalRepository.delete(hospital);
             });
         }
 
+        log.info("Deleting user with ID: {}", id);
         userRepository.delete(user);
     }
 
@@ -163,6 +167,7 @@ public class UserServiceImpl implements UserService {
         staffUser.setRole(Role.STAFF);
         staffUser.setCreatedAt(LocalDateTime.now());
 
+        log.info("Creating new staff user with email: {}", email);
         return userRepository.save(staffUser);
     }
 
