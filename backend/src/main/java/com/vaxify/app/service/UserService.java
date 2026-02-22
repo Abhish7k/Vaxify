@@ -1,6 +1,7 @@
 package com.vaxify.app.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.vaxify.app.dtos.user.UpdateProfileRequest;
 import com.vaxify.app.dtos.user.UserResponse;
@@ -22,4 +23,6 @@ public interface UserService {
     User createStaffUser(String name, String email, String password, String phone);
 
     User findByEmail(String email);
+
+    Optional<User> findById(Long id);
 }

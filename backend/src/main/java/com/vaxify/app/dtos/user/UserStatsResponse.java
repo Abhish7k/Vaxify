@@ -14,9 +14,11 @@ public class UserStatsResponse {
 
     private String vaccinationStatus;
 
-    private int totalAppointments;
+    private long totalAppointments;
 
-    private int completedAppointments;
+    private long pendingAppointments;
+
+    private long completedAppointments;
 
     private boolean certificateAvailable;
 

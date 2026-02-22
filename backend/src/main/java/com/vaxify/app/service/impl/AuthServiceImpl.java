@@ -45,9 +45,9 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        log.info("Successfully registered new user: {}", request.getEmail());
-
         String token = generateToken(user);
+
+        log.info("User registered: {}", request.getEmail());
 
         return new AuthResponse(token, userMapper.toDto(user));
     }
@@ -65,9 +65,9 @@ public class AuthServiceImpl implements AuthService {
             throw new VaxifyException("Invalid credentials");
         }
 
-        log.info("User logged in successfully: {}", request.getEmail());
-
         String token = generateToken(user);
+
+        log.info("User logged in: {}", request.getEmail());
 
         return new AuthResponse(token, userMapper.toDto(user));
     }

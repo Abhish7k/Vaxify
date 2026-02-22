@@ -76,10 +76,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 Appointment saved = appointmentRepository.save(appointment);
 
-                log.info("Appointment booked successfully: ID={}, User={}, Vaccine={}",
-                                saved.getId(), userEmail, vaccine.getName());
-
                 notificationService.sendAppointmentConfirmation(saved);
+
+                log.info("Appointment booked: ID={}, User={}, Vaccine={}",
+                                saved.getId(), userEmail, vaccine.getName());
 
                 return appointmentMapper.toResponse(saved);
         }
@@ -176,9 +176,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 appointmentRepository.save(appointment);
 
-                log.info("Appointment cancelled by user: ID={}, User={}", appointmentId, userEmail);
-
                 notificationService.sendAppointmentCancellation(appointment);
+
+                log.info("Appointment cancelled: ID={}, User={}", appointmentId, userEmail);
         }
 
         @Override
@@ -218,8 +218,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 Appointment saved = appointmentRepository.save(appointment);
 
-                log.info("Appointment marked as COMPLETED: ID={}", appointmentId);
-
                 notificationService.sendVaccinationCompletion(saved);
+
+                log.info("Appointment completed: ID={}", appointmentId);
         }
 }

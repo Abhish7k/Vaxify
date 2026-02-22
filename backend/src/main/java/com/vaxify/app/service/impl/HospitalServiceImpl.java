@@ -34,7 +34,6 @@ public class HospitalServiceImpl implements HospitalService {
         private final HospitalRepository hospitalRepository;
         private final UserService userService;
         private final VaccineRepository vaccineRepository;
-
         private final HospitalMapper hospitalMapper;
         private final SecurityUtils securityUtils;
         private final NotificationService notificationService;
@@ -63,6 +62,8 @@ public class HospitalServiceImpl implements HospitalService {
 
                 Hospital saved = hospitalRepository.save(hospital);
 
+                log.info("Hospital registered: {} (by: {})", saved.getName(), staffEmail);
+
                 return toHospitalResponse(saved, true, true);
         }
 
@@ -78,20 +79,22 @@ public class HospitalServiceImpl implements HospitalService {
 
         @Override
         @Transactional
-        public HospitalResponse updateHospital(UpdateHospitalRequest request, String staffEmail) {
+        public HospitalResponse updateHospital(UpdateHospitalRequest req, String staffEmail) {
                 User staffUser = getStaffUser(staffEmail);
 
                 Hospital hospital = hospitalRepository.findByStaffUser(staffUser)
                                 .orElseThrow(() -> new VaxifyException("No hospital found for this staff"));
 
-                hospital.setName(request.getName());
-                hospital.setAddress(request.getAddress());
-                hospital.setCity(request.getCity());
-                hospital.setState(request.getState());
-                hospital.setPincode(request.getPincode());
-                hospital.setDocumentUrl(request.getDocumentUrl());
+                hospital.setName(req.getName());
+                hospital.setAddress(req.getAddress());
+                hospital.setCity(req.getCity());
+                hospital.setState(req.getState());
+                hospital.setPincode(req.getPincode());
+                hospital.setDocumentUrl(req.getDocumentUrl());
 
                 Hospital saved = hospitalRepository.save(hospital);
+
+                log.info("Hospital updated: {} (by: {})", saved.getName(), staffEmail);
 
                 return toHospitalResponse(saved, true, true);
         }
@@ -136,7 +139,6 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         @Transactional
         public HospitalResponse approveHospital(Long hospitalId) {
-                log.info("Processing request to APPROVE hospital ID: {}", hospitalId);
                 Hospital hospital = getPendingHospital(hospitalId);
 
                 hospital.setStatus(HospitalStatus.APPROVED);
@@ -147,13 +149,14 @@ public class HospitalServiceImpl implements HospitalService {
                         notificationService.sendHospitalApproved(saved);
                 }
 
+                log.info("Hospital approved: {} (ID: {})", saved.getName(), hospitalId);
+
                 return toHospitalResponse(saved, true, true);
         }
 
         @Override
         @Transactional
         public HospitalResponse rejectHospital(Long hospitalId) {
-                log.info("Processing request to REJECT hospital ID: {}", hospitalId);
                 Hospital hospital = getPendingHospital(hospitalId);
 
                 hospital.setStatus(HospitalStatus.REJECTED);
@@ -163,6 +166,8 @@ public class HospitalServiceImpl implements HospitalService {
                 if (saved.getStaffUser() != null) {
                         notificationService.sendHospitalRejected(saved);
                 }
+
+                log.info("Hospital rejected: {} (ID: {})", saved.getName(), hospitalId);
 
                 return toHospitalResponse(saved, true, true);
         }
@@ -191,7 +196,6 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         @Transactional
         public void registerHospitalStaff(StaffHospitalRegistrationRequest dto) {
-                log.info("Processing new hospital registration for: {}", dto.getHospitalName());
                 User staffUser = userService.createStaffUser(dto.getStaffName(), dto.getEmail(), dto.getPassword(),
                                 dto.getPhone());
 
@@ -210,6 +214,8 @@ public class HospitalServiceImpl implements HospitalService {
                 Hospital savedHospital = hospitalRepository.save(hospital);
 
                 notificationService.sendHospitalRegistrationReceived(savedHospital);
+
+                log.info("Hospital registration requested: {} (Staff: {})", savedHospital.getName(), dto.getEmail());
         }
 
         @Override
@@ -223,8 +229,9 @@ public class HospitalServiceImpl implements HospitalService {
                 hospitalRepository.delete(hospital);
 
                 if (staffUser != null) {
-                        log.info("Deleting hospital staff user: {}", staffUser.getEmail());
                         userService.deleteUser(staffUser.getId());
                 }
+
+                log.info("Hospital deleted: ID={}, Name={}", id, hospital.getName());
         }
 }

@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationServiceImpl implements NotificationService {
 
     private final EmailService emailService;
@@ -22,8 +25,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendHospitalRegistrationReceived(Hospital hospital) {
-        if (hospital.getStaffUser() == null)
+        if (hospital.getStaffUser() == null) {
             return;
+        }
 
         String subject = "Hospital Registration Received - Vaxify";
 
@@ -36,12 +40,15 @@ public class NotificationServiceImpl implements NotificationService {
                 hospital.getName());
 
         sendWithSignature(hospital.getStaffUser().getEmail(), subject, content);
+
+        log.info("Sent registration received notification to: {}", hospital.getStaffUser().getEmail());
     }
 
     @Override
     public void sendHospitalApproved(Hospital hospital) {
-        if (hospital.getStaffUser() == null)
+        if (hospital.getStaffUser() == null) {
             return;
+        }
 
         String subject = "Hospital Registration Approved - Vaxify";
 
@@ -53,12 +60,15 @@ public class NotificationServiceImpl implements NotificationService {
                 hospital.getName());
 
         sendWithSignature(hospital.getStaffUser().getEmail(), subject, content);
+
+        log.info("Sent hospital approved notification to: {}", hospital.getStaffUser().getEmail());
     }
 
     @Override
     public void sendHospitalRejected(Hospital hospital) {
-        if (hospital.getStaffUser() == null)
+        if (hospital.getStaffUser() == null) {
             return;
+        }
 
         String subject = "Hospital Registration Rejected - Vaxify";
 
@@ -70,12 +80,15 @@ public class NotificationServiceImpl implements NotificationService {
                 hospital.getName());
 
         sendWithSignature(hospital.getStaffUser().getEmail(), subject, content);
+
+        log.info("Sent hospital rejected notification to: {}", hospital.getStaffUser().getEmail());
     }
 
     @Override
     public void sendVaccineStockCritical(Vaccine vaccine, int stock, int capacity) {
-        if (vaccine.getHospital() == null || vaccine.getHospital().getStaffUser() == null)
+        if (vaccine.getHospital() == null || vaccine.getHospital().getStaffUser() == null) {
             return;
+        }
 
         String subject = "CRITICAL: Vaccine Stock Critical (<20%) - Booking Blocked Warning";
 
@@ -87,12 +100,15 @@ public class NotificationServiceImpl implements NotificationService {
                 capacity);
 
         emailService.sendSimpleEmail(vaccine.getHospital().getStaffUser().getEmail(), subject, body);
+
+        log.info("Sent vaccine stock critical alert for hospital: {}", vaccine.getHospital().getId());
     }
 
     @Override
     public void sendVaccineStockLow(Vaccine vaccine, int stock, int capacity) {
-        if (vaccine.getHospital() == null || vaccine.getHospital().getStaffUser() == null)
+        if (vaccine.getHospital() == null || vaccine.getHospital().getStaffUser() == null) {
             return;
+        }
 
         String subject = "WARNING: Vaccine Stock Low (<40%)";
 
@@ -104,13 +120,15 @@ public class NotificationServiceImpl implements NotificationService {
                 capacity);
 
         emailService.sendSimpleEmail(vaccine.getHospital().getStaffUser().getEmail(), subject, body);
+
+        log.info("Sent vaccine stock low alert for hospital: {}", vaccine.getHospital().getId());
     }
 
-    // to the registered users
     @Override
     public void sendAppointmentConfirmation(Appointment appointment) {
-        if (appointment.getUser() == null)
+        if (appointment.getUser() == null) {
             return;
+        }
 
         String subject = "Appointment Confirmation - Vaxify";
 
@@ -134,12 +152,16 @@ public class NotificationServiceImpl implements NotificationService {
                 appointment.getSlot().getCenter().getAddress());
 
         sendWithSignature(appointment.getUser().getEmail(), subject, content);
+
+        log.info("Sent appointment confirmation to: {} (Appt ID: {})",
+                appointment.getUser().getEmail(), appointment.getId());
     }
 
     @Override
     public void sendAppointmentCancellation(Appointment appointment) {
-        if (appointment.getUser() == null)
+        if (appointment.getUser() == null) {
             return;
+        }
 
         String subject = "Appointment Cancelled - Vaxify";
 
@@ -152,12 +174,16 @@ public class NotificationServiceImpl implements NotificationService {
                 appointment.getVaccine().getName());
 
         sendWithSignature(appointment.getUser().getEmail(), subject, content);
+
+        log.info("Sent appointment cancellation notice to: {} (Appt ID: {})",
+                appointment.getUser().getEmail(), appointment.getId());
     }
 
     @Override
     public void sendVaccinationCompletion(Appointment appointment) {
-        if (appointment.getUser() == null)
+        if (appointment.getUser() == null) {
             return;
+        }
 
         String subject = "Vaccination Completed - Vaxify";
 
@@ -170,6 +196,9 @@ public class NotificationServiceImpl implements NotificationService {
                 appointment.getVaccine().getName());
 
         sendWithSignature(appointment.getUser().getEmail(), subject, content);
+
+        log.info("Sent vaccination completion notice to: {} (Appt ID: {})",
+                appointment.getUser().getEmail(), appointment.getId());
     }
 
     private void sendWithSignature(String to, String subject, String content) {
