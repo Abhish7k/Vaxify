@@ -24,8 +24,14 @@ jobs:
             # go to the proj dir
             cd ~/vaxify
 
-            # pull the latest changes from the main branch
-            git pull origin main
+            # fetch latest changes from origin
+            git fetch origin
+
+            # checkout the main branch
+            git checkout main
+
+            # completely override local changes with origin/main
+            git reset --hard origin/main
 
             # rebuild and restart the containers
             docker compose up -d --build
