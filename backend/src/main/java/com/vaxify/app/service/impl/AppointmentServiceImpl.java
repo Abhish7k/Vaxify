@@ -24,8 +24,11 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AppointmentServiceImpl implements AppointmentService {
 
         private final AppointmentRepository appointmentRepository;
@@ -74,6 +77,9 @@ public class AppointmentServiceImpl implements AppointmentService {
                 Appointment saved = appointmentRepository.save(appointment);
 
                 notificationService.sendAppointmentConfirmation(saved);
+
+                log.info("Appointment booked: ID={}, User={}, Vaccine={}",
+                                saved.getId(), userEmail, vaccine.getName());
 
                 return appointmentMapper.toResponse(saved);
         }
@@ -171,6 +177,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointmentRepository.save(appointment);
 
                 notificationService.sendAppointmentCancellation(appointment);
+
+                log.info("Appointment cancelled: ID={}, User={}", appointmentId, userEmail);
         }
 
         @Override
@@ -211,5 +219,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 Appointment saved = appointmentRepository.save(appointment);
 
                 notificationService.sendVaccinationCompletion(saved);
+
+                log.info("Appointment completed: ID={}", appointmentId);
         }
 }

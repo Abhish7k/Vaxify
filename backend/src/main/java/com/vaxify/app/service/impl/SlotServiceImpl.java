@@ -2,9 +2,9 @@ package com.vaxify.app.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.DayOfWeek;
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,24 +22,24 @@ import com.vaxify.app.service.SlotService;
 import com.vaxify.app.mapper.SlotMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SlotServiceImpl implements SlotService {
 
     private final SlotRepository slotRepository;
     private final HospitalRepository hospitalRepository;
     private final AppointmentRepository appointmentRepository;
-    private final ModelMapper modelMapper;
     private final SlotMapper slotMapper;
 
-    // create slot
     @Override
     @Transactional
     public SlotResponse createSlot(SlotRequest dto) {
-
-        // check for past date/time
+        // check past date/time
         LocalDate today = LocalDate.now();
+
         LocalTime now = LocalTime.now();
 
         if (dto.getDate().isBefore(today)) {
@@ -50,7 +50,7 @@ public class SlotServiceImpl implements SlotService {
             throw new VaxifyException("Cannot create slots for a past time today.");
         }
 
-        if (dto.getDate().getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+        if (dto.getDate().getDayOfWeek() == DayOfWeek.SUNDAY) {
             throw new VaxifyException("Cannot create slots on Sunday");
         }
 
@@ -61,53 +61,53 @@ public class SlotServiceImpl implements SlotService {
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
                 .orElseThrow(() -> new VaxifyException("Hospital not found"));
 
-        // check for duplicate slot
-        // fetch all slots for the day and check time
+        // check duplicate slot
         List<Slot> daySlots = slotRepository.findByCenterIdAndDate(dto.getHospitalId(), dto.getDate());
+
         boolean exists = daySlots.stream()
                 .anyMatch(s -> s.getStartTime().equals(dto.getStartTime()));
 
         if (exists) {
-            throw new VaxifyException("Slot already exists for this time on the selected date.");
+            throw new VaxifyException("Slot already exists for this time on selected date");
         }
 
-        Slot slot = new Slot();
-
-        modelMapper.map(dto, slot); // maps only matching fields
+        Slot slot = slotMapper.toEntity(dto);
 
         slot.setCenter(hospital);
+        slot.setBookedCount(0);
 
-        slot.setBookedCount(0); // default
+        Slot saved = slotRepository.save(slot);
 
-        return slotMapper.toResponse(slotRepository.save(slot));
+        log.info("Slot created: ID={} (Hospital: {} on {} at {})",
+                saved.getId(), hospital.getName(), saved.getDate(), saved.getStartTime());
+
+        return slotMapper.toResponse(saved);
     }
 
-    // update slot
     @Override
     @Transactional
     public SlotResponse updateSlot(Long slotId, SlotRequest dto) {
-
         Slot slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new VaxifyException("Slot not found"));
 
-        // strict + skipNullEnabled = true → safe partial update
-        modelMapper.map(dto, slot);
+        slotMapper.updateEntity(slot, dto);
 
-        // validation: past date/time check
+        // validation for past date/time
         LocalDate today = LocalDate.now();
+
         LocalTime now = LocalTime.now();
 
         if (slot.getDate().isBefore(today)) {
-            throw new VaxifyException("Cannot move or keep a slot in a past date.");
+            throw new VaxifyException("Cannot move or keep slot in past date");
         }
 
         if (slot.getDate().isEqual(today) && slot.getStartTime().isBefore(now)) {
-            throw new VaxifyException("Cannot move or keep a slot in a past time today.");
+            throw new VaxifyException("Cannot move or keep slot in past time today");
         }
 
-        // validation: capacity cannot be less than current bookings
+        // check capacity against confirmed bookings
         if (slot.getCapacity() < slot.getBookedCount()) {
-            throw new VaxifyException("New capacity cannot be less than value of confirmed bookings ("
+            throw new VaxifyException("Capacity cannot be less than confirmed bookings ("
                     + slot.getBookedCount() + ")");
         }
 
@@ -116,55 +116,51 @@ public class SlotServiceImpl implements SlotService {
             throw new VaxifyException("Start time must be before end time.");
         }
 
-        // hospital change (only if hospitalId provided)
+        // change hospital if id provided
         if (dto.getHospitalId() != null) {
             Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
                     .orElseThrow(() -> new VaxifyException("Hospital not found"));
+
             slot.setCenter(hospital);
         }
 
-        return slotMapper.toResponse(slotRepository.save(slot));
+        Slot saved = slotRepository.save(slot);
+
+        log.info("Slot updated: ID={} (Hospital: {})", saved.getId(), saved.getCenter().getName());
+
+        return slotMapper.toResponse(saved);
     }
 
-    // get slot by id
     @Override
     @Transactional(readOnly = true)
     public SlotResponse getSlotById(Long slotId) {
-
         Slot slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new VaxifyException("Slot not found"));
 
         return slotMapper.toResponse(slot);
     }
 
-    // get all slots
     @Override
     @Transactional(readOnly = true)
     public List<SlotResponse> getAllSlots() {
-
         return slotRepository.findAll()
                 .stream()
                 .map(slotMapper::toResponse)
                 .toList();
     }
 
-    // get slots by hospital
     @Override
     @Transactional(readOnly = true)
     public List<SlotResponse> getSlotsByHospital(Long hospitalId) {
-
         return slotRepository.findByCenterId(hospitalId)
                 .stream()
                 .map(slotMapper::toResponse)
                 .toList();
     }
 
-    // get slots by hospital and date
     @Override
     @Transactional(readOnly = true)
-    public List<SlotResponse> getSlotsByHospitalAndDate(
-            Long hospitalId, LocalDate date) {
-
+    public List<SlotResponse> getSlotsByHospitalAndDate(Long hospitalId, LocalDate date) {
         return slotRepository.findByCenterIdAndDate(hospitalId, date)
                 .stream()
                 .map(slotMapper::toResponse)
@@ -174,28 +170,26 @@ public class SlotServiceImpl implements SlotService {
     @Override
     @Transactional
     public void deleteSlot(Long slotId) {
-
         Slot slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new VaxifyException("Slot not found"));
 
-        // check if there are any ACTIVE (BOOKED) appointments
-        List<Appointment> appointments = appointmentRepository.findBySlot(slot);
+        // check active bookings
+        List<Appointment> appts = appointmentRepository.findBySlot(slot);
 
-        boolean hasActiveBookings = appointments.stream()
+        boolean hasActive = appts.stream()
                 .anyMatch(a -> a.getStatus() == AppointmentStatus.BOOKED);
 
-        if (hasActiveBookings) {
-            throw new VaxifyException(
-                    "Cannot delete a slot with active PENDING/BOOKED appointments. Please cancel them first.");
+        if (hasActive) {
+            throw new VaxifyException("Cannot delete slot with active bookings");
         }
 
-        // if appointments are completed or cancelled, we must still delete them to
-        // remove the db constraint
-        // before we can delete the slot.
-        if (!appointments.isEmpty()) {
-            appointmentRepository.deleteAll(appointments);
+        // remove appts to fix fk constraints
+        if (!appts.isEmpty()) {
+            appointmentRepository.deleteAll(appts);
         }
 
         slotRepository.deleteById(slotId);
+
+        log.info("Slot deleted: ID={} (Hospital: {})", slotId, slot.getCenter().getName());
     }
 }

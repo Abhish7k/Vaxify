@@ -17,8 +17,11 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class S3ServiceImpl implements S3Service {
 
     private final S3Client s3Client;
@@ -39,6 +42,9 @@ public class S3ServiceImpl implements S3Service {
                     .build();
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+            log.info("File uploaded to S3: {} (Type: {})", fileName, file.getContentType());
+
             return fileName;
         } catch (S3Exception e) {
             throw new IOException("Failed to upload file to S3", e);
@@ -64,6 +70,9 @@ public class S3ServiceImpl implements S3Service {
                 .build();
 
         s3Client.deleteObject(deleteObjectRequest);
+
+        log.info("File deleted from S3: {}", fileName);
+
         return "File deleted: " + fileName;
     }
 

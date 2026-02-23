@@ -11,11 +11,13 @@ import com.vaxify.app.repository.UserRepository;
 import com.vaxify.app.security.JwtUtil;
 import com.vaxify.app.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -45,6 +47,8 @@ public class AuthServiceImpl implements AuthService {
 
         String token = generateToken(user);
 
+        log.info("User registered: {}", request.getEmail());
+
         return new AuthResponse(token, userMapper.toDto(user));
     }
 
@@ -57,10 +61,13 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 user.getPassword())) {
+            log.warn("Failed login attempt for user: {}", request.getEmail());
             throw new VaxifyException("Invalid credentials");
         }
 
         String token = generateToken(user);
+
+        log.info("User logged in: {}", request.getEmail());
 
         return new AuthResponse(token, userMapper.toDto(user));
     }

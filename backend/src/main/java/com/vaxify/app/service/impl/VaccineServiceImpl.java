@@ -2,7 +2,6 @@ package com.vaxify.app.service.impl;
 
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +19,16 @@ import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.mapper.VaccineMapper;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VaccineServiceImpl implements VaccineService {
 
     private final VaccineRepository vaccineRepository;
     private final HospitalRepository hospitalRepository;
     private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
     private final NotificationService notificationService;
     private final VaccineMapper vaccineMapper;
 
@@ -36,20 +37,24 @@ public class VaccineServiceImpl implements VaccineService {
     public VaccineResponse createVaccine(VaccineRequest dto, String staffEmail) {
         Hospital hospital = getHospitalByStaffEmail(staffEmail);
 
-        Vaccine vaccine = modelMapper.map(dto, Vaccine.class);
+        Vaccine vaccine = vaccineMapper.toEntity(dto);
 
         vaccine.setHospital(hospital);
 
-        // defaults if null
-        if (vaccine.getStock() == null)
+        // defaults
+        if (vaccine.getStock() == null) {
             vaccine.setStock(0);
+        }
 
-        if (vaccine.getCapacity() == null)
+        if (vaccine.getCapacity() == null) {
             vaccine.setCapacity(0);
+        }
 
         validateStockAndCapacity(vaccine.getStock(), vaccine.getCapacity());
 
         Vaccine saved = vaccineRepository.save(vaccine);
+
+        log.info("Vaccine created: {} (ID: {}, Hospital: {})", saved.getName(), saved.getId(), hospital.getName());
 
         return vaccineMapper.toResponse(saved);
     }
@@ -62,23 +67,28 @@ public class VaccineServiceImpl implements VaccineService {
 
         // verify ownership
         Hospital staffHospital = getHospitalByStaffEmail(staffEmail);
+
         if (!vaccine.getHospital().getId().equals(staffHospital.getId())) {
             throw new VaxifyException("Unauthorized: This vaccine does not belong to your hospital");
         }
 
-        // map updates
-        modelMapper.map(dto, vaccine);
+        vaccineMapper.updateEntity(vaccine, dto);
 
-        // defaults if null (in case mapping set them to null or they were null)
-        if (vaccine.getStock() == null)
+        // check defaults
+        if (vaccine.getStock() == null) {
             vaccine.setStock(0);
+        }
 
-        if (vaccine.getCapacity() == null)
+        if (vaccine.getCapacity() == null) {
             vaccine.setCapacity(0);
+        }
 
         validateStockAndCapacity(vaccine.getStock(), vaccine.getCapacity());
 
         Vaccine saved = vaccineRepository.save(vaccine);
+
+        log.info("Vaccine updated: {} (ID: {}) for hospital: {}",
+                saved.getName(), saved.getId(), staffHospital.getName());
 
         checkStockAlerts(saved);
 
@@ -109,10 +119,13 @@ public class VaccineServiceImpl implements VaccineService {
         Hospital staffHospital = getHospitalByStaffEmail(staffEmail);
 
         if (!vaccine.getHospital().getId().equals(staffHospital.getId())) {
-            throw new VaxifyException("Unauthorized: This vaccine does not belong to your hospital");
+            throw new VaxifyException("Unauthorized access");
         }
 
         vaccineRepository.delete(vaccine);
+
+        log.info("Vaccine deleted: {} (ID: {}) for hospital: {}",
+                vaccine.getName(), id, staffHospital.getName());
     }
 
     @Override
@@ -130,7 +143,7 @@ public class VaccineServiceImpl implements VaccineService {
         return vaccineRepository.findAll()
                 .stream()
                 .filter(v -> {
-                    // filter out critical low stock vaccines (< 20%)
+                    // filter critical stock (< 20%)
                     if (v.getCapacity() != null && v.getCapacity() > 0) {
                         return v.getStock() >= (v.getCapacity() * 0.2);
                     }
@@ -160,7 +173,7 @@ public class VaccineServiceImpl implements VaccineService {
         return vaccineRepository.findByHospital(hospital)
                 .stream()
                 .filter(v -> {
-                    // filter out critical low stock vaccines (< 20%)
+                    // filter critical stock (< 20%)
                     if (v.getCapacity() != null && v.getCapacity() > 0) {
                         return v.getStock() >= (v.getCapacity() * 0.2);
                     }
@@ -182,19 +195,26 @@ public class VaccineServiceImpl implements VaccineService {
     @Override
     public void checkStockAlerts(Vaccine vaccine) {
         int stock = vaccine.getStock();
+
         int capacity = vaccine.getCapacity();
 
-        if (capacity == 0)
+        if (capacity == 0) {
             return;
+        }
 
         // < 20% critical
         if (stock < (capacity * 0.2)) {
+            log.warn("CRITICAL STOCK ALERT: Vaccine {} at {}% ({} units left) [Hospital: {}]",
+                    vaccine.getName(), (stock * 100 / capacity), stock, vaccine.getHospital().getName());
+
             notificationService.sendVaccineStockCritical(vaccine, stock, capacity);
         }
         // < 40% warning
         else if (stock < (capacity * 0.4)) {
+            log.info("Low stock warning: Vaccine {} at {}% ({} units left) [Hospital: {}]",
+                    vaccine.getName(), (stock * 100 / capacity), stock, vaccine.getHospital().getName());
+
             notificationService.sendVaccineStockLow(vaccine, stock, capacity);
         }
     }
-
 }

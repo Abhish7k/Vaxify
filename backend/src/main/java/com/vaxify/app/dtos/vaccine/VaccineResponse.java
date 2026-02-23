@@ -20,6 +20,10 @@ public class VaccineResponse {
 
     private Integer capacity;
 
+    private Long hospitalId;
+
+    private String hospitalName;
+
     private String lastUpdated;
 
 }
