@@ -5,7 +5,6 @@ export interface UserStats {
   vaccinationStatus: string;
   totalAppointments: number;
   completedAppointments: number;
-  certificateAvailable: boolean;
   recentAppointments: any[];
 }
 

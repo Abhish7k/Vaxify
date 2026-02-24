@@ -9,14 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
-  ArrowUpDown,
-  Calendar,
-  Clock,
-  Users,
-  Trash2,
-} from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, Calendar, Clock, Users, Trash2 } from "lucide-react";
 import type { Slot } from "@/api/slots.api";
 import { format } from "date-fns";
 import { cn, formatTime } from "@/lib/utils";
@@ -25,9 +18,7 @@ interface SlotColumnsProps {
   onDelete: (slot: Slot) => void;
 }
 
-export const getSlotColumns = ({
-  onDelete,
-}: SlotColumnsProps): ColumnDef<Slot>[] => [
+export const getSlotColumns = ({ onDelete }: SlotColumnsProps): ColumnDef<Slot>[] => [
   {
     accessorKey: "date",
     header: ({ column }) => (
@@ -45,7 +36,7 @@ export const getSlotColumns = ({
       return (
         <div className="flex items-center gap-2 font-medium">
           <Calendar className="h-4 w-4 text-muted-foreground" />
-          {format(date, "MMM d, yyyy")}
+          {format(date, "dd MMM, yyyy")}
         </div>
       );
     },
@@ -91,10 +82,7 @@ export const getSlotColumns = ({
             {slot.bookedCount} / {slot.capacity}
           </span>
           {isFull && (
-            <Badge
-              variant="destructive"
-              className="h-4 px-1 text-[8px] uppercase"
-            >
+            <Badge variant="destructive" className="h-4 px-1 text-[8px] uppercase">
               Full
             </Badge>
           )}

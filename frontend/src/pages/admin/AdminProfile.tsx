@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion, type Variants } from "framer-motion";
-import { ShieldCheck, Mail, Calendar, Activity } from "lucide-react";
+import { ShieldCheck, Mail, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -14,9 +14,7 @@ export default function AdminProfileCard() {
     return null;
   }
 
-  const joinedDate = user.createdAt
-    ? format(new Date(user.createdAt), "MMM yyyy")
-    : "Jan 2026";
+  const joinedDate = user.createdAt ? format(new Date(user.createdAt), "MMM yyyy") : "Jan 2026";
 
   const formattedRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
 
@@ -28,19 +26,14 @@ export default function AdminProfileCard() {
       transition={{ duration: 0.6 }}
       // hover lift effect preserved
       whileHover="hover"
-      className="w-full max-w-md mx-auto"
+      className="w-full max-w-md mx-auto pt-10"
     >
-      <Card
-        className={cn(
-          "relative overflow-hidden rounded-2xl border bg-card p-8 shadow-sm",
-        )}
-      >
+      <Card className={cn("relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-8 shadow-sm")}>
         {/* static gradient background */}
         <div
           className="absolute inset-0 z-0 opacity-40 dark:opacity-20"
           style={{
-            background:
-              "radial-gradient(circle at 50% 20%, hsl(211,100%,85%) 0%, transparent 65%)",
+            background: "radial-gradient(circle at 50% 20%, hsl(211,100%,85%) 0%, transparent 65%)",
           }}
         />
 
@@ -80,21 +73,8 @@ export default function AdminProfileCard() {
           </div>
 
           <div className="mt-6 space-y-4 text-sm text-left">
-            <InfoRow
-              icon={<Mail className="h-4 w-4" />}
-              label="Email"
-              value={user.email}
-            />
-            <InfoRow
-              icon={<Calendar className="h-4 w-4" />}
-              label="Admin Since"
-              value={joinedDate}
-            />
-            <InfoRow
-              icon={<Activity className="h-4 w-4" />}
-              label="Platform"
-              value="Vaxify"
-            />
+            <InfoRow icon={<Mail className="h-4 w-4" />} label="Email" value={user.email} />
+            <InfoRow icon={<Calendar className="h-4 w-4" />} label="Admin Since" value={joinedDate} />
           </div>
         </motion.div>
       </Card>
@@ -113,21 +93,15 @@ const iconAnimation: Variants = {
 };
 
 // info row component
-function InfoRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
+function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-start gap-2">
       <span className="mt-0.5 text-muted-foreground">{icon}</span>
+
       <div>
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="font-medium leading-tight">{value}</p>
+        <p className="text-xs text-muted-foreground pt-0.5">{label}</p>
+
+        <p className="leading-tight pt-1">{value}</p>
       </div>
     </div>
   );

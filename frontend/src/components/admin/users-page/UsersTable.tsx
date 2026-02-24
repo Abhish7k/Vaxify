@@ -18,43 +18,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { type UserProfile } from "@/api/user.api";
+import { useEffect } from "react";
+import { formatDate } from "@/lib/utils";
 
 // type alias for easier transition if needed
 export type AdminUser = UserProfile;
 
 // cols
-export const getColumns = (
-  onDelete: (user: AdminUser) => void,
-): ColumnDef<AdminUser>[] => [
+export const getColumns = (onDelete: (user: AdminUser) => void): ColumnDef<AdminUser>[] => [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("name")}</div>
-    ),
+    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
   },
   {
     accessorKey: "email",
@@ -88,30 +68,17 @@ export const getColumns = (
       </Button>
     ),
     cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
-        {new Date(row.getValue("createdAt")).toLocaleDateString()}
-      </div>
+      <div className="text-sm text-muted-foreground">{formatDate(row.getValue("createdAt"))}</div>
     ),
   },
   {
     id: "actions",
-    cell: ({ row }) => (
-      <UserActions
-        user={row.original}
-        onDelete={() => onDelete(row.original)}
-      />
-    ),
+    cell: ({ row }) => <UserActions user={row.original} onDelete={() => onDelete(row.original)} />,
   },
 ];
 
 // user actions menu
-function UserActions({
-  user,
-  onDelete,
-}: {
-  user: AdminUser;
-  onDelete: () => void;
-}) {
+function UserActions({ user, onDelete }: { user: AdminUser; onDelete: () => void }) {
   const [open, setOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
@@ -124,10 +91,7 @@ function UserActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="p-2 space-y-2">
-          <DropdownMenuItem
-            onClick={() => setOpen(true)}
-            className="cursor-pointer"
-          >
+          <DropdownMenuItem onClick={() => setOpen(true)} className="cursor-pointer">
             View details
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -151,10 +115,7 @@ function UserActions({
             <DetailRow label="Email" value={user.email} />
             <DetailRow label="Role" value={user.role} />
             <DetailRow label="Phone" value={user.phone ?? "—"} />
-            <DetailRow
-              label="Registered On"
-              value={new Date(user.createdAt).toLocaleString()}
-            />
+            <DetailRow label="Registered On" value={formatDate(user.createdAt)} />
           </div>
         </DialogContent>
       </Dialog>
@@ -167,8 +128,7 @@ function UserActions({
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-muted-foreground">
-              Are you sure you want to delete <b>{user.name}</b>? This action
-              cannot be undone.
+              Are you sure you want to delete <b>{user.name}</b>? This action cannot be undone.
             </p>
           </div>
           <div className="flex justify-end gap-2">
@@ -196,7 +156,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between border-b pb-2">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value}</span>
+      <span className="">{value}</span>
     </div>
   );
 }
@@ -225,7 +185,7 @@ export default function AdminUsersTable({
   });
 
   // filter by role
-  React.useEffect(() => {
+  useEffect(() => {
     if (roleFilter === "all") {
       table.getColumn("role")?.setFilterValue(undefined);
     } else {
@@ -240,9 +200,7 @@ export default function AdminUsersTable({
         <Input
           placeholder="Search by email..."
           value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(e) =>
-            table.getColumn("email")?.setFilterValue(e.target.value)
-          }
+          onChange={(e) => table.getColumn("email")?.setFilterValue(e.target.value)}
           className="max-w-sm"
         />
 
@@ -269,10 +227,7 @@ export default function AdminUsersTable({
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
@@ -285,20 +240,14 @@ export default function AdminUsersTable({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No users found.
                 </TableCell>
               </TableRow>

@@ -20,19 +20,15 @@ import {
 import { Loader2 } from "lucide-react";
 
 export default function StaffAppointmentsPage() {
-  const [activeStatus, setActiveStatus] =
-    useState<StaffAppointmentStatus>("UPCOMING");
+  const [activeStatus, setActiveStatus] = useState<StaffAppointmentStatus>("UPCOMING");
 
   const [appointments, setAppointments] = useState<StaffAppointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [pendingAction, setPendingAction] = useState<
-    "complete" | "cancel" | null
-  >(null);
-  const [selectedAppointment, setSelectedAppointment] =
-    useState<StaffAppointment | null>(null);
+  const [pendingAction, setPendingAction] = useState<"complete" | "cancel" | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<StaffAppointment | null>(null);
 
   const fetchAppointments = async () => {
     try {
@@ -48,6 +44,7 @@ export default function StaffAppointmentsPage() {
 
       const mappedData = data.map((appt: any) => {
         let status = appt.status;
+
         const s = (appt.status || "").toUpperCase();
 
         if (s === "SCHEDULED" || s === "BOOKED" || s === "UPCOMING") {
@@ -68,6 +65,7 @@ export default function StaffAppointmentsPage() {
       setAppointments(mappedData);
     } catch (error) {
       console.error(error);
+
       toast.error("Failed to load appointments");
     } finally {
       setLoading(false);
@@ -78,10 +76,7 @@ export default function StaffAppointmentsPage() {
     fetchAppointments();
   }, []);
 
-  const handleActionRequest = (
-    appointment: StaffAppointment,
-    action: "complete" | "cancel",
-  ) => {
+  const handleActionRequest = (appointment: StaffAppointment, action: "complete" | "cancel") => {
     setSelectedAppointment(appointment);
     setPendingAction(action);
     setIsAlertOpen(true);
@@ -92,18 +87,19 @@ export default function StaffAppointmentsPage() {
 
     try {
       setActionLoading(true);
+
       if (pendingAction === "complete") {
         await appointmentApi.completeAppointment(selectedAppointment.id);
+
         toast.success("Appointment marked as completed");
       } else {
         await appointmentApi.cancelAppointment(selectedAppointment.id);
+
         toast.success("Appointment cancelled successfully");
       }
       fetchAppointments();
     } catch (error) {
-      toast.error(
-        `Failed to ${pendingAction === "complete" ? "complete" : "cancel"} appointment`,
-      );
+      toast.error(`Failed to ${pendingAction === "complete" ? "complete" : "cancel"} appointment`);
     } finally {
       setActionLoading(false);
       setIsAlertOpen(false);
@@ -114,15 +110,9 @@ export default function StaffAppointmentsPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <StaffAppointmentsHeaderSection
-        onRefresh={fetchAppointments}
-        loading={loading}
-      />
+      <StaffAppointmentsHeaderSection onRefresh={fetchAppointments} loading={loading} />
 
-      <StaffAppointmentsTabsSection
-        value={activeStatus}
-        onChange={setActiveStatus}
-      />
+      <StaffAppointmentsTabsSection value={activeStatus} onChange={setActiveStatus} />
 
       {loading ? (
         <div className="p-20 text-center text-muted-foreground">
@@ -133,12 +123,8 @@ export default function StaffAppointmentsPage() {
         <StaffAppointmentsListSection
           appointments={appointments}
           activeStatus={activeStatus}
-          onMarkCompleted={(appointment) =>
-            handleActionRequest(appointment, "complete")
-          }
-          onCancelAppointment={(appointment) =>
-            handleActionRequest(appointment, "cancel")
-          }
+          onMarkCompleted={(appointment) => handleActionRequest(appointment, "complete")}
+          onCancelAppointment={(appointment) => handleActionRequest(appointment, "cancel")}
         />
       )}
 
@@ -146,9 +132,7 @@ export default function StaffAppointmentsPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {pendingAction === "complete"
-                ? "Complete Appointment?"
-                : "Cancel Appointment?"}
+              {pendingAction === "complete" ? "Complete Appointment?" : "Cancel Appointment?"}
             </AlertDialogTitle>
 
             <AlertDialogDescription>
@@ -159,9 +143,7 @@ export default function StaffAppointmentsPage() {
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionLoading}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={actionLoading}>Cancel</AlertDialogCancel>
 
             <AlertDialogAction
               onClick={(e) => {
@@ -175,11 +157,7 @@ export default function StaffAppointmentsPage() {
                   : "bg-emerald-600 text-white hover:bg-emerald-700"
               }
             >
-              {actionLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Confirm"
-              )}
+              {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirm"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

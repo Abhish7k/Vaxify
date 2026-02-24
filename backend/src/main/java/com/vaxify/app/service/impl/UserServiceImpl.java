@@ -20,7 +20,9 @@ import com.vaxify.app.mapper.AppointmentMapper;
 import com.vaxify.app.mapper.UserMapper;
 import com.vaxify.app.service.UserService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -91,6 +93,30 @@ public class UserServiceImpl implements UserService {
                 .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
                 .count();
 
+        String vaccStatus = "Unvaccinated";
+        if (completed == 1) {
+            vaccStatus = "Partially Vaccinated";
+        } else if (completed >= 2) {
+            vaccStatus = "Fully Vaccinated";
+        }
+
+        Optional<Appointment> nextUpcoming = allAppts.stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.BOOKED)
+                .filter(a -> {
+                    LocalDate d = a.getSlot().getDate();
+                    if (d.isBefore(LocalDate.now()))
+                        return false;
+                    if (d.isEqual(LocalDate.now()) && a.getSlot().getStartTime().isBefore(LocalTime.now()))
+                        return false;
+                    return true;
+                })
+                .min(Comparator.comparing((Appointment a) -> a.getSlot().getDate())
+                        .thenComparing(a -> a.getSlot().getStartTime()));
+
+        String upcomingStr = nextUpcoming
+                .map(a -> a.getSlot().getDate().toString() + "T" + a.getSlot().getStartTime().toString())
+                .orElse("No upcoming");
+
         List<AppointmentResponse> recent = allAppts.stream()
                 .sorted(Comparator.comparing(Appointment::getCreatedAt).reversed())
                 .limit(3)
@@ -100,6 +126,8 @@ public class UserServiceImpl implements UserService {
         log.info("Stats retrieved for: {}", email);
 
         return UserStatsResponse.builder()
+                .upcomingAppointmentDate(upcomingStr)
+                .vaccinationStatus(vaccStatus)
                 .totalAppointments(total)
                 .pendingAppointments(pending)
                 .completedAppointments(completed)

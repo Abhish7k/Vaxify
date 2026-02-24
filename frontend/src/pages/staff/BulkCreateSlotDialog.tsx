@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { format, addDays, eachDayOfInterval, startOfDay } from "date-fns";
-import {
-  Calendar as CalendarIcon,
-  Clock,
-  Users,
-  CalendarRange,
-  Loader2,
-} from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Users, CalendarRange, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -22,11 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
@@ -47,18 +37,13 @@ const WEEKDAYS = [
   { id: 6, label: "Sat" },
 ];
 
-export function BulkCreateSlotDialog({
-  hospitalId,
-  onSuccess,
-}: BulkCreateSlotDialogProps) {
+export function BulkCreateSlotDialog({ hospitalId, onSuccess }: BulkCreateSlotDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // date range
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
-  const [endDate, setEndDate] = useState<Date | undefined>(
-    addDays(new Date(), 7),
-  );
+  const [endDate, setEndDate] = useState<Date | undefined>(addDays(new Date(), 7));
 
   // time & capacity
   const [startTime, setStartTime] = useState("09:00");
@@ -123,9 +108,7 @@ export function BulkCreateSlotDialog({
       const allDates = eachDayOfInterval({ start: startDate, end: endDate });
 
       // filter by selected weekdays
-      const targetDates = allDates.filter((date) =>
-        selectedDays.includes(date.getDay()),
-      );
+      const targetDates = allDates.filter((date) => selectedDays.includes(date.getDay()));
 
       if (targetDates.length === 0) {
         toast.error("No matching dates in the selected range");
@@ -159,7 +142,7 @@ export function BulkCreateSlotDialog({
     } catch (error: any) {
       console.error(error);
 
-      const errorMessage = error.response?.data?.message || "Failed to create some slots. Please try again.";
+      const errorMessage = "Failed to create some slots. Please try again.";
 
       toast.error(errorMessage);
     } finally {
@@ -180,18 +163,14 @@ export function BulkCreateSlotDialog({
         <DialogHeader>
           <DialogTitle>Bulk Create Slots</DialogTitle>
 
-          <DialogDescription>
-            Create appointment slots for multiple days at once.
-          </DialogDescription>
+          <DialogDescription>Create appointment slots for multiple days at once.</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-6 py-5">
           {/* date range */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2.5">
-              <Label className="text-sm font-semibold flex items-center gap-2">
-                Start Date
-              </Label>
+              <Label className="text-sm font-semibold flex items-center gap-2">Start Date</Label>
 
               <Popover>
                 <PopoverTrigger asChild>
@@ -203,11 +182,7 @@ export function BulkCreateSlotDialog({
                     )}
                   >
                     <CalendarIcon className="mr-3 h-4 w-4 opacity-50 text-primary" />
-                    {startDate ? (
-                      format(startDate, "MMM d, yyyy")
-                    ) : (
-                      <span>Start date</span>
-                    )}
+                    {startDate ? format(startDate, "dd MMM, yyyy") : <span>Start date</span>}
                   </Button>
                 </PopoverTrigger>
 
@@ -219,7 +194,7 @@ export function BulkCreateSlotDialog({
                     mode="single"
                     selected={startDate}
                     onSelect={setStartDate}
-                    initialFocus
+                    defaultMonth={startDate}
                     className="rounded-xl border border-border"
                     disabled={(date) => date < startOfDay(new Date())}
                   />
@@ -228,9 +203,7 @@ export function BulkCreateSlotDialog({
             </div>
 
             <div className="grid gap-2.5">
-              <Label className="text-sm font-semibold flex items-center gap-2">
-                End Date
-              </Label>
+              <Label className="text-sm font-semibold flex items-center gap-2">End Date</Label>
 
               <Popover>
                 <PopoverTrigger asChild>
@@ -242,11 +215,7 @@ export function BulkCreateSlotDialog({
                     )}
                   >
                     <CalendarIcon className="mr-3 h-4 w-4 opacity-50 text-primary" />
-                    {endDate ? (
-                      format(endDate, "MMM d, yyyy")
-                    ) : (
-                      <span>End date</span>
-                    )}
+                    {endDate ? format(endDate, "dd MMM, yyyy") : <span>End date</span>}
                   </Button>
                 </PopoverTrigger>
 
@@ -258,7 +227,7 @@ export function BulkCreateSlotDialog({
                     mode="single"
                     selected={endDate}
                     onSelect={setEndDate}
-                    initialFocus
+                    defaultMonth={endDate}
                     className="rounded-xl border border-border"
                     disabled={(date) => date < (startDate || new Date())}
                   />
@@ -269,9 +238,7 @@ export function BulkCreateSlotDialog({
 
           {/* weekdays selection */}
           <div className="space-y-3">
-            <Label className="text-sm font-semibold flex items-center gap-2">
-              Repeat On
-            </Label>
+            <Label className="text-sm font-semibold flex items-center gap-2">Repeat On</Label>
 
             <div className="flex flex-wrap gap-2">
               {WEEKDAYS.map((day) => {
@@ -285,9 +252,9 @@ export function BulkCreateSlotDialog({
                         ? "opacity-50 cursor-not-allowed bg-muted border-dashed"
                         : "cursor-pointer",
                       !isSunday &&
-                      (selectedDays.includes(day.id)
-                        ? "bg-primary/10 border-primary text-primary shadow-sm"
-                        : "hover:bg-muted border-border/60"),
+                        (selectedDays.includes(day.id)
+                          ? "bg-primary/10 border-primary text-primary shadow-sm"
+                          : "hover:bg-muted border-border/60"),
                     )}
                     onClick={() => !isSunday && toggleDay(day.id)}
                   >
@@ -306,9 +273,7 @@ export function BulkCreateSlotDialog({
 
           <div className="grid grid-cols-3 gap-4">
             <div className="grid gap-2.5">
-              <Label className="text-sm font-semibold flex items-center gap-2">
-                Start
-              </Label>
+              <Label className="text-sm font-semibold flex items-center gap-2">Start</Label>
 
               <div className="relative group">
                 <Clock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -323,9 +288,7 @@ export function BulkCreateSlotDialog({
             </div>
 
             <div className="grid gap-2.5">
-              <Label className="text-sm font-semibold flex items-center gap-2">
-                End
-              </Label>
+              <Label className="text-sm font-semibold flex items-center gap-2">End</Label>
 
               <div className="relative group">
                 <Clock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -340,9 +303,7 @@ export function BulkCreateSlotDialog({
             </div>
 
             <div className="grid gap-2.5">
-              <Label className="text-sm font-semibold flex items-center gap-2">
-                Max
-              </Label>
+              <Label className="text-sm font-semibold flex items-center gap-2">Max</Label>
 
               <div className="relative group">
                 <Users className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -364,13 +325,17 @@ export function BulkCreateSlotDialog({
           </div>
 
           <div className="bg-primary/5 p-4 rounded-xl text-[11px] font-medium text-primary/80 border border-primary/10 leading-relaxed">
-            Quick Tip: Slots will be auto-generated for every selected weekday
-            within your chosen date range.
+            Quick Tip: Slots will be auto-generated for every selected weekday within your chosen date
+            range.
           </div>
         </div>
 
         <DialogFooter>
-          <Button onClick={handleBulkCreate} disabled={loading} className="active:scale-95 transition-all">
+          <Button
+            onClick={handleBulkCreate}
+            disabled={loading}
+            className="active:scale-95 transition-all"
+          >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {loading ? "Generating Slots..." : "Create Bulk Slots"}
           </Button>

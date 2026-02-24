@@ -61,9 +61,7 @@ export default function StaffInfoCard() {
     joinedDate: hospital?.staffCreatedAt
       ? new Date(hospital.staffCreatedAt).toLocaleDateString()
       : "January 2026",
-    documentUrl:
-      hospital?.documentUrl ||
-      "https://vaxify-docs.s3.amazonaws.com/test-id-card.pdf",
+    documentUrl: hospital?.documentUrl || "https://vaxify-docs.s3.amazonaws.com/test-id-card.pdf",
   };
 
   const basicInfo = [
@@ -97,16 +95,13 @@ export default function StaffInfoCard() {
       className="w-full max-w-lg mx-auto"
     >
       <Card
-        className={cn(
-          "relative overflow-hidden rounded-2xl border bg-card p-8 shadow-sm",
-        )}
+        className={cn("relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-8 shadow-sm mb-10")}
       >
         {/* gradient background */}
         <div
           className="absolute inset-0 z-0 opacity-40 dark:opacity-20"
           style={{
-            background:
-              "radial-gradient(circle at 50% 20%, hsl(142,70%,85%) 0%, transparent 65%)",
+            background: "radial-gradient(circle at 50% 20%, hsl(142,70%,85%) 0%, transparent 65%)",
           }}
         />
 
@@ -180,9 +175,7 @@ export default function StaffInfoCard() {
                       View Cert <ExternalLink className="h-3 w-3" />
                     </a>
                   ) : (
-                    <span className="text-muted-foreground italic">
-                      Pending Upload
-                    </span>
+                    <span className="text-muted-foreground italic">Pending Upload</span>
                   )
                 }
               />
@@ -215,12 +208,10 @@ function InfoRow({
   return (
     <div className="flex items-center gap-2">
       <span className="text-muted-foreground shrink-0">{icon}</span>
-      <span className="text-xs text-muted-foreground min-w-0 truncate">
-        {label}
-      </span>
-      <div className="font-medium text-right flex-1 min-w-0 truncate">
-        {value}
-      </div>
+
+      <span className="text-xs text-muted-foreground min-w-0 truncate">{label}</span>
+
+      <div className="text-xs sm:text-sm text-right flex-1 min-w-0 truncate">{value}</div>
     </div>
   );
 }

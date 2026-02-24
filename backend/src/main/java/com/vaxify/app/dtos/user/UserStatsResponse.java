@@ -20,8 +20,6 @@ public class UserStatsResponse {
 
     private long completedAppointments;
 
-    private boolean certificateAvailable;
-
     private List<AppointmentResponse> recentAppointments;
 
 }

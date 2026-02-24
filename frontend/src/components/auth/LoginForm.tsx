@@ -8,10 +8,10 @@ import { Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import PasswordInput from "./PasswordInput";
 import { useAuth } from "@/auth/useAuth";
 import QuickDemoLogins from "./QuickDemoLogins";
+import { toastUtils } from "@/lib/toast";
 
 // zod schema
 const signInSchema = z.object({
@@ -29,6 +29,7 @@ const LoginForm: React.FC = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<SignInSchemaType>({
     resolver: zodResolver(signInSchema),
@@ -40,12 +41,7 @@ const LoginForm: React.FC = () => {
     try {
       await login(formData.email, formData.password);
 
-      toast.success("Logged in successfully", {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
+      toastUtils.success("Logged in successfully");
     } catch (error: any) {
       console.error("Sign in error: ", error);
 
@@ -54,15 +50,8 @@ const LoginForm: React.FC = () => {
           ? "Invalid email or password"
           : "Invalid credentials. Please try again.";
 
-      toast.error(message, {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error(message);
     } finally {
-      await new Promise((resolve) => setTimeout(resolve, 400));
-
       setIsLoading(false);
     }
   };
@@ -131,7 +120,12 @@ const LoginForm: React.FC = () => {
             </div>
           </div>
 
-          <QuickDemoLogins />
+          <QuickDemoLogins
+            onDemoClick={() => {
+              setValue("email", "user@test.com", { shouldValidate: true });
+              setValue("password", "password", { shouldValidate: true });
+            }}
+          />
         </form>
       </CardContent>
 

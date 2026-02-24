@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import MainSection from "@/components/admin/hospital-details-page/AdminHospitalDetailsMainSection";
 import { hospitalApi } from "@/api/hospital.api";
 import { Loader2 } from "lucide-react";
+import { toastUtils } from "@/lib/toast";
 
 export default function AdminHospitalDetailsPage() {
   const { hospitalId } = useParams<{ hospitalId: string }>();
@@ -16,10 +17,13 @@ export default function AdminHospitalDetailsPage() {
       if (!hospitalId) return;
       try {
         setLoading(true);
+
         const data = await hospitalApi.getHospitalById(hospitalId);
+
         setHospital(data);
       } catch (error) {
         console.error("Failed to fetch hospital details", error);
+
         toast.error("Failed to load hospital details");
       } finally {
         setLoading(false);
@@ -32,39 +36,32 @@ export default function AdminHospitalDetailsPage() {
     if (!hospitalId) return;
     try {
       await hospitalApi.approveHospital(hospitalId);
+
       setHospital((prev: any) => ({
         ...prev,
         status: "APPROVED",
       }));
 
-      toast.success("Approved hospital successfully", {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
+      toastUtils.success("Approved hospital successfully");
     } catch (error) {
-      toast.error("Failed to approve hospital");
+      toastUtils.error("Failed to approve hospital");
     }
   };
 
   const handleRejectHospital = async () => {
     if (!hospitalId) return;
+
     try {
       await hospitalApi.rejectHospital(hospitalId);
+
       setHospital((prev: any) => ({
         ...prev,
         status: "REJECTED",
       }));
 
-      toast.error("Rejected hospital successfully", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Rejected hospital successfully");
     } catch (error) {
-      toast.error("Failed to reject hospital");
+      toastUtils.error("Failed to reject hospital");
     }
   };
 
@@ -80,10 +77,7 @@ export default function AdminHospitalDetailsPage() {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
         <p className="text-muted-foreground">Hospital not found</p>
-        <button
-          onClick={() => window.history.back()}
-          className="text-primary hover:underline"
-        >
+        <button onClick={() => window.history.back()} className="text-primary hover:underline">
           Go back
         </button>
       </div>
@@ -91,7 +85,7 @@ export default function AdminHospitalDetailsPage() {
   }
 
   return (
-    <div className="px-5 py-5 md:px-10 mb-40">
+    <div className="px-5 py-5 md:px-10 mb-20">
       <MainSection hospital={hospital} />
 
       <AdminHospitalFloatingActions

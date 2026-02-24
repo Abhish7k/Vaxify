@@ -42,6 +42,7 @@ export default function UserDashboard() {
     const fetchStats = async () => {
       try {
         const data = await userApi.getStats();
+
         setStats(data);
       } catch (error) {
         console.error("Failed to fetch stats", error);
@@ -51,6 +52,8 @@ export default function UserDashboard() {
     };
     fetchStats();
   }, []);
+
+  console.log(stats);
 
   return (
     <motion.div
@@ -80,9 +83,7 @@ export default function UserDashboard() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-12 text-center rounded-xl border border-dashed">
-            <p className="text-muted-foreground mb-4">
-              Could not load dashboard data.
-            </p>
+            <p className="text-muted-foreground mb-4">Could not load dashboard data.</p>
             <Button variant="outline" onClick={() => window.location.reload()}>
               Try Again
             </Button>

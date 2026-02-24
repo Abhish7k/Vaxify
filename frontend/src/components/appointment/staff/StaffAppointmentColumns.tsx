@@ -9,18 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
-  ArrowUpDown,
-  Check,
-  X,
-  Phone,
-  Calendar,
-  Clock,
-  Syringe,
-} from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, Check, X, Phone, Calendar, Clock, Syringe } from "lucide-react";
 import type { Appointment as StaffAppointment } from "@/types/appointment";
-import { formatTime } from "@/lib/utils";
+import { formatTime, formatDate } from "@/lib/utils";
 
 interface GetColumnsProps {
   onMarkCompleted: (appointment: StaffAppointment) => void;
@@ -44,9 +35,7 @@ export const getStaffAppointmentColumns = ({
       </Button>
     ),
     cell: ({ row }) => (
-      <span className="font-medium text-foreground">
-        {row.getValue("patientName")}
-      </span>
+      <span className="font-medium text-foreground">{row.getValue("patientName")}</span>
     ),
   },
   {
@@ -84,7 +73,7 @@ export const getStaffAppointmentColumns = ({
     cell: ({ row }) => (
       <div className="flex items-center gap-2 text-sm whitespace-nowrap">
         <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-        <span>{row.getValue("date")}</span>
+        <span>{formatDate(row.getValue("date") as string)}</span>
       </div>
     ),
   },

@@ -3,6 +3,8 @@ package com.vaxify.app.mapper;
 import com.vaxify.app.dtos.slot.SlotRequest;
 import com.vaxify.app.dtos.slot.SlotResponse;
 import com.vaxify.app.entities.Slot;
+import com.vaxify.app.entities.enums.SlotStatus;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -38,6 +40,12 @@ public class SlotMapper {
         slot.setEndTime(dto.getEndTime());
         slot.setCapacity(dto.getCapacity());
 
+        if (dto.getStatus() != null) {
+            slot.setStatus(dto.getStatus());
+        } else {
+            slot.setStatus(SlotStatus.AVAILABLE);
+        }
+
         return slot;
     }
 
@@ -60,6 +68,10 @@ public class SlotMapper {
 
         if (dto.getCapacity() != null) {
             slot.setCapacity(dto.getCapacity());
+        }
+
+        if (dto.getStatus() != null) {
+            slot.setStatus(dto.getStatus());
         }
     }
 }

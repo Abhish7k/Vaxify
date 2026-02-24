@@ -1,8 +1,17 @@
 import { Button } from "../ui/button";
 import { User } from "lucide-react";
 
-const QuickDemoLogins = () => {
+interface QuickDemoLoginsProps {
+  onDemoClick?: () => void;
+}
+
+const QuickDemoLogins = ({ onDemoClick }: QuickDemoLoginsProps) => {
   const fillCredentials = () => {
+    if (onDemoClick) {
+      onDemoClick();
+      return;
+    }
+
     const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
 
     const passwordInput = document.querySelector('input[type="password"]') as HTMLInputElement;
@@ -15,6 +24,7 @@ const QuickDemoLogins = () => {
   return (
     <div className="mt-6 flex justify-center w-full mb-20 sm:mb-0">
       <Button
+        type="button"
         variant="outline"
         size="sm"
         className="flex items-center gap-3 h-auto py-2.5 px-5 text-xs hover:bg-muted/80 hover:text-accent-foreground cursor-pointer active:scale-95 transition-all"

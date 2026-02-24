@@ -4,10 +4,10 @@ import type { Vaccine } from "@/types/vaccine";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { VaccineAlertCard } from "@/components/dashboards/staff/alerts/VaccineAlertCard";
 import { LowStockEmptyState } from "@/components/dashboards/staff/alerts/LowStockEmptyState";
 import { useSidebar } from "@/components/ui/sidebar";
+import { toastUtils } from "@/lib/toast";
 
 export default function LowStockAlertsPage() {
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
@@ -24,12 +24,8 @@ export default function LowStockAlertsPage() {
       setVaccines(data);
     } catch (error) {
       console.error("Fetch failed", error);
-      toast.error("Failed to fetch vaccines", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+
+      toastUtils.error("Failed to fetch vaccines");
     } finally {
       setLoading(false);
     }
@@ -44,12 +40,7 @@ export default function LowStockAlertsPage() {
     } catch (error) {
       console.error("Fetch failed", error);
 
-      toast.error("Failed to fetch vaccines", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to fetch vaccines");
     } finally {
       setLoading(false);
     }
@@ -92,15 +83,11 @@ export default function LowStockAlertsPage() {
   const hasAlerts = criticalVaccines.length > 0 || warningVaccines.length > 0;
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 mb-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2">
-            <img
-              src="https://ik.imagekit.io/vaxify/icons/alert.png"
-              alt=""
-              className="h-10 w-10"
-            />
+            <img src="https://ik.imagekit.io/vaxify/icons/alert.png" alt="" className="h-10 w-10" />
             Stock Alerts
           </h1>
 
@@ -116,15 +103,10 @@ export default function LowStockAlertsPage() {
             disabled={loading}
             className="h-10 w-full sm:w-auto"
           >
-            <RefreshCcw
-              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-            />
+            <RefreshCcw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             Refresh Data
           </Button>
-          <Button
-            onClick={() => navigate("/staff/vaccines")}
-            className="h-10 w-full sm:w-auto"
-          >
+          <Button onClick={() => navigate("/staff/vaccines")} className="h-10 w-full sm:w-auto">
             Manage Inventory
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -134,6 +116,7 @@ export default function LowStockAlertsPage() {
       {loading ? (
         <div className="space-y-4">
           <div className="h-32 w-full bg-muted animate-pulse rounded-xl" />
+
           <div className="h-32 w-full bg-muted/60 animate-pulse rounded-xl" />
         </div>
       ) : !hasAlerts ? (

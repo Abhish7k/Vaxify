@@ -103,9 +103,7 @@ export const EditHospitalDialog = ({
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">
-                Hospital Name
-              </Label>
+              <Label htmlFor="name">Hospital Name</Label>
 
               <Input
                 id="name"
@@ -114,15 +112,11 @@ export const EditHospitalDialog = ({
                 className={errors.name ? "border-destructive focus-visible:ring-destructive" : ""}
               />
 
-              {errors.name && (
-                <p className="text-xs font-medium text-destructive">{errors.name}</p>
-              )}
+              {errors.name && <p className="text-xs font-medium text-destructive">{errors.name}</p>}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="address">
-                Address
-              </Label>
+              <Label htmlFor="address">Address</Label>
 
               <Input
                 id="address"
@@ -138,9 +132,7 @@ export const EditHospitalDialog = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="city">
-                  City
-                </Label>
+                <Label htmlFor="city">City</Label>
 
                 <Input
                   id="city"
@@ -149,15 +141,11 @@ export const EditHospitalDialog = ({
                   className={errors.city ? "border-destructive focus-visible:ring-destructive" : ""}
                 />
 
-                {errors.city && (
-                  <p className="text-xs font-medium text-destructive">{errors.city}</p>
-                )}
+                {errors.city && <p className="text-xs font-medium text-destructive">{errors.city}</p>}
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="pincode">
-                  Pincode
-                </Label>
+                <Label htmlFor="pincode">Pincode</Label>
 
                 <Input
                   id="pincode"
@@ -173,9 +161,7 @@ export const EditHospitalDialog = ({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="state">
-                State
-              </Label>
+              <Label htmlFor="state">State</Label>
 
               <Input
                 id="state"
@@ -184,9 +170,7 @@ export const EditHospitalDialog = ({
                 className={errors.state ? "border-destructive focus-visible:ring-destructive" : ""}
               />
 
-              {errors.state && (
-                <p className="text-xs font-medium text-destructive">{errors.state}</p>
-              )}
+              {errors.state && <p className="text-xs font-medium text-destructive">{errors.state}</p>}
             </div>
 
             <div className="grid gap-2">
@@ -194,25 +178,17 @@ export const EditHospitalDialog = ({
 
               <FileDropzone
                 value={formData.documentUrl}
-                onChange={(url) =>
-                  setFormData({ ...formData, documentUrl: url })
-                }
+                onChange={(url, fileName) => setFormData({ ...formData, documentUrl: fileName || url })}
               />
 
               {formData.documentUrl && (
-                <p className="text-xs text-muted-foreground truncate">
-                  Current: {formData.documentUrl}
-                </p>
+                <p className="text-xs text-muted-foreground truncate">Current: {formData.documentUrl}</p>
               )}
             </div>
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
 

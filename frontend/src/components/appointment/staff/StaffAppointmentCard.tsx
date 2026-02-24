@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Calendar, Clock, Phone, User, Syringe } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 import { Card, CardContent } from "@/components/ui/card";
 import type { Appointment as StaffAppointment } from "@/types/appointment";
@@ -12,11 +13,7 @@ type Props = {
   onCancel: () => void;
 };
 
-export default function StaffAppointmentCard({
-  appointment,
-  onMarkCompleted,
-  onCancel,
-}: Props) {
+export default function StaffAppointmentCard({ appointment, onMarkCompleted, onCancel }: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -55,7 +52,7 @@ export default function StaffAppointmentCard({
 
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{appointment.date}</span>
+              <span className="text-sm">{formatDate(appointment.date)}</span>
             </div>
 
             <div className="flex items-center gap-2">
