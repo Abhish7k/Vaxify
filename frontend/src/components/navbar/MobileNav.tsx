@@ -15,7 +15,7 @@ const MobileNav = () => {
     <div className="md:hidden mt-2 transition-all">
       <Sheet>
         <SheetTrigger className="cursor-pointer">
-          <MenuIcon className="w-6 h-6" />
+          <MenuIcon className="w-5 h-5 sm:w-6 sm:h-6" />
         </SheetTrigger>
 
         <SheetContent>

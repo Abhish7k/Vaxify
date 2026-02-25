@@ -14,8 +14,11 @@ const Navbar = () => {
         <div className="flex gap-10 items-center">
           {/* Logo */}
           <div className="">
-            <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-indigo-600">
-              <img src="/logo.svg" alt="" width={30} />
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-xl min-[600px]:text-2xl font-bold text-indigo-600"
+            >
+              <img src="/logo.svg" alt="" className="w-5 h-5 min-[600px]:w-8 min-[500px]:h-8" />
               Vaxify
             </Link>
           </div>
