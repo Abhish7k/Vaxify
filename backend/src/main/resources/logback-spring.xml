@@ -3,12 +3,8 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
     <springProperty scope="context" name="appName" source="spring.application.name"/>
-    <springProperty scope="context" name="lokiUrl" source="loki.url"/>
-    <springProperty scope="context" name="lokiUser" source="loki.username"/>
-    <springProperty scope="context" name="lokiPass" source="loki.password"/>
 
-
-    <!-- standard console appender -->
+    <!-- standard console appender - new relic agent reads from here -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx</pattern>
@@ -16,32 +12,7 @@
     </appender>
 
 
-    <!-- loki appender - sends logs directly to grafana loki -->
-    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
-        <http>
-            <url>${lokiUrl}</url>
-            <auth>
-                <username>${lokiUser}</username>
-                <password>${lokiPass}</password>
-            </auth>
-        </http>
-        <format>
-            <label>
-                <pattern>app=${appName},host=${HOSTNAME},level=%level</pattern>
-            </label>
-            <message class="com.github.loki4j.logback.JsonLayout" />
-        </format>
-    </appender>
-
-    <!-- send only our appn logs to grafana loki (ignoring root app init logs) -->
-    <logger name="com.vaxify.app.service" level="INFO">
-        <appender-ref ref="LOKI"/>
-    </logger>
-    <logger name="com.vaxify.app.controller" level="INFO">
-        <appender-ref ref="LOKI"/>
-    </logger>
-
-    <!-- default console logging for evrythng else (spring, tomcat, etc) -->
+    <!-- root logger sends everythng to console -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>

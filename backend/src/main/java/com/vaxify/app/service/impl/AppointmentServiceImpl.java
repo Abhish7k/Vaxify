@@ -4,6 +4,7 @@ import com.vaxify.app.dtos.appointment.AppointmentResponse;
 import com.vaxify.app.dtos.appointment.BookAppointmentRequest;
 import com.vaxify.app.entities.*;
 import com.vaxify.app.entities.enums.AppointmentStatus;
+import com.vaxify.app.entities.enums.Role;
 import com.vaxify.app.entities.enums.SlotStatus;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.repository.*;
@@ -148,10 +149,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         @Override
         @Transactional
         public void cancelAppointment(Long appointmentId, String userEmail) {
+                User actor = userService.findByEmail(userEmail);
+
                 Appointment appointment = appointmentRepository.findById(appointmentId)
                                 .orElseThrow(() -> new VaxifyException("Appointment not found"));
 
-                if (!appointment.getUser().getEmail().equals(userEmail)) {
+                boolean isOwner = appointment.getUser().getEmail().equals(userEmail);
+
+                boolean isPrivileged = actor.getRole() == Role.STAFF || actor.getRole() == Role.ADMIN;
+
+                if (!isOwner && !isPrivileged) {
                         throw new VaxifyException("You are not authorized to cancel this appointment");
                 }
 
@@ -178,7 +185,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 notificationService.sendAppointmentCancellation(appointment);
 
-                log.info("Appointment cancelled: ID={}, User={}", appointmentId, userEmail);
+                log.info("Appointment cancelled: ID={}, User={}, By={}",
+                                appointmentId, appointment.getUser().getEmail(), userEmail);
         }
 
         @Override
