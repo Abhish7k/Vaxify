@@ -34,13 +34,12 @@ services:
       - MAIL_AUTH=${MAIL_AUTH}
       - MAIL_TLS=${MAIL_TLS}
       - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
-      - LOKI_URL=${LOKI_URL}
-      - LOKI_USER=${LOKI_USER}
-      - LOKI_PASS=${LOKI_PASS}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
       - NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-vaxify-backend}
       - NEW_RELIC_LOG_FILE_NAME=STDOUT
+      - NEW_RELIC_HOST=${NEW_RELIC_HOST:-collector.newrelic.com}
+      - NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED=true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.vaxify.xyz`) || Host(`api.abhish7k.xyz`)"
