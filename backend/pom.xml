@@ -97,6 +97,13 @@
             <version>1.5.0</version>
         </dependency>
 
+        <!-- new relic api for custom metrics -->
+        <dependency>
+            <groupId>com.newrelic.agent.java</groupId>
+            <artifactId>newrelic-api</artifactId>
+            <version>8.10.0</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>

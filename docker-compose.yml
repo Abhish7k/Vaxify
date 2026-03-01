@@ -38,6 +38,9 @@ services:
       - LOKI_USER=${LOKI_USER}
       - LOKI_PASS=${LOKI_PASS}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
+      - NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-vaxify-backend}
+      - NEW_RELIC_LOG_FILE_NAME=STDOUT
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.vaxify.xyz`) || Host(`api.abhish7k.xyz`)"

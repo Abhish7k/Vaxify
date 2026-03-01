@@ -125,7 +125,7 @@ export function AppointmentScheduler({
   );
 
   return (
-    <div className="flex flex-col lg:flex-row w-full border rounded-xl bg-card overflow-hidden shadow-xl transition-all">
+    <div className="flex flex-col lg:flex-row w-full border rounded-xl bg-card overflow-hidden shadow-xl transition-all xl:min-w-[650px] ">
       {/* calendar */}
       <div className="flex-1 p-6">
         <div className="flex justify-between mb-4">
@@ -173,7 +173,7 @@ export function AppointmentScheduler({
                 disabled={!isAvailable}
                 onClick={() => handleDateClick(day)}
                 className={cn(
-                  "aspect-square flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer transition-all p-2 lg:p-3",
+                  "aspect-square flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer transition-all p-2 lg:px-3 lg:py-2",
                   day === selectedDate && "bg-primary text-primary-foreground shadow",
                   day !== selectedDate && isAvailable && "bg-secondary/50 hover:bg-secondary",
                   !isAvailable && "text-muted-foreground/40 cursor-not-allowed",

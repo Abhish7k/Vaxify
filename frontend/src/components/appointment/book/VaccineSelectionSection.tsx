@@ -13,13 +13,20 @@ type Props = {
   isLoading?: boolean;
 };
 
-export default function VaccineSelectionSection({ vaccines, selectedVaccineId, onSelect, isLoading }: Props) {
+export default function VaccineSelectionSection({
+  vaccines,
+  selectedVaccineId,
+  onSelect,
+  isLoading,
+}: Props) {
   return (
-    <section className="space-y-6">
+    <section className="space-y-6 max-w-[450px]">
       {/* header */}
       <div className="space-y-1">
         <h2 className="text-lg font-semibold">Select vaccine</h2>
-        <p className="text-sm text-muted-foreground">Choose the vaccine you want to book an appointment for.</p>
+        <p className="text-sm text-muted-foreground">
+          Choose the vaccine you want to book an appointment for.
+        </p>
       </div>
 
       {/* vaccine options */}
@@ -48,7 +55,9 @@ export default function VaccineSelectionSection({ vaccines, selectedVaccineId, o
                   className={cn(
                     "text-left rounded-xl border p-4 hover:shadow-sm cursor-pointer active:scale-95 transition-all text-foreground",
                     "focus:outline-none focus:ring-2 focus:ring-ring",
-                    isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-dashed hover:border-foreground/30",
+                    isSelected
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-dashed hover:border-foreground/30",
                   )}
                 >
                   <div className="flex items-center gap-3">
@@ -67,7 +76,9 @@ export default function VaccineSelectionSection({ vaccines, selectedVaccineId, o
                       <h3 className="text-sm font-semibold">{vaccine.name}</h3>
 
                       {vaccine.description && (
-                        <p className="text-xs text-muted-foreground leading-relaxed">{vaccine.description}</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {vaccine.description}
+                        </p>
                       )}
                     </div>
                   </div>

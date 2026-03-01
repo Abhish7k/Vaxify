@@ -48,13 +48,9 @@ const AppointmentBookingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingVaccines, setIsLoadingVaccines] = useState(true);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
-  const [allHospitalSlots, setAllHospitalSlots] = useState<HospitalTimeSlot[]>(
-    [],
-  );
+  const [allHospitalSlots, setAllHospitalSlots] = useState<HospitalTimeSlot[]>([]);
 
-  const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(
-    null,
-  );
+  const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
@@ -65,7 +61,9 @@ const AppointmentBookingPage = () => {
     const fetchCenter = async () => {
       try {
         setIsLoading(true);
+
         const data = await hospitalApi.getHospitalById(centerId);
+
         if (data) {
           setCenter(data);
         }
@@ -86,8 +84,9 @@ const AppointmentBookingPage = () => {
     const fetchVaccines = async () => {
       try {
         setIsLoadingVaccines(true);
-        const centerVaccines =
-          await vaccineApi.getVaccinesByHospitalId(centerId);
+
+        const centerVaccines = await vaccineApi.getVaccinesByHospitalId(centerId);
+
         setVaccines(centerVaccines);
       } catch (error) {
         console.error("failed to fetch vaccines", error);
@@ -126,12 +125,11 @@ const AppointmentBookingPage = () => {
   useEffect(() => {
     if (!selectedDate) {
       setAvailableSlots([]);
+
       return;
     }
 
-    const filteredSlots = allHospitalSlots.filter(
-      (slot) => slot.date === selectedDate,
-    );
+    const filteredSlots = allHospitalSlots.filter((slot) => slot.date === selectedDate);
 
     setAvailableSlots(filteredSlots);
   }, [selectedDate, allHospitalSlots]);
@@ -167,7 +165,7 @@ const AppointmentBookingPage = () => {
 
   return (
     <motion.div
-      className="py-10 max-w-7xl mx-auto px-5 flex flex-col gap-10 min-h-[90vh]"
+      className="py-10 max-w-7xl mx-auto px-5 flex flex-col gap-10 min-h-[90vh] mb-10"
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -177,66 +175,59 @@ const AppointmentBookingPage = () => {
       </motion.div>
 
       <div className="flex flex-col md:flex-row justify-between gap-10 px-5 mt-16 mb-20">
-        {!isLoadingVaccines && vaccines.length === 0
-          ? (
-            <div className="w-full flex justify-center">
-              <Card className="max-w-md w-full flex flex-col items-center text-center text-muted-foreground shadow-none border-none">
-                <XCircle className="w-12 h-12 opacity-20" />
+        {!isLoadingVaccines && vaccines.length === 0 ? (
+          <div className="w-full flex justify-center">
+            <Card className="max-w-md w-full flex flex-col items-center text-center text-muted-foreground shadow-none border-none">
+              <XCircle className="w-12 h-12 opacity-20" />
 
-                <h3 className="text-lg font-medium text-foreground">
-                  Out of Stock
-                </h3>
+              <h3 className="text-lg font-medium text-foreground">Out of Stock</h3>
 
-                <p className="mt-2 text-sm">
-                  There are no vaccines currently available <br />
-                  for booking at this center.
-                </p>
+              <p className="mt-2 text-sm">
+                There are no vaccines currently available <br />
+                for booking at this center.
+              </p>
 
-                <Button
-                  variant="outline"
-                  className="mt-2"
-                  onClick={() => navigate(-1)}
-                >
-                  Go Back
-                </Button>
-              </Card>
-            </div>
-          ) : (
-            <>
-              <motion.div className="w-full" variants={itemVariants}>
-                <VaccineSelectionSection
-                  vaccines={vaccines.map((v) => ({
-                    id: v.id,
-                    name: v.name,
-                    description: v.type,
-                  }))}
-                  selectedVaccineId={selectedVaccineId}
-                  isLoading={isLoadingVaccines}
-                  onSelect={(id) => {
-                    setSelectedVaccineId(id);
+              <Button variant="outline" className="mt-2" onClick={() => navigate(-1)}>
+                Go Back
+              </Button>
+            </Card>
+          </div>
+        ) : (
+          <>
+            <motion.div className="w-full" variants={itemVariants}>
+              <VaccineSelectionSection
+                vaccines={vaccines.map((v) => ({
+                  id: v.id,
+                  name: v.name,
+                  description: v.type,
+                }))}
+                selectedVaccineId={selectedVaccineId}
+                isLoading={isLoadingVaccines}
+                onSelect={(id) => {
+                  setSelectedVaccineId(id);
 
-                    setSelectedSlot(null);
-                  }}
-                />
-              </motion.div>
+                  setSelectedSlot(null);
+                }}
+              />
+            </motion.div>
 
-              <motion.div className="w-full" variants={itemVariants}>
-                <BookingDateAndSlotSection
-                  selectedDate={selectedDate}
-                  selectedSlot={selectedSlot}
-                  availableSlots={availableSlots}
-                  allSlots={allHospitalSlots}
-                  onDateSelect={(date) => {
-                    setSelectedDate(date);
-                    setSelectedSlot(null);
-                  }}
-                  onSlotSelect={setSelectedSlot}
-                  onResetSlot={() => setSelectedSlot(null)}
-                  isLoadingSlots={isLoadingSlots}
-                />
-              </motion.div>
-            </>
-          )}
+            <motion.div className="w-full" variants={itemVariants}>
+              <BookingDateAndSlotSection
+                selectedDate={selectedDate}
+                selectedSlot={selectedSlot}
+                availableSlots={availableSlots}
+                allSlots={allHospitalSlots}
+                onDateSelect={(date) => {
+                  setSelectedDate(date);
+                  setSelectedSlot(null);
+                }}
+                onSlotSelect={setSelectedSlot}
+                onResetSlot={() => setSelectedSlot(null)}
+                isLoadingSlots={isLoadingSlots}
+              />
+            </motion.div>
+          </>
+        )}
       </div>
 
       <motion.div variants={fixedItemVariants}>

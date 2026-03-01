@@ -53,8 +53,6 @@ export default function UserDashboard() {
     fetchStats();
   }, []);
 
-  console.log(stats);
-
   return (
     <motion.div
       variants={container}
