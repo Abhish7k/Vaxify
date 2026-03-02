@@ -18,7 +18,7 @@ export function Footer() {
       opacity: 1,
       y: 0,
       transition: {
-        delay: i * 0.1,
+        delay: i * 0.2,
         duration: 0.8,
         ease: [0.16, 1, 0.3, 1],
       },
@@ -45,7 +45,9 @@ export function Footer() {
               </Link>
             </div>
 
-            <p className="text-slate-400 text-xs mt-8">© {new Date().getFullYear()} Vaxify. All rights reserved.</p>
+            <p className="text-slate-400 text-xs mt-8">
+              © {new Date().getFullYear()} Vaxify. All rights reserved.
+            </p>
           </motion.div>
 
           {/* links grid */}
@@ -59,7 +61,9 @@ export function Footer() {
                 custom={index + 1}
                 variants={containerVariants}
               >
-                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900">{section.label}</h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900">
+                  {section.label}
+                </h3>
 
                 <ul className="mt-6 space-y-3 text-sm">
                   {section.links.map((link) => {

@@ -15,7 +15,7 @@ import {
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { useAuthContext } from "@/auth/AuthContext";
 import { hospitalApi } from "@/api/hospital.api";
 import { toast } from "sonner";
@@ -81,7 +81,7 @@ export default function StaffInfoCard() {
   const metadataInfo = [
     { icon: Hash, label: "Staff ID", value: staffData.staffId },
     { icon: Hash, label: "Hospital ID", value: staffData.hospitalId },
-    { icon: Calendar, label: "Joined", value: staffData.joinedDate },
+    { icon: Calendar, label: "Joined", value: formatDate(staffData.joinedDate) },
     {
       icon: BadgeCheck,
       label: "Status",

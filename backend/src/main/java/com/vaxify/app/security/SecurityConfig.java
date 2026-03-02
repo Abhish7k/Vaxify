@@ -39,7 +39,11 @@ public class SecurityConfig {
                                                 .requestMatchers("/knock-knock").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/api/hospitals/**").permitAll()
                                                 .requestMatchers("/api/hospitals/register").permitAll()
-                                                .requestMatchers("/api/files/**").permitAll()
+
+                                                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+
+                                                .requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/files/download/**").permitAll()
 
                                                 // slot management
                                                 // staff can create / update / delete

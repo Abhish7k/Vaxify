@@ -10,9 +10,7 @@ public interface S3Service {
 
     String deleteFile(String fileName);
 
-    String generatePresignedUrl(String fileName);
-
-    String generatePresignedUploadUrl(String fileName, String contentType);
+    String getFileUrl(String fileName);
 
     String resolveUrl(String path);
 }

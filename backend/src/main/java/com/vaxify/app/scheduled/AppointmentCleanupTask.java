@@ -9,9 +9,6 @@ import org.springframework.context.event.EventListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * automated tasks for appt lifecycle mgmt
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -21,15 +18,11 @@ public class AppointmentCleanupTask {
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        log.info("triggering missed appmt cleanup task on application ready");
+        log.info("triggering missed appmt cleanup task on application startup");
 
         appointmentService.cleanupOverdueAppointments();
     }
 
-    /**
-     * marks booked appts that are in the past as MISSED
-     * runs every day at midnight
-     */
     public void cleanupOverdueAppointments() {
         appointmentService.cleanupOverdueAppointments();
     }
