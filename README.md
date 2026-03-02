@@ -21,8 +21,8 @@ Vaxify is a comprehensive web-based platform designed to streamline the vaccine 
 - **Dashboard**: Overview of daily appointments and stock.
 - **Hospital Profile**: Manage and update hospital details.
 - **Vaccine Management**: Add, update, and delete vaccine stocks.
-- **Low Stock Alerts**: Automated email alerts to notify staff when vaccine inventory is running low (below 40% and 20%).
-- **Appointment Operations**: View hospital appointments and mark them as completed.
+- **Low Stock Alerts**: Automated email alerts via Brevo to notify staff when vaccine inventory is running low (below 40% and 20%).
+- **Appointment Operations**: View hospital appointments, mark as completed, or cancel.
 
 ### Admin Features
 
@@ -37,11 +37,11 @@ Vaxify is a comprehensive web-based platform designed to streamline the vaccine 
 
 ### Technical Features
 
-- **Role-Based Access Control**: Secure endpoints for Admins, Users, and specialized roles.
-- **Email Notifications**: Automated confirmations for bookings.
-- **Structured Logging & Monitoring**: Centralized logging with Grafana Loki.
-- **CI/CD Pipeline**: Automated building and deployment via GitHub Actions.
 - **Responsive Design**: Optimized for both desktop and mobile devices.
+- **Role-Based Access Control**: Secure endpoints for Admins, Users, and specialized roles.
+- **Email Notifications**: Automated email notifications and alerts via Brevo SMTP.
+- **CI/CD Pipeline**: Automated building and deployment via GitHub Actions.
+- **Structured Logging & Monitoring**: Centralized logging and performance monitoring via New Relic.
 
 ## 🛠 Tech Stack
 
@@ -59,15 +59,16 @@ Vaxify is a comprehensive web-based platform designed to streamline the vaccine 
 - **Database**: MySQL (AWS RDS)
 - **File Storage**: AWS S3
 - **Security**: Spring Security + JWT
+- **Email Service**: Brevo
 
 ### DevOps & Infrastructure
 
 - **Containerization**: Docker
 - **Reverse Proxy**: Traefik
-- **Cloud Provider**: AWS EC2
-- **DNS & CDN**: Cloudflare
+- **Cloud Provider**: AWS
+- **DNS**: Cloudflare
 - **CI/CD**: GitHub Actions
-- **Logging & Monitoring**: Grafana Loki
+- **Logging & Monitoring**: New Relic
 
 ## 🗄️ Database Schema
 
