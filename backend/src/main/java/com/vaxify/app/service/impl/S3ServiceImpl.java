@@ -109,7 +109,31 @@ public class S3ServiceImpl implements S3Service {
 
     @Override
     public String resolveUrl(String path) {
-        if (path == null || path.isEmpty() || path.startsWith("http")) {
+        if (path == null || path.isEmpty()) {
+            return path;
+        }
+
+        // if it's an s3 url (presigned or direct), extract the key to regenerate
+        if (path.startsWith("http") && path.contains(".amazonaws.com/")) {
+            try {
+                int hostEndIndex = path.indexOf(".amazonaws.com/") + ".amazonaws.com/".length();
+
+                String keyWithParams = path.substring(hostEndIndex);
+
+                String key = keyWithParams.contains("?")
+                        ? keyWithParams.substring(0, keyWithParams.indexOf("?"))
+                        : keyWithParams;
+
+                return generatePresignedUrl(key);
+            } catch (Exception e) {
+                log.error("failed to extract key from s3 url: {}", path);
+
+                return path;
+            }
+        }
+
+        // if it's already a full non-s3 url, return as is
+        if (path.startsWith("http")) {
             return path;
         }
 
