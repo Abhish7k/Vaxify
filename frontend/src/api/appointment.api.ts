@@ -34,9 +34,7 @@ export const appointmentApi = {
   },
 
   // book a new appointment
-  bookAppointment: async (
-    data: BookAppointmentRequest,
-  ): Promise<Appointment> => {
+  bookAppointment: async (data: BookAppointmentRequest): Promise<Appointment> => {
     const response = await api.post<any>("/appointments", data);
 
     const a = response.data;
@@ -48,6 +46,7 @@ export const appointmentApi = {
       vaccineId: String(a.vaccineId),
       date: a.date,
       slot: a.slot,
+      endTime: a.endTime,
       status: a.status.toLowerCase(),
       createdAt: a.createdAt,
       centerName: a.centerName,
@@ -65,6 +64,7 @@ export const appointmentApi = {
       centerId: String(a.hospitalId || a.centerId),
       date: a.date,
       slot: a.slot,
+      endTime: a.endTime,
       status: a.status.toLowerCase(),
       createdAt: a.createdAt,
       centerName: a.centerName,
@@ -80,9 +80,7 @@ export const appointmentApi = {
 
   // get all appointments for a staff's hospital
   getStaffAppointments: async (hospitalId: string): Promise<Appointment[]> => {
-    const response = await api.get<any[]>(
-      `/appointments/hospital/${hospitalId}`,
-    );
+    const response = await api.get<any[]>(`/appointments/hospital/${hospitalId}`);
 
     return response.data.map((a: any) => {
       let status = a.status;
@@ -97,6 +95,7 @@ export const appointmentApi = {
         vaccine: a.vaccineName,
         date: a.date,
         timeSlot: a.slot,
+        endTime: a.endTime,
         status: status,
       };
     }) as any;

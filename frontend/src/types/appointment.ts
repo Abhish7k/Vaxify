@@ -15,6 +15,7 @@ export interface Appointment {
   vaccineId: string;
   date: string;
   slot: string;
+  endTime?: string;
   status: AppointmentStatus;
   createdAt: string;
 

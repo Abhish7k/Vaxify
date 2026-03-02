@@ -20,6 +20,7 @@ public class AppointmentMapper {
                 .vaccineName(a.getVaccine().getName())
                 .date(a.getSlot().getDate().toString())
                 .slot(a.getSlot().getStartTime().toString())
+                .endTime(a.getSlot().getEndTime().toString())
                 .status(a.getStatus())
                 .createdAt(a.getCreatedAt())
                 .patientName(a.getUser().getName())

@@ -17,4 +17,6 @@ public interface AppointmentService {
     List<AppointmentResponse> getAppointmentsByHospital(Long hospitalId);
 
     void completeAppointment(Long appointmentId);
+
+    void cleanupOverdueAppointments();
 }

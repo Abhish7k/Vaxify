@@ -17,6 +17,7 @@ public class AppointmentResponse {
     private String vaccineName;
     private String date;
     private String slot;
+    private String endTime;
     private AppointmentStatus status;
     private LocalDateTime createdAt;
     private String patientName;

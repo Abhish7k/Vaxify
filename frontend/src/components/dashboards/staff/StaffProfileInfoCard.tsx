@@ -19,19 +19,22 @@ import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/auth/AuthContext";
 import { hospitalApi } from "@/api/hospital.api";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 export default function StaffInfoCard() {
   const { user } = useAuthContext();
-  const [hospital, setHospital] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [hospital, setHospital] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await hospitalApi.getMyHospital();
+
         setHospital(data);
       } catch (error) {
         console.error("Failed to fetch data", error);
+
         toast.error("Could not load profile details");
       } finally {
         setLoading(false);

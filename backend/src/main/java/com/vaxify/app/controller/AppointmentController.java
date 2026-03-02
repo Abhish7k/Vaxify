@@ -3,6 +3,7 @@ package com.vaxify.app.controller;
 import com.vaxify.app.dtos.appointment.AppointmentResponse;
 import com.vaxify.app.dtos.appointment.BookAppointmentRequest;
 import com.vaxify.app.service.AppointmentService;
+import com.vaxify.app.scheduled.AppointmentCleanupTask;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import com.vaxify.app.util.SecurityUtils;
@@ -17,6 +18,7 @@ public class AppointmentController {
 
     private final AppointmentService appointmentService;
     private final SecurityUtils securityUtils;
+    private final AppointmentCleanupTask appointmentCleanupTask;
 
     @PostMapping
     public ResponseEntity<AppointmentResponse> bookAppointment(@RequestBody BookAppointmentRequest request) {
@@ -49,6 +51,13 @@ public class AppointmentController {
     @PatchMapping("/{id}/complete")
     public ResponseEntity<Void> completeAppointment(@PathVariable Long id) {
         appointmentService.completeAppointment(id);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/cleanup")
+    public ResponseEntity<Void> runCleanup() {
+        appointmentCleanupTask.cleanupOverdueAppointments();
 
         return ResponseEntity.ok().build();
     }

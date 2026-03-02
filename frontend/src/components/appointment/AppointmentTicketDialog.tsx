@@ -13,10 +13,7 @@ interface AppointmentTicketDialogProps {
   onClose: () => void;
 }
 
-export default function AppointmentTicketDialog({
-  appointment,
-  onClose,
-}: AppointmentTicketDialogProps) {
+export default function AppointmentTicketDialog({ appointment, onClose }: AppointmentTicketDialogProps) {
   return (
     <Dialog open={!!appointment} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none">
@@ -40,6 +37,7 @@ export default function AppointmentTicketDialog({
             }}
             date={appointment.date}
             slot={appointment.slot}
+            endTime={appointment.endTime}
             status={(appointment.status || "BOOKED").toLowerCase() as any}
             className="shadow-2xl mx-auto"
           />

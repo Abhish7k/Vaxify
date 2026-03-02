@@ -3,7 +3,7 @@ import { motion, type Variants } from "framer-motion";
 import { User, Mail, Phone, Hash, Calendar, ClipboardList, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { userApi, type UserProfile, type UserStats } from "@/api/user.api";
 import { useEffect, useState } from "react";
 import { toastUtils } from "@/lib/toast";
@@ -53,7 +53,8 @@ export default function UserInfoCard() {
     {
       icon: Calendar,
       label: "Joined",
-      value: new Date(profile.createdAt).toLocaleDateString(),
+      // value: new Date(profile.createdAt).toLocaleDateString(),
+      value: formatDate(profile.createdAt),
     },
     {
       icon: ClipboardList,
@@ -67,6 +68,7 @@ export default function UserInfoCard() {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
+      whileHover="hover"
       className="w-full max-w-md mx-auto"
     >
       <Card className={cn("relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-8 shadow-sm ")}>
@@ -107,7 +109,7 @@ export default function UserInfoCard() {
               <h2 className="text-xl font-semibold">{profile.name}</h2>
 
               <Badge className="border border-blue-600/20 bg-blue-600/10 text-blue-600 focus-visible:ring-blue-600/20 dark:bg-blue-400/10 dark:text-blue-400 dark:focus-visible:ring-blue-400/40">
-                {profile.role}
+                {profile.role.toUpperCase()}
               </Badge>
             </div>
           </div>
@@ -169,7 +171,7 @@ function InfoRow({
 
       <span className="text-xs text-muted-foreground min-w-0 truncate">{label}</span>
 
-      <span className="text-xs sm:text-sm font-medium text-right flex-1 min-w-0 truncate">{value}</span>
+      <span className="text-xs sm:text-sm text-right flex-1 min-w-0 truncate">{value}</span>
     </div>
   );
 }

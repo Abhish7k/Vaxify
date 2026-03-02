@@ -13,9 +13,7 @@ export default function StaffAppointmentsListSection({
   onMarkCompleted,
   onCancelAppointment,
 }: Props) {
-  const filteredAppointments = appointments.filter(
-    (appointment) => appointment.status === activeStatus,
-  );
+  const filteredAppointments = appointments.filter((appointment) => appointment.status === activeStatus);
 
   const columns = useMemo(
     () =>
@@ -37,6 +35,9 @@ export default function StaffAppointmentsListSection({
         data={filteredAppointments}
         searchKey="patientName"
         searchPlaceholder="Search patients..."
+        initialVisibility={{
+          patientPhone: false,
+        }}
       />
     </div>
   );

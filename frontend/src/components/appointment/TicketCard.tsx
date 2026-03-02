@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn, formatTimeRange } from "@/lib/utils";
 import { CheckCircleIcon, MapPin, Syringe } from "lucide-react";
 
 export type TicketCardProps = {
@@ -12,6 +12,7 @@ export type TicketCardProps = {
   };
   date: string;
   slot: string;
+  endTime?: string;
   className?: string;
   status?: "scheduled" | "completed" | "cancelled";
 };
@@ -22,6 +23,7 @@ export function TicketCard({
   vaccine,
   date,
   slot,
+  endTime,
   className,
   status = "scheduled",
 }: TicketCardProps) {
@@ -75,7 +77,7 @@ export function TicketCard({
             Date & Time
           </p>
           <p className="font-medium mt-1 text-sm sm:text-base">
-            {formattedDate} • {slot}
+            {formattedDate} • {formatTimeRange(slot, endTime)}
           </p>
         </div>
 

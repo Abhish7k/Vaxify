@@ -9,9 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, ArrowUpDown, Check, X, Phone, Calendar, Clock, Syringe } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, Check, X } from "lucide-react";
 import type { Appointment as StaffAppointment } from "@/types/appointment";
-import { formatTime, formatDate } from "@/lib/utils";
+import { formatTimeRange, formatDate } from "@/lib/utils";
 
 interface GetColumnsProps {
   onMarkCompleted: (appointment: StaffAppointment) => void;
@@ -34,27 +34,19 @@ export const getStaffAppointmentColumns = ({
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => (
-      <span className="font-medium text-foreground">{row.getValue("patientName")}</span>
-    ),
+    cell: ({ row }) => <span className="text-foreground">{row.getValue("patientName")}</span>,
   },
   {
     accessorKey: "patientPhone",
     header: "Phone Number",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
-        <Phone className="h-3 w-3" />
-        {row.getValue("patientPhone")}
-      </div>
-    ),
+    cell: ({ row }) => <div className="text-xs">{row.getValue("patientPhone")}</div>,
   },
   {
     accessorKey: "vaccine",
     header: "Vaccine",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Syringe className="h-4 w-4 text-primary opacity-70" />
-        <span className="font-medium">{row.getValue("vaccine")}</span>
+        <span className="">{row.getValue("vaccine")}</span>
       </div>
     ),
   },
@@ -72,7 +64,6 @@ export const getStaffAppointmentColumns = ({
     ),
     cell: ({ row }) => (
       <div className="flex items-center gap-2 text-sm whitespace-nowrap">
-        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
         <span>{formatDate(row.getValue("date") as string)}</span>
       </div>
     ),
@@ -81,9 +72,8 @@ export const getStaffAppointmentColumns = ({
     accessorKey: "timeSlot",
     header: "Time",
     cell: ({ row }) => (
-      <div className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
-        <Clock className="h-3 w-3" />
-        <span>{formatTime(row.getValue("timeSlot"))}</span>
+      <div className="flex items-center gap-2 text-xs text-foreground/90 whitespace-nowrap">
+        <span>{formatTimeRange(row.getValue("timeSlot") as string, row.original.endTime)}</span>
       </div>
     ),
   },
@@ -118,6 +108,15 @@ export const getStaffAppointmentColumns = ({
               className="bg-red-50/50 text-red-600 border-red-100 font-medium px-2.5 py-0.5"
             >
               Cancelled
+            </Badge>
+          );
+        case "MISSED":
+          return (
+            <Badge
+              variant="outline"
+              className="bg-slate-50/50 text-slate-600 border-slate-100 font-medium px-2.5 py-0.5"
+            >
+              Missed
             </Badge>
           );
         default:

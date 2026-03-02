@@ -136,6 +136,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         @Override
         public List<AppointmentResponse> getMyAppointments(String userEmail) {
+                cleanupOverdueAppointments();
+
                 User user = userService.findByEmail(userEmail);
 
                 List<AppointmentResponse> responses = appointmentRepository.findAll().stream()
@@ -198,8 +200,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         @Override
-        @Transactional(readOnly = true)
+        @Transactional
         public List<AppointmentResponse> getAppointmentsByHospital(Long hospitalId) {
+                cleanupOverdueAppointments();
+
                 List<AppointmentResponse> responses = appointmentRepository.findBySlotCenterId(hospitalId).stream()
                                 .map(appointmentMapper::toResponse)
                                 .collect(Collectors.toList());
@@ -229,5 +233,39 @@ public class AppointmentServiceImpl implements AppointmentService {
                 notificationService.sendVaccinationCompletion(saved);
 
                 log.info("Appointment completed: ID={}", appointmentId);
+        }
+
+        @Override
+        @Transactional
+        public void cleanupOverdueAppointments() {
+                log.info("starting overdue appts cleanup task");
+
+                LocalDate today = LocalDate.now();
+
+                List<Appointment> overdue = appointmentRepository.findByStatusAndSlotDateBefore(
+                                AppointmentStatus.BOOKED, today);
+
+                if (overdue.isEmpty()) {
+                        log.info("no overdue appts found to cleanup");
+
+                        return;
+                }
+
+                log.info("found {} overdue appts, marking as MISSED and refunding stock", overdue.size());
+
+                for (Appointment appointment : overdue) {
+                        appointment.setStatus(AppointmentStatus.MISSED);
+
+                        // refund vaccine stock as it wasn't used
+                        Vaccine vaccine = appointment.getVaccine();
+
+                        vaccine.setStock(vaccine.getStock() + 1);
+
+                        vaccineRepository.save(vaccine);
+                }
+
+                appointmentRepository.saveAll(overdue);
+
+                log.info("successfully marked {} appts as MISSED and restored vaccine stock", overdue.size());
         }
 }

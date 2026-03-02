@@ -8,17 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
-  ArrowUpDown,
-  X,
-  Calendar,
-  Clock,
-  Syringe,
-  MapPin,
-  Ticket,
-  Eye,
-} from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, X, MapPin, Ticket, Eye } from "lucide-react";
 import type { Appointment } from "@/types/appointment";
 import { formatTimeRange, formatDate } from "@/lib/utils";
 import AppointmentStatusBadge from "./AppointmentStatusBadge";
@@ -48,14 +38,11 @@ export const getMyAppointmentsColumns = ({
     ),
     cell: ({ row }) => (
       <div className="flex flex-col max-w-[200px]">
-        <span
-          className="font-medium text-foreground truncate"
-          title={row.getValue("centerName")}
-        >
+        <span className="text-foreground truncate" title={row.getValue("centerName")}>
           {row.getValue("centerName")}
         </span>
 
-        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 truncate">
+        <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5 truncate">
           <MapPin className="h-3 w-3 shrink-0" />
           <span className="truncate" title={row.original.centerAddress}>
             {row.original.centerAddress}
@@ -69,8 +56,7 @@ export const getMyAppointmentsColumns = ({
     header: "Vaccine",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Syringe className="h-4 w-4 text-primary opacity-70" />
-        <span className="font-medium">{row.getValue("vaccineName")}</span>
+        <span className="">{row.getValue("vaccineName")}</span>
       </div>
     ),
   },
@@ -88,7 +74,6 @@ export const getMyAppointmentsColumns = ({
     ),
     cell: ({ row }) => (
       <div className="flex items-center gap-2 text-sm whitespace-nowrap">
-        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
         <span>{formatDate(row.getValue("date"))}</span>
       </div>
     ),
@@ -97,9 +82,8 @@ export const getMyAppointmentsColumns = ({
     accessorKey: "slot",
     header: "Time",
     cell: ({ row }) => (
-      <div className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
-        <Clock className="h-3 w-3" />
-        <span>{formatTimeRange(row.getValue("slot"))}</span>
+      <div className="flex items-center gap-2 text-xs text-foreground/80 whitespace-nowrap">
+        <span>{formatTimeRange(row.getValue("slot") as string, row.original.endTime)}</span>
       </div>
     ),
   },

@@ -12,10 +12,15 @@ export function formatTime(time: string) {
   return time.split(":").slice(0, 2).join(":");
 }
 
-export function formatTimeRange(startTime: string) {
+export function formatTimeRange(startTime: string, endTime?: string) {
   if (!startTime || startTime === "N/A") return startTime;
 
-  // Handle cases like "09:00:00" or "09:00"
+  const start = formatTime(startTime);
+  if (endTime) {
+    return `${start} - ${formatTime(endTime)}`;
+  }
+
+  // fallback to +1 hour if endTime is missing
   const parts = startTime.split(":");
   if (parts.length < 2) return startTime;
 

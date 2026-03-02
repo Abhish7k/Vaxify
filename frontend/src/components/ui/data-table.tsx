@@ -1,4 +1,3 @@
-import * as React from "react";
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -24,15 +23,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -55,21 +48,18 @@ export function DataTable<TData, TValue>({
   onVisibilityChange,
   pagination,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({
-      capacity: false,
-      lastUpdated: false,
-      ...initialVisibility,
-    });
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    capacity: false,
+    lastUpdated: false,
+    ...initialVisibility,
+  });
+
+  const [rowSelection, setRowSelection] = useState({});
 
   const handleVisibilityChange = (updater: Updater<VisibilityState>) => {
-    const nextValue =
-      typeof updater === "function" ? updater(columnVisibility) : updater;
+    const nextValue = typeof updater === "function" ? updater(columnVisibility) : updater;
     setColumnVisibility(nextValue);
     onVisibilityChange?.(nextValue);
   };
@@ -102,12 +92,8 @@ export function DataTable<TData, TValue>({
           {searchKey && (
             <Input
               placeholder={searchPlaceholder}
-              value={
-                (table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
-              }
-              onChange={(event) =>
-                table.getColumn(searchKey)?.setFilterValue(event.target.value)
-              }
+              value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
+              onChange={(event) => table.getColumn(searchKey)?.setFilterValue(event.target.value)}
               className="pl-9 h-10 w-full"
             />
           )}
@@ -116,11 +102,7 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center gap-2 w-full sm:w-auto ml-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 px-3 flex gap-2 w-full sm:w-auto"
-              >
+              <Button variant="outline" size="sm" className="h-10 px-3 flex gap-2 w-full sm:w-auto">
                 <Settings2 className="h-4 w-4" />
                 <span>Columns</span>
                 <ChevronDown className="h-4 w-4 opacity-50" />
@@ -136,9 +118,7 @@ export function DataTable<TData, TValue>({
                       key={column.id}
                       className="capitalize"
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
+                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
                     >
                       {column.id.replace(/([A-Z])/g, " $1").trim()}
                     </DropdownMenuCheckboxItem>
@@ -155,26 +135,19 @@ export function DataTable<TData, TValue>({
           <Table>
             <TableHeader className="bg-muted/30">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow
-                  key={headerGroup.id}
-                  className="hover:bg-transparent border-b-muted/50"
-                >
+                <TableRow key={headerGroup.id} className="hover:bg-transparent border-b-muted/50">
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead
                         key={header.id}
                         className={cn(
                           "h-12 px-4 text-left align-middle font-semibold text-foreground whitespace-nowrap",
-                          header.column.getCanSort() &&
-                            "cursor-pointer select-none",
+                          header.column.getCanSort() && "cursor-pointer select-none",
                         )}
                       >
                         {header.isPlaceholder
                           ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                          : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     );
                   })}
@@ -184,10 +157,7 @@ export function DataTable<TData, TValue>({
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-32 text-center"
-                  >
+                  <TableCell colSpan={columns.length} className="h-32 text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                       <p className="text-muted-foreground">Loading data...</p>
@@ -203,20 +173,14 @@ export function DataTable<TData, TValue>({
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="p-4 align-middle">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-32 text-center text-muted-foreground"
-                  >
+                  <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Search className="h-8 w-8 opacity-20" />
                       <p>No results found.</p>
@@ -243,8 +207,7 @@ export function DataTable<TData, TValue>({
               Previous
             </Button>
             <div className="text-sm font-medium w-fit min-w-20 text-center">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
             </div>
             <Button
               variant="outline"

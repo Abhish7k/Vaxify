@@ -14,18 +14,13 @@ export default function EmptyStaffAppointmentsState({ status }: Props) {
 
         <h3 className="font-medium">{copy[status]?.title}</h3>
 
-        <p className="text-sm text-muted-foreground max-w-sm">
-          {copy[status]?.description}
-        </p>
+        <p className="text-sm text-muted-foreground max-w-sm">{copy[status]?.description}</p>
       </CardContent>
     </Card>
   );
 }
 
-const copy: Record<
-  StaffAppointmentStatus,
-  { title: string; description: string }
-> = {
+const copy: Record<StaffAppointmentStatus, { title: string; description: string }> = {
   UPCOMING: {
     title: "No upcoming appointments",
     description: "There are no upcoming vaccination appointments scheduled.",
@@ -53,5 +48,9 @@ const copy: Record<
   cancelled: {
     title: "No cancelled appointments",
     description: "There are no cancelled appointments.",
+  },
+  MISSED: {
+    title: "No missed appointments",
+    description: "There are no missed appointments.",
   },
 };
