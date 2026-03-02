@@ -9,14 +9,12 @@ type Props = {
 
 export default function MyAppointmentsTabsSection({ value, onChange }: Props) {
   return (
-    <Tabs
-      value={value}
-      onValueChange={(val) => onChange(val as AppointmentStatus)}
-    >
+    <Tabs value={value} onValueChange={(val) => onChange(val as AppointmentStatus)}>
       <TabsList className="">
         <TabsTrigger value="BOOKED">Upcoming</TabsTrigger>
         <TabsTrigger value="COMPLETED">Completed</TabsTrigger>
         <TabsTrigger value="CANCELLED">Cancelled</TabsTrigger>
+        <TabsTrigger value="MISSED">Missed</TabsTrigger>
       </TabsList>
     </Tabs>
   );

@@ -27,7 +27,9 @@ export default function MyAppointmentsPage() {
   const fetchAppointments = async () => {
     try {
       setIsLoading(true);
+
       const data = await appointmentApi.getMyAppointments();
+
       setAppointments(data);
     } catch (error) {
       console.error("Failed to fetch appointments", error);
@@ -59,8 +61,11 @@ export default function MyAppointmentsPage() {
 
     try {
       setIsCancelling(true);
+
       await appointmentApi.cancelAppointment(appointmentToCancel.id);
+
       toast.success("Cancelled appointment successfully");
+
       fetchAppointments();
     } catch (error) {
       toast.error("Failed to cancel appointment");
@@ -93,6 +98,8 @@ export default function MyAppointmentsPage() {
               status = "COMPLETED";
             } else if (s === "CANCELLED") {
               status = "CANCELLED";
+            } else if (s === "MISSED") {
+              status = "MISSED";
             }
 
             return {

@@ -5,6 +5,7 @@ export type AppointmentStatus =
   | "BOOKED"
   | "COMPLETED"
   | "CANCELLED"
+  | "MISSED"
   | "UPCOMING";
 
 export interface Appointment {

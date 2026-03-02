@@ -7,6 +7,8 @@ import com.vaxify.app.entities.Appointment;
 import com.vaxify.app.entities.Slot;
 import com.vaxify.app.entities.User;
 import com.vaxify.app.entities.Vaccine;
+import com.vaxify.app.entities.enums.AppointmentStatus;
+import java.time.LocalDate;
 
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +23,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByVaccineIn(List<Vaccine> vaccines);
 
     List<Appointment> findBySlot(Slot slot);
+
+    List<Appointment> findByStatusAndSlotDateBefore(AppointmentStatus status, LocalDate date);
 }

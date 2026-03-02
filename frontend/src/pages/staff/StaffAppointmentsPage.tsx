@@ -53,6 +53,8 @@ export default function StaffAppointmentsPage() {
           status = "COMPLETED";
         } else if (s === "CANCELLED") {
           status = "CANCELLED";
+        } else if (s === "MISSED") {
+          status = "MISSED";
         }
 
         return {

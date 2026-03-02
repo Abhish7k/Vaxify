@@ -58,6 +58,13 @@ export default function AppointmentStatusBadge({ status }: Props) {
         </Badge>
       );
 
+    case "MISSED":
+      return (
+        <Badge className="border border-muted-foreground/20 bg-muted/50 text-muted-foreground focus-visible:ring-muted-foreground/20">
+          Missed
+        </Badge>
+      );
+
     default:
       return null;
   }

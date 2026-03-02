@@ -4,17 +4,27 @@
 
     <springProperty scope="context" name="appName" source="spring.application.name"/>
 
-    <!-- standard console appender - new relic agent reads from here -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- real console appender -->
+    <appender name="CONSOLE_INTERNAL" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx</pattern>
         </encoder>
     </appender>
 
+    <!-- async wrapper -->
+    <!-- ensures api threads don't block on logging -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="CONSOLE_INTERNAL" />
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold> <!-- keep all logs even at info level -->
+        <includeCallerData>false</includeCallerData> <!-- speed boost by not capturing line numbers -->
+        <neverBlock>true</neverBlock> <!-- throw away logs instead of slowing down the app if queue is full -->
+    </appender>
 
-    <!-- root logger sends everythng to console -->
+
+    <!-- root logger -->
     <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_CONSOLE"/>
     </root>
 
 </configuration>
