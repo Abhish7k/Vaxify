@@ -81,17 +81,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
 
-        List<Appointment> allAppts = appointmentRepository.findByUser(user);
+        // maintaining for total
+        long total = appointmentRepository.findByUser(user).size();
 
-        long total = allAppts.size();
+        long pending = appointmentRepository.countByUserAndStatus(user, AppointmentStatus.BOOKED);
 
-        long pending = allAppts.stream()
-                .filter(a -> a.getStatus() == AppointmentStatus.BOOKED)
-                .count();
-
-        long completed = allAppts.stream()
-                .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
-                .count();
+        long completed = appointmentRepository.countByUserAndStatus(user, AppointmentStatus.COMPLETED);
 
         String vaccStatus = "Unvaccinated";
         if (completed == 1) {
@@ -100,7 +95,7 @@ public class UserServiceImpl implements UserService {
             vaccStatus = "Fully Vaccinated";
         }
 
-        Optional<Appointment> nextUpcoming = allAppts.stream()
+        Optional<Appointment> nextUpcoming = appointmentRepository.findByUser(user).stream()
                 .filter(a -> a.getStatus() == AppointmentStatus.BOOKED)
                 .filter(a -> {
                     LocalDate d = a.getSlot().getDate();
@@ -117,9 +112,7 @@ public class UserServiceImpl implements UserService {
                 .map(a -> a.getSlot().getDate().toString() + "T" + a.getSlot().getStartTime().toString())
                 .orElse("No upcoming");
 
-        List<AppointmentResponse> recent = allAppts.stream()
-                .sorted(Comparator.comparing(Appointment::getCreatedAt).reversed())
-                .limit(3)
+        List<AppointmentResponse> recent = appointmentRepository.findTop3ByUserOrderByCreatedAtDesc(user).stream()
                 .map(appointmentMapper::toResponse)
                 .collect(Collectors.toList());
 

@@ -3,6 +3,7 @@ package com.vaxify.app.service;
 import java.util.List;
 import com.vaxify.app.dtos.vaccine.VaccineRequest;
 import com.vaxify.app.dtos.vaccine.VaccineResponse;
+import com.vaxify.app.entities.Hospital;
 import com.vaxify.app.entities.Vaccine;
 
 public interface VaccineService {
@@ -25,4 +26,16 @@ public interface VaccineService {
     List<VaccineResponse> getVaccinesByHospitalId(Long hospitalId);
 
     void checkStockAlerts(Vaccine vaccine);
+
+    Vaccine findEntityById(Long id);
+
+    void deductStock(Vaccine vaccine);
+
+    void refundStock(Vaccine vaccine);
+
+    void validateAvailable(Vaccine vaccine);
+
+    List<Vaccine> getEntitiesByHospitals(List<Hospital> hospitals);
+
+    List<Vaccine> getEntitiesByHospital(Hospital hospital);
 }

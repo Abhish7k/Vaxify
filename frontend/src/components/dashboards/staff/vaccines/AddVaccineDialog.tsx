@@ -3,13 +3,7 @@ import { vaccineApi } from "@/api/vaccine.api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +13,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { toastUtils } from "@/lib/toast";
 
 interface AddVaccineDialogProps {
   onSuccess: () => void;
@@ -35,8 +29,14 @@ const addVaccineSchema = z
     name: z.string().min(1, "Vaccine name is required"),
     type: z.string().min(1, "Vaccine type is required"),
     manufacturer: z.string().min(1, "Manufacturer is required"),
-    stock: z.coerce.number().min(0, "Stock cannot be negative"),
-    capacity: z.coerce.number().min(1, "Capacity must be greater than zero"),
+    stock: z.preprocess(
+      (val) => String(val),
+      z.string().regex(/^\d+$/, "Stock must be a whole number").transform(Number),
+    ),
+    capacity: z.preprocess(
+      (val) => String(val),
+      z.string().regex(/^\d+$/, "Capacity must be a whole number").transform(Number),
+    ),
   })
   .refine((data) => data.stock <= data.capacity, {
     message: "Stock cannot exceed capacity",
@@ -69,14 +69,9 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
 
   const typeValue = watch("type");
 
-  // handle "other" type selection logic
+  // handle other type choice
   useEffect(() => {
-    const standardTypes = [
-      "Inactivated Virus",
-      "Viral Vector",
-      "mRNA",
-      "Protein Subunit",
-    ];
+    const standardTypes = ["Inactivated Virus", "Viral Vector", "mRNA", "Protein Subunit"];
     if (typeValue && !standardTypes.includes(typeValue)) {
       setIsOtherType(true);
     } else {
@@ -88,12 +83,7 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
     try {
       const result = await vaccineApi.addVaccine(data);
 
-      toast.success(`${result.name} added to inventory`, {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
+      toastUtils.success(`${result.name} added to inventory`);
 
       setOpen(false);
 
@@ -101,12 +91,7 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
 
       onSuccess();
     } catch (error) {
-      toast.error("Failed to add vaccine", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to add vaccine");
 
       console.error(error);
     }
@@ -143,16 +128,9 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
           <div className="grid gap-2">
             <Label htmlFor="name">Vaccine Name</Label>
 
-            <Input
-              id="name"
-              placeholder="e.g. Covaxin"
-              {...register("name")}
-              disabled={isSubmitting}
-            />
+            <Input id="name" placeholder="e.g. Covaxin" {...register("name")} disabled={isSubmitting} />
 
-            {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
-            )}
+            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
           <div className="grid gap-2">
@@ -168,9 +146,7 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="Inactivated Virus">
-                  Inactivated Virus
-                </SelectItem>
+                <SelectItem value="Inactivated Virus">Inactivated Virus</SelectItem>
 
                 <SelectItem value="Viral Vector">Viral Vector</SelectItem>
 
@@ -187,16 +163,12 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
               <Input
                 placeholder="Enter Custom Vaccine Type"
                 value={typeValue}
-                onChange={(e) =>
-                  setValue("type", e.target.value, { shouldValidate: true })
-                }
+                onChange={(e) => setValue("type", e.target.value, { shouldValidate: true })}
                 className="mt-2"
               />
             )}
 
-            {errors.type && (
-              <p className="text-sm text-destructive">{errors.type.message}</p>
-            )}
+            {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
           </div>
 
           <div className="grid gap-2">
@@ -210,26 +182,16 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
             />
 
             {errors.manufacturer && (
-              <p className="text-sm text-destructive">
-                {errors.manufacturer.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.manufacturer.message}</p>
             )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="stock">Initial Stock</Label>
 
-            <Input
-              id="stock"
-              type="number"
-              min="0"
-              {...register("stock")}
-              disabled={isSubmitting}
-            />
+            <Input id="stock" type="number" min="0" {...register("stock")} disabled={isSubmitting} />
 
-            {errors.stock && (
-              <p className="text-sm text-destructive">{errors.stock.message}</p>
-            )}
+            {errors.stock && <p className="text-sm text-destructive">{errors.stock.message}</p>}
           </div>
 
           <div className="grid gap-2">
@@ -244,11 +206,7 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
               disabled={isSubmitting}
             />
 
-            {errors.capacity && (
-              <p className="text-sm text-destructive">
-                {errors.capacity.message}
-              </p>
-            )}
+            {errors.capacity && <p className="text-sm text-destructive">{errors.capacity.message}</p>}
           </div>
 
           <DialogFooter className="pt-4">

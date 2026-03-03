@@ -5,6 +5,7 @@ import com.vaxify.app.dtos.hospital.StaffHospitalRegisterRequest;
 import com.vaxify.app.dtos.hospital.HospitalSummaryResponse;
 import com.vaxify.app.dtos.hospital.UpdateHospitalRequest;
 import com.vaxify.app.dtos.hospital.StaffHospitalRegistrationRequest;
+import com.vaxify.app.entities.Hospital;
 
 import java.util.List;
 
@@ -37,4 +38,7 @@ public interface HospitalService {
 
     void deleteHospital(Long id);
 
+    Hospital findEntityByStaffEmail(String email);
+
+    Hospital findEntityById(Long id);
 }

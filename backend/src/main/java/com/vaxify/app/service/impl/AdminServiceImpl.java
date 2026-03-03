@@ -8,6 +8,7 @@ import com.vaxify.app.repository.AppointmentRepository;
 import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.repository.UserRepository;
 import com.vaxify.app.service.AdminService;
+import com.vaxify.app.service.AppointmentCleanupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,62 +22,64 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class AdminServiceImpl implements AdminService {
 
-    private final HospitalRepository hospitalRepository;
-    private final UserRepository userRepository;
-    private final AppointmentRepository appointmentRepository;
+        private final HospitalRepository hospitalRepository;
+        private final UserRepository userRepository;
+        private final AppointmentRepository appointmentRepository;
+        private final AppointmentCleanupService appointmentCleanupService;
 
-    @Override
-    public AdminStatsResponse getAdminStats() {
-        AdminStatsResponse response = AdminStatsResponse.builder()
-                .totalHospitals(hospitalRepository.count())
-                .pendingApprovals(hospitalRepository.countByStatus(HospitalStatus.PENDING))
-                .totalUsers(userRepository.countByRole(Role.USER))
-                .activeCenters(hospitalRepository.countByStatus(HospitalStatus.APPROVED))
-                .totalAppointments(appointmentRepository.count())
-                .build();
+        @Override
+        @Transactional
+        public AdminStatsResponse getAdminStats() {
+                appointmentCleanupService.cleanupOverdue();
 
-        return response;
-    }
+                AdminStatsResponse response = AdminStatsResponse.builder()
+                                .totalHospitals(hospitalRepository.count())
+                                .pendingApprovals(hospitalRepository.countByStatus(HospitalStatus.PENDING))
+                                .totalUsers(userRepository.countByRole(Role.USER))
+                                .activeCenters(hospitalRepository.countByStatus(HospitalStatus.APPROVED))
+                                .totalAppointments(appointmentRepository.count())
+                                .build();
 
-    @Override
-    public List<AdminActivityResponse> getRecentActivities() {
-        List<AdminActivityResponse> activities = new ArrayList<>();
+                return response;
+        }
 
-        // Add Recent Hospitals
-        hospitalRepository.findAllByOrderByCreatedAtDesc().stream()
-                .limit(5)
-                .forEach(h -> {
-                    String action = h.getStatus() == HospitalStatus.PENDING
-                            ? "New hospital registered"
-                            : "Hospital " + h.getStatus().toString().toLowerCase();
-                    activities.add(AdminActivityResponse.builder()
-                            .id("h-" + h.getId())
-                            .action(action)
-                            .target(h.getName())
-                            .type("HOSPITAL")
-                            .status(h.getStatus().toString())
-                            .timestamp(h.getCreatedAt())
-                            .build());
+        @Override
+        @Transactional
+        public List<AdminActivityResponse> getRecentActivities() {
+                appointmentCleanupService.cleanupOverdue();
+
+                List<AdminActivityResponse> activities = new ArrayList<>();
+
+                // Add Recent Hospitals
+                hospitalRepository.findTop5ByOrderByCreatedAtDesc().forEach(h -> {
+                        String action = h.getStatus() == HospitalStatus.PENDING
+                                        ? "New hospital registered"
+                                        : "Hospital " + h.getStatus().toString().toLowerCase();
+                        activities.add(AdminActivityResponse.builder()
+                                        .id("h-" + h.getId())
+                                        .action(action)
+                                        .target(h.getName())
+                                        .type("HOSPITAL")
+                                        .status(h.getStatus().toString())
+                                        .timestamp(h.getCreatedAt())
+                                        .build());
                 });
 
-        // Add Recent User Registrations
-        userRepository.findAllByOrderByCreatedAtDesc().stream()
-                .filter(u -> u.getRole() == Role.USER)
-                .limit(5)
-                .forEach(u -> {
-                    activities.add(AdminActivityResponse.builder()
-                            .id("u-" + u.getId())
-                            .action("New user registered")
-                            .target(u.getName())
-                            .type("USER")
-                            .timestamp(u.getCreatedAt())
-                            .build());
+                // Add Recent User Registrations
+                userRepository.findTop5ByRoleOrderByCreatedAtDesc(Role.USER).forEach(u -> {
+                        activities.add(AdminActivityResponse.builder()
+                                        .id("u-" + u.getId())
+                                        .action("New user registered")
+                                        .target(u.getName())
+                                        .type("USER")
+                                        .timestamp(u.getCreatedAt())
+                                        .build());
                 });
 
-        // Sort by timestamp desc and limit to 5
-        return activities.stream()
-                .sorted((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()))
-                .limit(5)
-                .collect(Collectors.toList());
-    }
+                // Sort by timestamp desc and limit to 5
+                return activities.stream()
+                                .sorted((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()))
+                                .limit(5)
+                                .collect(Collectors.toList());
+        }
 }

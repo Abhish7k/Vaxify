@@ -2,6 +2,7 @@ package com.vaxify.app.service;
 
 import com.vaxify.app.dtos.appointment.AppointmentResponse;
 import com.vaxify.app.dtos.appointment.BookAppointmentRequest;
+import com.vaxify.app.entities.Slot;
 
 import java.util.List;
 
@@ -18,5 +19,7 @@ public interface AppointmentService {
 
     void completeAppointment(Long appointmentId);
 
-    void cleanupOverdueAppointments();
+    boolean hasActiveBookings(Slot slot);
+
+    void deleteAppointmentsBySlot(Slot slot);
 }

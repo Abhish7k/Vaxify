@@ -13,6 +13,7 @@ import com.vaxify.app.repository.*;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.service.HospitalService;
 import com.vaxify.app.service.UserService;
+import com.vaxify.app.service.VaccineService;
 import com.vaxify.app.service.NotificationService;
 import com.vaxify.app.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public class HospitalServiceImpl implements HospitalService {
 
         private final HospitalRepository hospitalRepository;
         private final UserService userService;
-        private final VaccineRepository vaccineRepository;
+        private final VaccineService vaccineService;
         private final HospitalMapper hospitalMapper;
         private final SecurityUtils securityUtils;
         private final NotificationService notificationService;
@@ -113,7 +114,7 @@ public class HospitalServiceImpl implements HospitalService {
         public List<HospitalSummaryResponse> getApprovedHospitals() {
                 List<Hospital> hospitals = hospitalRepository.findByStatusWithStaff(HospitalStatus.APPROVED);
 
-                List<Vaccine> allVaccines = vaccineRepository.findByHospitalIn(hospitals);
+                List<Vaccine> allVaccines = vaccineService.getEntitiesByHospitals(hospitals);
 
                 return hospitalMapper.toSummaryResponses(hospitals, allVaccines);
         }
@@ -122,7 +123,7 @@ public class HospitalServiceImpl implements HospitalService {
         public List<HospitalResponse> getAllHospitals() {
                 List<Hospital> hospitals = hospitalRepository.findAllWithStaff();
 
-                List<Vaccine> allVaccines = vaccineRepository.findByHospitalIn(hospitals);
+                List<Vaccine> allVaccines = vaccineService.getEntitiesByHospitals(hospitals);
 
                 return hospitalMapper.toResponses(hospitals, allVaccines, false, true);
         }
@@ -131,7 +132,7 @@ public class HospitalServiceImpl implements HospitalService {
         public List<HospitalResponse> getPendingHospitals() {
                 List<Hospital> hospitals = hospitalRepository.findByStatusWithStaff(HospitalStatus.PENDING);
 
-                List<Vaccine> allVaccines = vaccineRepository.findByHospitalIn(hospitals);
+                List<Vaccine> allVaccines = vaccineService.getEntitiesByHospitals(hospitals);
 
                 return hospitalMapper.toResponses(hospitals, allVaccines, true, true);
         }
@@ -188,7 +189,7 @@ public class HospitalServiceImpl implements HospitalService {
         }
 
         private HospitalResponse toHospitalResponse(Hospital hospital, boolean includeLowStock, boolean isPrivileged) {
-                List<Vaccine> vaccines = vaccineRepository.findByHospital(hospital);
+                List<Vaccine> vaccines = vaccineService.getEntitiesByHospital(hospital);
 
                 return hospitalMapper.toResponse(hospital, vaccines, includeLowStock, isPrivileged);
         }
@@ -233,5 +234,23 @@ public class HospitalServiceImpl implements HospitalService {
                 }
 
                 log.info("Hospital deleted: ID={}, Name={}", id, hospital.getName());
+        }
+
+        @Override
+        public Hospital findEntityByStaffEmail(String email) {
+                return getHospitalByStaffEmail(email);
+        }
+
+        @Override
+        public Hospital findEntityById(Long id) {
+                return hospitalRepository.findById(id)
+                                .orElseThrow(() -> new VaxifyException("Hospital not found"));
+        }
+
+        private Hospital getHospitalByStaffEmail(String email) {
+                User staffUser = userService.findByEmail(email);
+
+                return hospitalRepository.findByStaffUser(staffUser)
+                                .orElseThrow(() -> new VaxifyException("Hospital not found for this staff"));
         }
 }

@@ -29,4 +29,6 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
     long countByStatus(HospitalStatus status);
 
     List<Hospital> findAllByOrderByCreatedAtDesc();
+
+    List<Hospital> findTop5ByOrderByCreatedAtDesc();
 }

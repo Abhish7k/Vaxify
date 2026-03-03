@@ -10,7 +10,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AddVaccineDialog } from "@/components/dashboards/staff/vaccines/AddVaccineDialog";
 import { DeleteVaccineDialog } from "@/components/dashboards/staff/vaccines/DeleteVaccineDialog";
 import { UpdateStockDialog } from "@/components/dashboards/staff/vaccines/UpdateStockDialog";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
 
 export default function StaffVaccinesPage() {
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
@@ -22,16 +22,12 @@ export default function StaffVaccinesPage() {
     setLoading(true);
     try {
       const data = await vaccineApi.getMyVaccines();
+
       setVaccines(data);
     } catch (error) {
       console.error("Fetch failed", error);
 
-      toast.error("Failed to fetch vaccines", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to fetch vaccines");
     } finally {
       setLoading(false);
     }
@@ -47,12 +43,7 @@ export default function StaffVaccinesPage() {
     } catch (error) {
       console.error("Fetch failed", error);
 
-      toast.error("Failed to fetch vaccines", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to fetch vaccines");
     } finally {
       setLoading(false);
     }
@@ -95,24 +86,15 @@ export default function StaffVaccinesPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Vaccine Inventory
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Vaccine Inventory</h1>
           <p className="text-sm text-muted-foreground">
             Manage vaccine stock and availability for your center.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            <RefreshCcw
-              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-            />
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
+            <RefreshCcw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
 

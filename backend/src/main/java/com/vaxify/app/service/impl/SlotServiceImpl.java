@@ -1,10 +1,13 @@
 package com.vaxify.app.service.impl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.DayOfWeek;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,12 +15,11 @@ import com.vaxify.app.dtos.slot.SlotRequest;
 import com.vaxify.app.dtos.slot.SlotResponse;
 import com.vaxify.app.entities.Hospital;
 import com.vaxify.app.entities.Slot;
-import com.vaxify.app.repository.AppointmentRepository;
 import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.repository.SlotRepository;
-import com.vaxify.app.entities.Appointment;
-import com.vaxify.app.entities.enums.AppointmentStatus;
+import com.vaxify.app.entities.enums.SlotStatus;
 import com.vaxify.app.exception.VaxifyException;
+import com.vaxify.app.service.AppointmentService;
 import com.vaxify.app.service.SlotService;
 import com.vaxify.app.mapper.SlotMapper;
 
@@ -31,7 +33,11 @@ public class SlotServiceImpl implements SlotService {
 
     private final SlotRepository slotRepository;
     private final HospitalRepository hospitalRepository;
-    private final AppointmentRepository appointmentRepository;
+
+    @Autowired
+    @Lazy
+    private AppointmentService appointmentService;
+
     private final SlotMapper slotMapper;
 
     @Override
@@ -62,10 +68,8 @@ public class SlotServiceImpl implements SlotService {
                 .orElseThrow(() -> new VaxifyException("Hospital not found"));
 
         // check duplicate slot
-        List<Slot> daySlots = slotRepository.findByCenterIdAndDate(dto.getHospitalId(), dto.getDate());
-
-        boolean exists = daySlots.stream()
-                .anyMatch(s -> s.getStartTime().equals(dto.getStartTime()));
+        boolean exists = slotRepository.existsByCenterIdAndDateAndStartTime(dto.getHospitalId(), dto.getDate(),
+                dto.getStartTime());
 
         if (exists) {
             throw new VaxifyException("Slot already exists for this time on selected date");
@@ -174,22 +178,67 @@ public class SlotServiceImpl implements SlotService {
                 .orElseThrow(() -> new VaxifyException("Slot not found"));
 
         // check active bookings
-        List<Appointment> appts = appointmentRepository.findBySlot(slot);
-
-        boolean hasActive = appts.stream()
-                .anyMatch(a -> a.getStatus() == AppointmentStatus.BOOKED);
+        boolean hasActive = appointmentService.hasActiveBookings(slot);
 
         if (hasActive) {
             throw new VaxifyException("Cannot delete slot with active bookings");
         }
 
         // remove appts to fix fk constraints
-        if (!appts.isEmpty()) {
-            appointmentRepository.deleteAll(appts);
-        }
+        appointmentService.deleteAppointmentsBySlot(slot);
 
         slotRepository.deleteById(slotId);
 
         log.info("Slot deleted: ID={} (Hospital: {})", slotId, slot.getCenter().getName());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Slot findEntityByDetails(Long centerId, LocalDate date, LocalTime time) {
+        return slotRepository.findByCenterIdAndDate(centerId, date).stream()
+                .filter(s -> s.getStartTime().equals(time))
+                .findFirst()
+                .orElseThrow(() -> new VaxifyException("No available slot found for the selected time"));
+    }
+
+    @Override
+    @Transactional
+    public void reserveSlot(Slot slot) {
+        slot.setBookedCount(slot.getBookedCount() + 1);
+
+        if (slot.getBookedCount() >= slot.getCapacity()) {
+            slot.setStatus(SlotStatus.FULL);
+        }
+
+        slotRepository.save(slot);
+
+        log.info("Slot reserved: ID={}, New BookedCount={} (Hospital: {})",
+                slot.getId(), slot.getBookedCount(), slot.getCenter().getName());
+    }
+
+    @Override
+    @Transactional
+    public void releaseSlot(Slot slot) {
+        slot.setBookedCount(slot.getBookedCount() - 1);
+
+        if (slot.getStatus() == SlotStatus.FULL && slot.getBookedCount() < slot.getCapacity()) {
+            slot.setStatus(SlotStatus.AVAILABLE);
+        }
+
+        slotRepository.save(slot);
+
+        log.info("Slot released: ID={}, New BookedCount={} (Hospital: {})",
+                slot.getId(), slot.getBookedCount(), slot.getCenter().getName());
+    }
+
+    @Override
+    public void validateAvailable(Slot slot, LocalDate date, LocalTime time) {
+        if (LocalDateTime.of(date, time).isBefore(LocalDateTime.now())) {
+            throw new VaxifyException("Cannot book a slot for a time that has already passed");
+        }
+
+        if (slot.getStatus() == SlotStatus.FULL || slot.getBookedCount() >= slot.getCapacity()) {
+            throw new VaxifyException("Selected slot is already full");
+        }
     }
 }

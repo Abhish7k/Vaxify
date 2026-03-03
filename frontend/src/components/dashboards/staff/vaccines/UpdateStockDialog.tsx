@@ -12,11 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { toastUtils } from "@/lib/toast";
 
 interface UpdateStockDialogProps {
   vaccine: Vaccine | null;
@@ -24,19 +24,18 @@ interface UpdateStockDialogProps {
   onSuccess: () => void;
 }
 
-// static base schema
+// base schema
 const baseSchema = z.object({
-  stock: z.coerce.number().min(0, "Stock cannot be negative"),
+  stock: z.preprocess(
+    (val) => String(val),
+    z.string().regex(/^\d+$/, "Stock must be a whole number (no decimals)").transform(Number),
+  ),
 });
 
 type UpdateStockFormValues = z.infer<typeof baseSchema>;
 
-export function UpdateStockDialog({
-  vaccine,
-  onClose,
-  onSuccess,
-}: UpdateStockDialogProps) {
-  // dynamic refinement based on vaccine capacity
+export function UpdateStockDialog({ vaccine, onClose, onSuccess }: UpdateStockDialogProps) {
+  // refine based on vaccine capacity
   const updateStockSchema = useMemo(() => {
     return baseSchema.refine((data) => data.stock <= (vaccine?.capacity || 0), {
       message: `Stock cannot exceed capacity (${vaccine?.capacity ?? 0})`,
@@ -54,7 +53,7 @@ export function UpdateStockDialog({
     defaultValues: { stock: 0 },
   });
 
-  // update form default value when vaccine changes
+  // update default when vaccine changes
   useEffect(() => {
     if (vaccine) {
       reset({ stock: vaccine.stock });
@@ -70,12 +69,7 @@ export function UpdateStockDialog({
         quantity: data.stock,
       });
 
-      toast.success(`Stock updated for ${vaccine.name}`, {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
+      toastUtils.success(`Stock updated for ${vaccine.name}`);
 
       onSuccess();
 
@@ -83,12 +77,7 @@ export function UpdateStockDialog({
     } catch (error) {
       console.error(error);
 
-      toast.error("Failed to update stock", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.error("Failed to update stock");
     }
   };
 
@@ -104,9 +93,7 @@ export function UpdateStockDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Update Vaccine Stock</DialogTitle>
-          <DialogDescription>
-            Update the current stock quantity for {vaccine?.name}.
-          </DialogDescription>
+          <DialogDescription>Update the current stock quantity for {vaccine?.name}.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -122,9 +109,7 @@ export function UpdateStockDialog({
               autoFocus
             />
 
-            {errors.stock && (
-              <p className="text-sm text-destructive">{errors.stock.message}</p>
-            )}
+            {errors.stock && <p className="text-sm text-destructive">{errors.stock.message}</p>}
 
             {vaccine && (
               <p className="text-xs text-muted-foreground">
@@ -134,19 +119,12 @@ export function UpdateStockDialog({
           </div>
 
           <DialogFooter className="pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
 
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 
               {isSubmitting ? "Updating..." : "Update Stock"}
             </Button>

@@ -5,22 +5,21 @@ import com.vaxify.app.dtos.appointment.BookAppointmentRequest;
 import com.vaxify.app.entities.*;
 import com.vaxify.app.entities.enums.AppointmentStatus;
 import com.vaxify.app.entities.enums.Role;
-import com.vaxify.app.entities.enums.SlotStatus;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.repository.*;
 import com.vaxify.app.service.AppointmentService;
+import com.vaxify.app.service.AppointmentCleanupService;
 import com.vaxify.app.service.NotificationService;
+import com.vaxify.app.service.SlotService;
 import com.vaxify.app.service.UserService;
 import com.vaxify.app.service.VaccineService;
 import com.vaxify.app.mapper.AppointmentMapper;
-import com.vaxify.app.util.VaccineUtils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,14 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 public class AppointmentServiceImpl implements AppointmentService {
 
         private final AppointmentRepository appointmentRepository;
-        private final VaccineRepository vaccineRepository;
-        private final SlotRepository slotRepository;
 
         private final UserService userService;
         private final AppointmentMapper appointmentMapper;
         private final VaccineService vaccineService;
+        private final SlotService slotService;
 
         private final NotificationService notificationService;
+        private final AppointmentCleanupService appointmentCleanupService;
 
         @Override
         @Transactional
@@ -51,21 +50,20 @@ public class AppointmentServiceImpl implements AppointmentService {
                         throw new VaxifyException("Phone number is required to book an appointment");
                 }
 
-                Vaccine vaccine = vaccineRepository.findById(request.getVaccineId())
-                                .orElseThrow(() -> new VaxifyException("Vaccine not found"));
+                Vaccine vaccine = vaccineService.findEntityById(request.getVaccineId());
 
                 LocalDate slotDate = LocalDate.parse(request.getDate());
 
                 LocalTime requestedTime = LocalTime.parse(request.getSlot());
 
-                Slot selectedSlot = getAvailableSlot(request.getCenterId(), slotDate, requestedTime);
+                Slot selectedSlot = slotService.findEntityByDetails(request.getCenterId(), slotDate, requestedTime);
 
-                validateBooking(vaccine, selectedSlot, slotDate, requestedTime);
+                vaccineService.validateAvailable(vaccine);
+                slotService.validateAvailable(selectedSlot, slotDate, requestedTime);
 
-                // mutate state
-                decrementVaccineStock(vaccine);
-
-                incrementSlotBookings(selectedSlot);
+                // mutate state via services
+                vaccineService.deductStock(vaccine);
+                slotService.reserveSlot(selectedSlot);
 
                 // persist
                 Appointment appointment = Appointment.builder()
@@ -85,63 +83,14 @@ public class AppointmentServiceImpl implements AppointmentService {
                 return appointmentMapper.toResponse(saved);
         }
 
-        private Slot getAvailableSlot(Long centerId, LocalDate date, LocalTime time) {
-                List<Slot> slots = slotRepository.findByCenterIdAndDate(centerId, date);
-
-                return slots.stream()
-                                .filter(s -> s.getStartTime().equals(time))
-                                .findFirst()
-                                .orElseThrow(() -> new VaxifyException(
-                                                "No available slot found for the selected time"));
-        }
-
-        private void validateBooking(Vaccine vaccine, Slot slot, LocalDate date, LocalTime time) {
-                // time travel check
-                if (LocalDateTime.of(date, time).isBefore(LocalDateTime.now())) {
-                        throw new VaxifyException("Cannot book a slot for a time that has already passed");
-                }
-
-                // slot capacity check
-                if (slot.getStatus() == SlotStatus.FULL || slot.getBookedCount() >= slot.getCapacity()) {
-                        throw new VaxifyException("Selected slot is already full");
-                }
-
-                // stock check
-                if (vaccine.getStock() <= 0) {
-                        throw new VaxifyException("Vaccine is out of stock");
-                }
-
-                if (VaccineUtils.isStockCritical(vaccine)) {
-                        throw new VaxifyException("Booking suspended: Vaccine stock is critically low (< 20%)");
-                }
-        }
-
-        private void decrementVaccineStock(Vaccine vaccine) {
-                vaccine.setStock(vaccine.getStock() - 1);
-
-                vaccineRepository.save(vaccine);
-
-                vaccineService.checkStockAlerts(vaccine);
-        }
-
-        private void incrementSlotBookings(Slot slot) {
-                slot.setBookedCount(slot.getBookedCount() + 1);
-
-                if (slot.getBookedCount() >= slot.getCapacity()) {
-                        slot.setStatus(SlotStatus.FULL);
-                }
-
-                slotRepository.save(slot);
-        }
-
         @Override
+        @Transactional
         public List<AppointmentResponse> getMyAppointments(String userEmail) {
-                cleanupOverdueAppointments();
-
                 User user = userService.findByEmail(userEmail);
 
-                List<AppointmentResponse> responses = appointmentRepository.findAll().stream()
-                                .filter(a -> a.getUser().getId().equals(user.getId()))
+                appointmentCleanupService.cleanupOverdueForUser(user);
+
+                List<AppointmentResponse> responses = appointmentRepository.findByUser(user).stream()
                                 .map(appointmentMapper::toResponse)
                                 .collect(Collectors.toList());
 
@@ -166,22 +115,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 appointment.setStatus(AppointmentStatus.CANCELLED);
 
-                // refund vax stock
-                Vaccine vaccine = appointment.getVaccine();
-
-                vaccine.setStock(vaccine.getStock() + 1);
-
-                vaccineRepository.save(vaccine);
-
-                Slot slot = appointment.getSlot();
-
-                slot.setBookedCount(slot.getBookedCount() - 1);
-
-                if (slot.getStatus() == SlotStatus.FULL && slot.getBookedCount() < slot.getCapacity()) {
-                        slot.setStatus(SlotStatus.AVAILABLE);
-                }
-
-                slotRepository.save(slot);
+                // refund via services
+                vaccineService.refundStock(appointment.getVaccine());
+                slotService.releaseSlot(appointment.getSlot());
 
                 appointmentRepository.save(appointment);
 
@@ -202,7 +138,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         @Override
         @Transactional
         public List<AppointmentResponse> getAppointmentsByHospital(Long hospitalId) {
-                cleanupOverdueAppointments();
+                appointmentCleanupService.cleanupOverdueForHospital(hospitalId);
 
                 List<AppointmentResponse> responses = appointmentRepository.findBySlotCenterId(hospitalId).stream()
                                 .map(appointmentMapper::toResponse)
@@ -236,36 +172,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         @Override
-        @Transactional
-        public void cleanupOverdueAppointments() {
-                log.info("starting overdue appts cleanup task");
+        public boolean hasActiveBookings(Slot slot) {
+                return appointmentRepository.existsBySlotAndStatus(slot, AppointmentStatus.BOOKED);
+        }
 
-                LocalDate today = LocalDate.now();
-
-                List<Appointment> overdue = appointmentRepository.findByStatusAndSlotDateBefore(
-                                AppointmentStatus.BOOKED, today);
-
-                if (overdue.isEmpty()) {
-                        log.info("no overdue appts found to cleanup");
-
-                        return;
-                }
-
-                log.info("found {} overdue appts, marking as MISSED and refunding stock", overdue.size());
-
-                for (Appointment appointment : overdue) {
-                        appointment.setStatus(AppointmentStatus.MISSED);
-
-                        // refund vaccine stock as it wasn't used
-                        Vaccine vaccine = appointment.getVaccine();
-
-                        vaccine.setStock(vaccine.getStock() + 1);
-
-                        vaccineRepository.save(vaccine);
-                }
-
-                appointmentRepository.saveAll(overdue);
-
-                log.info("successfully marked {} appts as MISSED and restored vaccine stock", overdue.size());
+        @Override
+        public void deleteAppointmentsBySlot(Slot slot) {
+                appointmentRepository.deleteAllBySlot(slot);
         }
 }

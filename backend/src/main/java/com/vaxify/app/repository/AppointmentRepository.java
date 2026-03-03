@@ -25,4 +25,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findBySlot(Slot slot);
 
     List<Appointment> findByStatusAndSlotDateBefore(AppointmentStatus status, LocalDate date);
+
+    boolean existsBySlotAndStatus(Slot slot, AppointmentStatus status);
+
+    void deleteAllBySlot(Slot slot);
+
+    long countByUserAndStatus(User user, AppointmentStatus status);
+
+    List<Appointment> findTop3ByUserOrderByCreatedAtDesc(User user);
+
+    List<Appointment> findByUserAndStatusAndSlotDateBefore(User user, AppointmentStatus status, LocalDate date);
+
+    List<Appointment> findBySlotCenterIdAndStatusAndSlotDateBefore(Long hospitalId, AppointmentStatus status,
+            LocalDate date);
 }

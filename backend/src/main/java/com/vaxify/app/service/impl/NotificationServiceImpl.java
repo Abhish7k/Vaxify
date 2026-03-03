@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 
+import org.springframework.scheduling.annotation.Async;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -24,6 +25,7 @@ public class NotificationServiceImpl implements NotificationService {
         private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("hh:mm a");
 
         @Override
+        @Async
         public void sendHospitalRegistrationReceived(Hospital hospital) {
                 if (hospital.getStaffUser() == null) {
                         return;
@@ -45,6 +47,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         @Override
+        @Async
         public void sendHospitalApproved(Hospital hospital) {
                 if (hospital.getStaffUser() == null) {
                         return;
@@ -66,6 +69,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         @Override
+        @Async
         public void sendHospitalRejected(Hospital hospital) {
                 if (hospital.getStaffUser() == null) {
                         return;
@@ -87,6 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         @Override
+        @Async
         public void sendVaccineStockCritical(Vaccine vaccine, int stock, int capacity) {
                 if (vaccine.getHospital() == null || vaccine.getHospital().getStaffUser() == null) {
                         return;
@@ -107,6 +112,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         @Override
+        @Async
         public void sendVaccineStockLow(Vaccine vaccine, int stock, int capacity) {
                 if (vaccine.getHospital() == null || vaccine.getHospital().getStaffUser() == null) {
                         return;
@@ -127,6 +133,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         @Override
+        @Async
         public void sendAppointmentConfirmation(Appointment appointment) {
                 if (appointment.getUser() == null) {
                         return;
@@ -160,6 +167,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         @Override
+        @Async
         public void sendAppointmentCancellation(Appointment appointment) {
                 if (appointment.getUser() == null) {
                         return;
@@ -182,6 +190,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         @Override
+        @Async
         public void sendVaccinationCompletion(Appointment appointment) {
                 if (appointment.getUser() == null) {
                         return;

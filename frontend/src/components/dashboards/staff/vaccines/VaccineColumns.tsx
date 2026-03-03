@@ -10,13 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
-  ArrowUpDown,
-  TrendingDown,
-  TrendingUp,
-  AlertTriangle,
-} from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, TrendingDown, TrendingUp, AlertTriangle } from "lucide-react";
 
 interface GetColumnsProps {
   onUpdate: (vaccine: Vaccine) => void;
@@ -24,10 +18,7 @@ interface GetColumnsProps {
 }
 
 // to define the vaccine stock table columns
-export const getVaccineColumns = ({
-  onUpdate,
-  onDelete,
-}: GetColumnsProps): ColumnDef<Vaccine>[] => [
+export const getVaccineColumns = ({ onUpdate, onDelete }: GetColumnsProps): ColumnDef<Vaccine>[] => [
   // vaccine name column
   {
     accessorKey: "name",
@@ -43,9 +34,7 @@ export const getVaccineColumns = ({
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("name")}</div>
-    ),
+    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
   },
   {
     accessorKey: "type",
@@ -59,11 +48,7 @@ export const getVaccineColumns = ({
   {
     accessorKey: "manufacturer",
     header: "Manufacturer",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">
-        {row.getValue("manufacturer")}
-      </div>
-    ),
+    cell: ({ row }) => <div className="text-muted-foreground">{row.getValue("manufacturer")}</div>,
   },
   // vaccine stock column
   {
@@ -115,9 +100,7 @@ export const getVaccineColumns = ({
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="font-mono">{row.getValue("capacity")}</div>
-    ),
+    cell: ({ row }) => <div className="font-mono">{row.getValue("capacity")}</div>,
   },
   {
     // status badge column
@@ -131,16 +114,10 @@ export const getVaccineColumns = ({
       if (stock === 0) {
         return <Badge variant="destructive">Out Of Stock</Badge>;
       } else if (percentage < 20) {
-        return (
-          <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none">
-            Critical
-          </Badge>
-        );
+        return <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none">Critical</Badge>;
       } else if (percentage < 40) {
         return (
-          <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none">
-            Low Stock
-          </Badge>
+          <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none">Low Stock</Badge>
         );
       } else {
         return (
@@ -149,41 +126,6 @@ export const getVaccineColumns = ({
           </Badge>
         );
       }
-    },
-  },
-  // last updated timestamp
-  {
-    accessorKey: "lastUpdated",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-4 h-8"
-        >
-          Last Updated
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const val = row.getValue("lastUpdated") as string;
-      if (!val) return <div className="text-xs text-muted-foreground">N/A</div>;
-
-      const date = new Date(val);
-      if (isNaN(date.getTime())) {
-        return <div className="text-xs text-muted-foreground">N/A</div>;
-      }
-
-      return (
-        <div className="text-xs text-muted-foreground whitespace-nowrap">
-          {date.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "2-digit",
-          })}
-        </div>
-      );
     },
   },
   // row action menu
@@ -213,10 +155,7 @@ export const getVaccineColumns = ({
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => onUpdate(vaccine)}
-              >
+              <DropdownMenuItem className="cursor-pointer" onClick={() => onUpdate(vaccine)}>
                 Update Stock
               </DropdownMenuItem>
 
