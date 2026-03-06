@@ -10,14 +10,29 @@ on:
       - ".github/workflows/deploy.yml"
 
 jobs:
-  deploy:
-    name: Deploy to EC2
+  build:
+    name: Build & Verify (CI)
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Build & Verify (CI)
+        run: mvn -f backend/pom.xml clean compile
+
+  deploy:
+    name: Deploy to EC2 (CD)
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:

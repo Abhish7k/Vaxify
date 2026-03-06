@@ -22,7 +22,7 @@ const QuickDemoLogins = ({ onDemoClick }: QuickDemoLoginsProps) => {
   };
 
   return (
-    <div className="mt-6 flex justify-center w-full mb-20 sm:mb-0">
+    <div className="mt-6 flex justify-center w-full">
       <Button
         type="button"
         variant="outline"

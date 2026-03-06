@@ -27,12 +27,7 @@ const itemVariants: Variants = {
 
 const AdminAnalyticsPage = () => {
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-8"
-    >
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
       {/* header */}
       <motion.div variants={itemVariants}>
         <h1 className="text-2xl font-bold text-slate-900">System Analytics</h1>
@@ -43,17 +38,11 @@ const AdminAnalyticsPage = () => {
 
       {/* Main Charts */}
       <div className="grid grid-cols-12 gap-6">
-        <motion.div
-          variants={itemVariants}
-          className="col-span-12 xl:col-span-8"
-        >
+        <motion.div variants={itemVariants} className="col-span-12 xl:col-span-8">
           <AdminPlatformMetricsChart />
         </motion.div>
 
-        <motion.div
-          variants={itemVariants}
-          className="col-span-12 xl:col-span-4"
-        >
+        <motion.div variants={itemVariants} className="col-span-12 xl:col-span-4">
           <div className="h-full">
             <AdminAppointmentStatusPie />
           </div>
