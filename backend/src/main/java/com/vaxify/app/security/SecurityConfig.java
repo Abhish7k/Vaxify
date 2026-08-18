@@ -36,11 +36,12 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/**").permitAll()
+                                                .requestMatchers("/api/ping").permitAll()
                                                 .requestMatchers("/knock-knock").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/api/hospitals/**").permitAll()
                                                 .requestMatchers("/api/hospitals/register").permitAll()
 
-                                                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                                                .requestMatchers("/actuator/health").permitAll()
 
                                                 .requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/api/files/download/**").permitAll()

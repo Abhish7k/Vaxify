@@ -1,20 +1,21 @@
 # Build stage
-FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
+FROM maven:3.9.16-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 COPY pom.xml .
-RUN mvn dependency:go-offline
+RUN mvn -B dependency:go-offline
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn -B clean package -DskipTests
 
-# Download New Relic agent
-RUN wget -O newrelic.zip https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip && \
-    unzip newrelic.zip && \
-    rm newrelic.zip
-
-# Run stage
-FROM eclipse-temurin:21-jre-alpine
+# Run stage — sized for Render free (512MB). New Relic is omitted so the
+# JVM has enough headroom; S3 / Aiven / Brevo stay as env-configured services.
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-COPY --from=build /app/newrelic/newrelic.jar newrelic.jar
+
+RUN addgroup -S vaxify && adduser -S vaxify -G vaxify
+COPY --from=build --chown=vaxify:vaxify /app/target/*.jar app.jar
+USER vaxify
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-javaagent:newrelic.jar", "-jar", "app.jar"]
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
