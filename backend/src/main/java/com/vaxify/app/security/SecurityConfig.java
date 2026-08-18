@@ -26,6 +26,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
         private final JwtAuthFilter jwtAuthFilter;
+        private final FileUploadRateLimitFilter fileUploadRateLimitFilter;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http)
@@ -71,6 +72,9 @@ public class SecurityConfig {
 
                                 .sessionManagement(session -> session.sessionCreationPolicy(
                                                 SessionCreationPolicy.STATELESS))
+                                .addFilterBefore(
+                                                fileUploadRateLimitFilter,
+                                                UsernamePasswordAuthenticationFilter.class)
                                 .addFilterBefore(
                                                 jwtAuthFilter,
                                                 UsernamePasswordAuthenticationFilter.class);

@@ -11,7 +11,9 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,32 +30,43 @@ public class S3ServiceImpl implements S3Service {
     @Value("${app.backend.url}")
     private String backendUrl;
 
+    private static final Pattern SAFE_KEY = Pattern.compile("^[a-f0-9-]{36}_[A-Za-z0-9._-]{1,80}\\.pdf$");
+
     @Override
     public String uploadFile(MultipartFile file) throws IOException {
-        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String fileName = buildObjectKey(file.getOriginalFilename());
 
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fileName)
-                    .contentType(file.getContentType())
+                    .contentType("application/pdf")
                     .build();
 
-            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
 
             log.info("File uploaded to S3: {} (Type: {})", fileName, file.getContentType());
 
             return fileName;
         } catch (S3Exception e) {
+            String details = e.awsErrorDetails() != null
+                    ? e.awsErrorDetails().errorCode() + ": " + e.awsErrorDetails().errorMessage()
+                    : e.getMessage();
+            log.error("S3 upload failed for {}: {}", fileName, details);
+            throw new IOException("Failed to upload file to S3", e);
+        } catch (Exception e) {
+            log.error("S3 upload failed for {}: {}", fileName, e.getMessage(), e);
             throw new IOException("Failed to upload file to S3", e);
         }
     }
 
     @Override
     public byte[] downloadFile(String fileName) {
+        String key = requireSafeKey(fileName);
+
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
-                .key(fileName)
+                .key(key)
                 .build();
 
         ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
@@ -62,9 +75,11 @@ public class S3ServiceImpl implements S3Service {
 
     @Override
     public String deleteFile(String fileName) {
+        String key = requireSafeKey(fileName);
+
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
-                .key(fileName)
+                .key(key)
                 .build();
 
         s3Client.deleteObject(deleteObjectRequest);
@@ -111,5 +126,36 @@ public class S3ServiceImpl implements S3Service {
 
         // return stable proxy link for stored keys
         return backendUrl + "/api/files/download/" + path;
+    }
+
+    private String buildObjectKey(String originalFilename) {
+        String base = originalFilename == null ? "document.pdf" : originalFilename.replace('\\', '/');
+        int slash = base.lastIndexOf('/');
+        if (slash >= 0) {
+            base = base.substring(slash + 1);
+        }
+
+        String safe = base.replaceAll("[^A-Za-z0-9._-]", "_");
+        if (!safe.toLowerCase(Locale.ROOT).endsWith(".pdf")) {
+            safe = safe + ".pdf";
+        }
+        if (safe.equals(".pdf") || safe.equals("_.pdf")) {
+            safe = "document.pdf";
+        }
+        if (safe.length() > 80) {
+            safe = safe.substring(safe.length() - 80);
+            if (!safe.toLowerCase(Locale.ROOT).endsWith(".pdf")) {
+                safe = "document.pdf";
+            }
+        }
+
+        return UUID.randomUUID() + "_" + safe;
+    }
+
+    private String requireSafeKey(String fileName) {
+        if (fileName == null || !SAFE_KEY.matcher(fileName).matches()) {
+            throw new IllegalArgumentException("Invalid file name");
+        }
+        return fileName;
     }
 }
