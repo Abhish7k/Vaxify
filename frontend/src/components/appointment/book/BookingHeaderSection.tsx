@@ -17,6 +17,7 @@ export default function BookingHeaderSection({ center }: Props) {
               <img
                 src="https://ik.imagekit.io/vaxify/icons/hospital-2.png"
                 alt=""
+                aria-hidden="true"
                 className="h-16 w-16"
                 draggable={false}
               />

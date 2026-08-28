@@ -3,53 +3,47 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
+import { PHONE_MESSAGE, PHONE_REGEX, PINCODE_MESSAGE, PINCODE_REGEX } from "@/lib/validation";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/auth/useAuth";
 import { StaffDetailsStep } from "@/components/auth/StaffDetailsStep";
 import { HospitalDetailsStep } from "@/components/auth/HospitalDetailsStep";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 
-// step 1 schema - staff only
-const step1Schema = z
+const staffRegisterSchema = z
   .object({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
-
-    phone: z
-      .string().min(10, "Enter a valid phone number").max(10, "Enter a valid phone number"),
+    phone: z.string().regex(PHONE_REGEX, PHONE_MESSAGE),
     email: z.email("Enter a valid email address"),
-
-    password: z.string().min(6, "Password must be at least 6 characters").max(20, "Password must be at most 20 characters"),
-
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters")
+      .max(20, "Password must be at most 20 characters"),
     confirmPassword: z.string(),
+    hospitalName: z.string().min(2, "Hospital name is required"),
+    hospitalAddress: z.string().min(5, "Hospital address is required"),
+    city: z.string().min(2, "City is required"),
+    state: z.string().min(2, "State is required"),
+    pincode: z.string().regex(PINCODE_REGEX, PINCODE_MESSAGE),
+    hospitalRegistrationId: z.string().min(3, "Hospital registration ID is required"),
+    document: z.string().min(1, "Verification document is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
-// step 2 schema - hospital only
-const step2Schema = z.object({
-  hospitalName: z.string().min(2, "Hospital name is required"),
-  hospitalAddress: z.string().min(5, "Hospital address is required"),
-
-  city: z.string().min(2, "City is required"),
-  state: z.string().min(2, "State is required"),
-  pincode: z.string().min(6, "Enter a valid 6-digit pincode"),
-
-  hospitalRegistrationId: z.string().min(3, "Hospital registration ID is required"),
-
-  document: z.string().min(1, "Verification document is required"),
-});
-
-// for form state 
-type StaffRegisterForm = z.infer<typeof step1Schema> & z.infer<typeof step2Schema>;
+type StaffRegisterForm = z.infer<typeof staffRegisterSchema>;
 
 const RegisterStaff = () => {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [allowLeave, setAllowLeave] = useState(false);
 
   const { registerStaff } = useAuth();
 
@@ -61,9 +55,9 @@ const RegisterStaff = () => {
     getValues,
     setValue,
     watch,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<StaffRegisterForm>({
-    resolver: zodResolver(step === 1 ? step1Schema : step2Schema) as any,
+    resolver: zodResolver(staffRegisterSchema),
     mode: "onSubmit",
     defaultValues: {
       firstName: "",
@@ -82,6 +76,8 @@ const RegisterStaff = () => {
     },
   });
 
+  useUnsavedChanges(isDirty && !isLoading && !allowLeave);
+
   // clear errors on step change to ensure no premature messages
   useEffect(() => {
     // we clear errors and reset validation state so step 2 starts clean
@@ -91,7 +87,14 @@ const RegisterStaff = () => {
 
   const onNext = async () => {
     // validate only the current step (using the active schema)
-    const isStepValid = await trigger();
+    const isStepValid = await trigger([
+      "firstName",
+      "lastName",
+      "phone",
+      "email",
+      "password",
+      "confirmPassword",
+    ]);
 
     if (isStepValid) {
       if (step === 1) {
@@ -109,6 +112,11 @@ const RegisterStaff = () => {
   };
 
   const onSubmit = async () => {
+    if (step !== 2) {
+      await onNext();
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -144,30 +152,14 @@ const RegisterStaff = () => {
         document,
       };
 
+      setAllowLeave(true);
       await registerStaff(registerStaffPayload);
 
-      toast.success("Registration submitted for approval", {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Staff Registration failed";
-
-      toast.error(errorMessage, {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
-
-      console.log("register staff failed with error: ", error);
+      toastUtils.success("Registration submitted for approval");
+    } catch (error) {
+      setAllowLeave(false);
+      toastUtils.error(getErrorMessage(error, "Staff Registration failed"));
     } finally {
-
-      await new Promise((resolve) => setTimeout(resolve, 400));
-
       setIsLoading(false);
     }
   };
@@ -195,7 +187,17 @@ const RegisterStaff = () => {
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            if (step !== 2) {
+              e.preventDefault();
+              void onNext();
+              return;
+            }
+            void handleSubmit(onSubmit)(e);
+          }}
+          className="space-y-6"
+        >
           {step === 1 && (
             <StaffDetailsStep register={register} errors={errors} />
           )}

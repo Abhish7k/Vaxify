@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import com.vaxify.app.exception.VaxifyException;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -128,6 +129,49 @@ public class S3ServiceImpl implements S3Service {
         return backendUrl + "/api/files/download/" + path;
     }
 
+    @Override
+    public String toStoredKey(String incoming, String currentKey) {
+        if (incoming == null || incoming.isBlank()) {
+            return currentKey;
+        }
+
+        String trimmed = incoming.trim();
+        if (SAFE_KEY.matcher(trimmed).matches()) {
+            return trimmed;
+        }
+
+        String extracted = extractObjectKey(trimmed);
+        if (extracted != null && SAFE_KEY.matcher(extracted).matches()) {
+            return extracted;
+        }
+
+        return currentKey;
+    }
+
+    private String extractObjectKey(String path) {
+        String marker = "/api/files/download/";
+        int idx = path.indexOf(marker);
+        if (idx >= 0) {
+            String key = path.substring(idx + marker.length());
+            int query = key.indexOf('?');
+            return query >= 0 ? key.substring(0, query) : key;
+        }
+
+        if (path.contains(".amazonaws.com/")) {
+            try {
+                int hostEndIndex = path.indexOf(".amazonaws.com/") + ".amazonaws.com/".length();
+                String keyWithParams = path.substring(hostEndIndex);
+                return keyWithParams.contains("?")
+                        ? keyWithParams.substring(0, keyWithParams.indexOf("?"))
+                        : keyWithParams;
+            } catch (Exception e) {
+                log.warn("failed to extract key from s3 url: {}", path);
+            }
+        }
+
+        return null;
+    }
+
     private String buildObjectKey(String originalFilename) {
         String base = originalFilename == null ? "document.pdf" : originalFilename.replace('\\', '/');
         int slash = base.lastIndexOf('/');
@@ -154,7 +198,7 @@ public class S3ServiceImpl implements S3Service {
 
     private String requireSafeKey(String fileName) {
         if (fileName == null || !SAFE_KEY.matcher(fileName).matches()) {
-            throw new IllegalArgumentException("Invalid file name");
+            throw new VaxifyException("Invalid file name");
         }
         return fileName;
     }

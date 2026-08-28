@@ -6,11 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.vaxify.app.dtos.vaccine.UpdateStockRequest;
 import com.vaxify.app.dtos.vaccine.VaccineRequest;
 import com.vaxify.app.dtos.vaccine.VaccineResponse;
 import com.vaxify.app.service.VaccineService;
 import com.vaxify.app.util.SecurityUtils;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,7 +25,7 @@ public class VaccineController {
 
     // staff: create vaccine for their hospital
     @PostMapping("/staff")
-    public ResponseEntity<VaccineResponse> create(@RequestBody VaccineRequest dto) {
+    public ResponseEntity<VaccineResponse> create(@Valid @RequestBody VaccineRequest dto) {
         String email = securityUtils.getCurrentUserEmail();
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -32,10 +34,11 @@ public class VaccineController {
 
     // staff: update their vaccine
     @PutMapping("/staff/{id}")
-    public ResponseEntity<VaccineResponse> update(@PathVariable Long id, @RequestBody VaccineRequest dto) {
+    public ResponseEntity<VaccineResponse> updateStock(@PathVariable Long id,
+            @Valid @RequestBody UpdateStockRequest dto) {
         String email = securityUtils.getCurrentUserEmail();
 
-        return ResponseEntity.ok(vaccineService.updateVaccine(id, dto, email));
+        return ResponseEntity.ok(vaccineService.updateStock(id, dto, email));
     }
 
     // staff: delete their vaccine

@@ -1,54 +1,31 @@
-import { useState, useEffect } from "react";
-import { vaccineApi } from "@/api/vaccine.api";
-import type { Vaccine } from "@/types/vaccine";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { VaccineAlertCard } from "@/components/dashboards/staff/alerts/VaccineAlertCard";
 import { LowStockEmptyState } from "@/components/dashboards/staff/alerts/LowStockEmptyState";
 import { useSidebar } from "@/components/ui/sidebar";
-import { toastUtils } from "@/lib/toast";
+import { useMyVaccines } from "@/hooks/queries/use-vaccines";
+import { useMyHospital } from "@/hooks/queries/use-hospitals";
+import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
+import { PageLoadError } from "@/components/ui/page-load-error";
 
 export default function LowStockAlertsPage() {
-  const [vaccines, setVaccines] = useState<Vaccine[]>([]);
-  const [loading, setLoading] = useState(false);
+  const vaccinesQuery = useMyVaccines();
+  const hospitalQuery = useMyHospital();
+  const vaccines = vaccinesQuery.data ?? [];
+  const loading = vaccinesQuery.isFetching;
+  const canMutate = hospitalQuery.data?.status === "APPROVED";
 
   const navigate = useNavigate();
 
   const { setOpen } = useSidebar();
 
-  const fetchVaccines = async () => {
-    setLoading(true);
-    try {
-      const data = await vaccineApi.getMyVaccines();
-      setVaccines(data);
-    } catch (error) {
-      console.error("Fetch failed", error);
-
-      toastUtils.error("Failed to fetch vaccines");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRefresh = async () => {
-    setLoading(true);
-    try {
-      const data = await vaccineApi.getMyVaccines();
-
-      setVaccines(data);
-    } catch (error) {
-      console.error("Fetch failed", error);
-
-      toastUtils.error("Failed to fetch vaccines");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchVaccines();
-  }, []);
+  useQueryErrorToast(
+    vaccinesQuery.isError,
+    "Failed to fetch vaccines",
+    vaccinesQuery.error,
+  );
 
   // sidebar toggle
   useEffect(() => {
@@ -87,7 +64,7 @@ export default function LowStockAlertsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2">
-            <img src="https://ik.imagekit.io/vaxify/icons/alert.png" alt="" className="h-10 w-10" />
+            <img src="https://ik.imagekit.io/vaxify/icons/alert.png" alt="" aria-hidden="true" className="h-10 w-10" />
             Stock Alerts
           </h1>
 
@@ -99,7 +76,7 @@ export default function LowStockAlertsPage() {
         <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
           <Button
             variant="outline"
-            onClick={handleRefresh}
+            onClick={() => void vaccinesQuery.refetch()}
             disabled={loading}
             className="h-10 w-full sm:w-auto"
           >
@@ -119,6 +96,11 @@ export default function LowStockAlertsPage() {
 
           <div className="h-32 w-full bg-muted/60 animate-pulse rounded-xl" />
         </div>
+      ) : vaccinesQuery.isError ? (
+        <PageLoadError
+          message="Could not load stock alerts. Please try again."
+          onRetry={() => void vaccinesQuery.refetch()}
+        />
       ) : !hasAlerts ? (
         <LowStockEmptyState />
       ) : (
@@ -136,7 +118,7 @@ export default function LowStockAlertsPage() {
                     key={vaccine.id}
                     vaccine={vaccine}
                     type="critical"
-                    onRestockClick={() => navigate("/staff/vaccines")}
+                    onRestockClick={canMutate ? () => navigate("/staff/vaccines") : undefined}
                   />
                 ))}
               </div>
@@ -156,7 +138,7 @@ export default function LowStockAlertsPage() {
                     key={vaccine.id}
                     vaccine={vaccine}
                     type="warning"
-                    onRestockClick={() => navigate("/staff/vaccines")}
+                    onRestockClick={canMutate ? () => navigate("/staff/vaccines") : undefined}
                   />
                 ))}
               </div>

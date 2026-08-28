@@ -1,21 +1,10 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.16, 1, 0.3, 1] as any,
-    },
-  },
-};
+import { fadeUpItemSlow } from "@/lib/motion";
 
 export function MyAppointmentsSkeleton() {
   return (
-    <motion.div variants={item} className="rounded-md border p-4 space-y-4">
+    <motion.div variants={fadeUpItemSlow} className="rounded-md border p-4 space-y-4">
       {/* table teader skeleton */}
       <div className="flex justify-between items-center mb-6 px-2">
         <Skeleton className="h-6 w-1/4 bg-slate-100 dark:bg-slate-800" />

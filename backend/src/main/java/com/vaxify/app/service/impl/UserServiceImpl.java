@@ -11,18 +11,18 @@ import com.vaxify.app.entities.Appointment;
 import com.vaxify.app.entities.User;
 import com.vaxify.app.entities.enums.AppointmentStatus;
 import com.vaxify.app.entities.enums.Role;
+import com.vaxify.app.exception.ConflictException;
 import com.vaxify.app.exception.ResourceNotFoundException;
-import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.repository.UserRepository;
 import com.vaxify.app.repository.AppointmentRepository;
 import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.mapper.AppointmentMapper;
 import com.vaxify.app.mapper.UserMapper;
 import com.vaxify.app.service.UserService;
+import com.vaxify.app.time.BusinessClock;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
     private final HospitalRepository hospitalRepository;
     private final PasswordEncoder passwordEncoder;
     private final AppointmentMapper appointmentMapper;
+    private final BusinessClock businessClock;
 
     @Override
     public UserResponse getProfile(String email) {
@@ -77,16 +78,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserStatsResponse getUserStats(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
 
-        // maintaining for total
-        long total = appointmentRepository.findByUser(user).size();
+        List<Appointment> appointments = appointmentRepository.findByUserWithDetails(user);
 
-        long pending = appointmentRepository.countByUserAndStatus(user, AppointmentStatus.BOOKED);
-
-        long completed = appointmentRepository.countByUserAndStatus(user, AppointmentStatus.COMPLETED);
+        long total = appointments.size();
+        long pending = appointments.stream().filter(a -> a.getStatus() == AppointmentStatus.BOOKED).count();
+        long completed = appointments.stream().filter(a -> a.getStatus() == AppointmentStatus.COMPLETED).count();
 
         String vaccStatus = "Unvaccinated";
         if (completed == 1) {
@@ -95,13 +96,13 @@ public class UserServiceImpl implements UserService {
             vaccStatus = "Fully Vaccinated";
         }
 
-        Optional<Appointment> nextUpcoming = appointmentRepository.findByUser(user).stream()
+        Optional<Appointment> nextUpcoming = appointments.stream()
                 .filter(a -> a.getStatus() == AppointmentStatus.BOOKED)
                 .filter(a -> {
                     LocalDate d = a.getSlot().getDate();
-                    if (d.isBefore(LocalDate.now()))
+                    if (d.isBefore(businessClock.today()))
                         return false;
-                    if (d.isEqual(LocalDate.now()) && a.getSlot().getStartTime().isBefore(LocalTime.now()))
+                    if (d.isEqual(businessClock.today()) && a.getSlot().getStartTime().isBefore(businessClock.nowTime()))
                         return false;
                     return true;
                 })
@@ -112,7 +113,9 @@ public class UserServiceImpl implements UserService {
                 .map(a -> a.getSlot().getDate().toString() + "T" + a.getSlot().getStartTime().toString())
                 .orElse("No upcoming");
 
-        List<AppointmentResponse> recent = appointmentRepository.findTop3ByUserOrderByCreatedAtDesc(user).stream()
+        List<AppointmentResponse> recent = appointments.stream()
+                .sorted(Comparator.comparing(Appointment::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(3)
                 .map(appointmentMapper::toResponse)
                 .collect(Collectors.toList());
 
@@ -145,14 +148,32 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new VaxifyException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getRole() == Role.ADMIN) {
+            throw new ConflictException("Cannot delete an admin account");
+        }
 
         if (user.getRole() == Role.STAFF) {
             hospitalRepository.findByStaffUser(user).ifPresent(hospital -> {
+                Long hospitalId = hospital.getId();
+
+                if (appointmentRepository.existsBySlotCenterIdAndStatus(hospitalId, AppointmentStatus.BOOKED)) {
+                    throw new ConflictException("Cannot delete hospital with active bookings");
+                }
+
+                if (appointmentRepository.existsBySlotCenterId(hospitalId)) {
+                    throw new ConflictException("Cannot delete hospital with existing appointment history");
+                }
+
                 hospitalRepository.delete(hospital);
 
                 log.info("Associated hospital deleted for staff: {}", user.getEmail());
             });
+        }
+
+        if (appointmentRepository.existsByUser(user)) {
+            throw new ConflictException("Cannot delete user with existing appointment history");
         }
 
         userRepository.delete(user);
@@ -164,7 +185,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User createStaffUser(String name, String email, String password, String phone) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new VaxifyException("Email already registered");
+            throw new ConflictException("Email already registered");
         }
 
         User staffUser = new User();

@@ -26,8 +26,8 @@ export const HospitalDetailsStep = ({
   return (
     <section className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       <div className="space-y-2">
-        <Label>Hospital Name</Label>
-        <Input {...register("hospitalName")} />
+        <Label htmlFor="hospitalName">Hospital Name</Label>
+        <Input id="hospitalName" {...register("hospitalName")} />
         {errors.hospitalName && (
           <p className="text-sm text-red-500">
             {errors.hospitalName.message as string}
@@ -36,8 +36,8 @@ export const HospitalDetailsStep = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Hospital Address</Label>
-        <Input {...register("hospitalAddress")} />
+        <Label htmlFor="hospitalAddress">Hospital Address</Label>
+        <Input id="hospitalAddress" {...register("hospitalAddress")} />
         {errors.hospitalAddress && (
           <p className="text-sm text-red-500">
             {errors.hospitalAddress.message as string}
@@ -47,8 +47,8 @@ export const HospitalDetailsStep = ({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>City</Label>
-          <Input {...register("city")} placeholder="e.g. Pune" />
+          <Label htmlFor="city">City</Label>
+          <Input id="city" {...register("city")} placeholder="e.g. Pune" />
           {errors.city && (
             <p className="text-sm text-red-500">
               {errors.city.message as string}
@@ -57,8 +57,8 @@ export const HospitalDetailsStep = ({
         </div>
 
         <div className="space-y-2">
-          <Label>State</Label>
-          <Input {...register("state")} placeholder="e.g. Maharashtra" />
+          <Label htmlFor="state">State</Label>
+          <Input id="state" {...register("state")} placeholder="e.g. Maharashtra" />
           {errors.state && (
             <p className="text-sm text-red-500">
               {errors.state.message as string}
@@ -68,8 +68,9 @@ export const HospitalDetailsStep = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Pincode</Label>
+        <Label htmlFor="pincode">Pincode</Label>
         <Input
+          id="pincode"
           {...register("pincode")}
           placeholder="e.g. 411057"
           maxLength={6}
@@ -82,8 +83,8 @@ export const HospitalDetailsStep = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Hospital Registration ID</Label>
-        <Input {...register("hospitalRegistrationId")} />
+        <Label htmlFor="hospitalRegistrationId">Hospital Registration ID</Label>
+        <Input id="hospitalRegistrationId" {...register("hospitalRegistrationId")} />
         {errors.hospitalRegistrationId && (
           <p className="text-sm text-red-500">
             {errors.hospitalRegistrationId.message as string}
@@ -92,13 +93,15 @@ export const HospitalDetailsStep = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Verification Document</Label>
+        <Label htmlFor="hospital-document">Verification Document</Label>
 
         <FileDropzone
+          id="hospital-document"
           value={documentUrl}
           onChange={(url, fileName) => {
             setValue("document", fileName || url || "", {
               shouldValidate: true,
+              shouldDirty: true,
             });
           }}
         />

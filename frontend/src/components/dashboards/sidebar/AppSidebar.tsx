@@ -34,7 +34,7 @@ const AppSidebar = () => {
             >
               <Link to="/">
                 <div className="">
-                  <img src="/logo.svg" alt="" width={30} className="ml-1" />
+                  <img src="/logo.svg" alt="" aria-hidden="true" width={30} className="ml-1" />
                 </div>
 
                 <div className="grid flex-1 text-left text-lg leading-tight">

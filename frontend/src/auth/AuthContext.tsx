@@ -1,27 +1,48 @@
-import type { AuthUser, Role } from "@/types/auth";
-import { createContext, useContext, useEffect, useState } from "react";
+import type { AuthUser } from "@/types/auth";
+import { toRole } from "@/types/auth";
+import { userApi } from "@/api/user.api";
+import type { UserProfile } from "@/types/user";
+import {
+  AUTH_LOGOUT_EVENT,
+  clearSession,
+  getStoredToken,
+  getStoredUser,
+  persistUser,
+} from "@/lib/auth-session";
+import { isUnauthorizedError } from "@/lib/errors";
+import { queryClient } from "@/lib/query-client";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 interface AuthContextType {
   user: AuthUser | null;
   setAuthUser: (user: AuthUser | null) => void;
   loading: boolean;
+  sessionError: boolean;
+  retrySession: () => void;
 }
 
-// context with default val
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// AuthProvider
-// to wrap the entire app to provide auth state globally
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+const profileToAuthUser = (profile: UserProfile): AuthUser => ({
+  id: profile.id,
+  email: profile.email,
+  role: toRole(profile.role),
+  name: profile.name,
+  phone: profile.phone,
+  createdAt: profile.createdAt,
+});
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionError, setSessionError] = useState(false);
+  const [hydrateNonce, setHydrateNonce] = useState(0);
 
-  // centralized normalization
   const normalizeUser = (userData: AuthUser | null): AuthUser | null => {
     if (!userData) return null;
     return {
       ...userData,
-      role: userData.role?.toLowerCase() as Role,
+      role: toRole(userData.role),
     };
   };
 
@@ -30,39 +51,85 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(normalized);
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const storedUserString = localStorage.getItem("storedUser");
+  const retrySession = useCallback(() => {
+    setSessionError(false);
+    setLoading(true);
+    setHydrateNonce((value) => value + 1);
+  }, []);
 
-    if (!token || !storedUserString) {
+  useEffect(() => {
+    const token = getStoredToken();
+
+    if (!token) {
       setLoading(false);
+      setSessionError(false);
       return;
     }
 
-    try {
-      const storedUser = JSON.parse(storedUserString) as AuthUser;
+    let cancelled = false;
 
-      setAuthUser(storedUser);
-    } catch (error) {
-      console.error("Failed to parse stored user", error);
+    const hydrate = async () => {
+      try {
+        const profile = await userApi.getProfile();
+        if (cancelled) return;
 
-      localStorage.removeItem("token");
+        const authUser = profileToAuthUser(profile);
+        setAuthUser(authUser);
+        persistUser(authUser);
+        setSessionError(false);
+      } catch (error) {
+        if (cancelled) return;
 
-      localStorage.removeItem("storedUser");
-    } finally {
-      setLoading(false);
-    }
+        if (isUnauthorizedError(error)) {
+          clearSession();
+          queryClient.clear();
+          setAuthUser(null);
+          setSessionError(false);
+          return;
+        }
+
+        const storedUser = getStoredUser();
+        if (storedUser) {
+          setAuthUser(storedUser);
+        }
+        setSessionError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void hydrate();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrateNonce]);
+
+  useEffect(() => {
+    const onLogout = () => {
+      setAuthUser(null);
+      setSessionError(false);
+      queryClient.clear();
+    };
+
+    window.addEventListener(AUTH_LOGOUT_EVENT, onLogout);
+    return () => window.removeEventListener(AUTH_LOGOUT_EVENT, onLogout);
   }, []);
 
-  return <AuthContext.Provider value={{ user, setAuthUser, loading }}>{!loading && children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{ user, setAuthUser, loading, sessionError, retrySession }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-// to access the auth context
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useAuthContext muse be called within an AuthProvider comp");
+    throw new Error("useAuthContext must be called within an AuthProvider");
   }
 
   return context;

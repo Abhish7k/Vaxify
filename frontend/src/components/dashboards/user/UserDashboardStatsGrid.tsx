@@ -42,7 +42,7 @@ function StatCard({ title, value, subtitle, icon, loading }: StatCardProps) {
           variants={imageAnimation}
           className="absolute -right-8 -bottom-8 w-32 h-32 opacity-90 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full flex items-center justify-center p-4"
         >
-          <img src={icon} alt="" className="w-full h-full object-contain" draggable={false} />
+          <img src={icon} alt="" aria-hidden="true" className="w-full h-full object-contain" draggable={false} />
         </motion.div>
       </Card>
     </motion.div>

@@ -1,24 +1,24 @@
 package com.vaxify.app.service;
 
-import com.vaxify.app.entities.Appointment;
-import com.vaxify.app.entities.Hospital;
-import com.vaxify.app.entities.Vaccine;
+import com.vaxify.app.dtos.notification.AppointmentMailData;
+import com.vaxify.app.dtos.notification.HospitalMailData;
+import com.vaxify.app.dtos.notification.VaccineStockMailData;
 
 public interface NotificationService {
 
-    void sendHospitalRegistrationReceived(Hospital hospital);
+    void sendHospitalRegistrationReceived(HospitalMailData data);
 
-    void sendHospitalApproved(Hospital hospital);
+    void sendHospitalApproved(HospitalMailData data);
 
-    void sendHospitalRejected(Hospital hospital);
+    void sendHospitalRejected(HospitalMailData data);
 
-    void sendVaccineStockCritical(Vaccine vaccine, int stock, int capacity);
+    void sendVaccineStockCritical(VaccineStockMailData data);
 
-    void sendVaccineStockLow(Vaccine vaccine, int stock, int capacity);
+    void sendVaccineStockLow(VaccineStockMailData data);
 
-    void sendAppointmentConfirmation(Appointment appointment);
+    void sendAppointmentConfirmation(AppointmentMailData data);
 
-    void sendAppointmentCancellation(Appointment appointment);
+    void sendAppointmentCancellation(AppointmentMailData data);
 
-    void sendVaccinationCompletion(Appointment appointment);
+    void sendVaccinationCompletion(AppointmentMailData data);
 }

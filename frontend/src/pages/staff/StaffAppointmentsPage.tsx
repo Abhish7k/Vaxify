@@ -3,10 +3,8 @@ import type { Appointment as StaffAppointment } from "@/types/appointment";
 import type { StaffAppointmentStatus } from "@/components/appointment/staff/StaffAppointmentsTabsSection";
 import StaffAppointmentsTabsSection from "@/components/appointment/staff/StaffAppointmentsTabsSection";
 import StaffAppointmentsListSection from "@/components/appointment/staff/StaffAppointmentsListSection";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { hospitalApi } from "@/api/hospital.api";
-import { appointmentApi } from "@/api/appointment.api";
+import { useState } from "react";
+import { toastUtils } from "@/lib/toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,65 +16,41 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react";
+import { useMyHospital } from "@/hooks/queries/use-hospitals";
+import {
+  useCancelAppointment,
+  useCompleteAppointment,
+  useStaffAppointments,
+} from "@/hooks/queries/use-appointments";
+import { getErrorMessage } from "@/lib/errors";
+import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
+import { PageLoadError } from "@/components/ui/page-load-error";
 
 export default function StaffAppointmentsPage() {
   const [activeStatus, setActiveStatus] = useState<StaffAppointmentStatus>("UPCOMING");
-
-  const [appointments, setAppointments] = useState<StaffAppointment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<"complete" | "cancel" | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<StaffAppointment | null>(null);
 
-  const fetchAppointments = async () => {
-    try {
-      setLoading(true);
+  const hospitalQuery = useMyHospital();
+  const hospitalId = hospitalQuery.data?.id ? String(hospitalQuery.data.id) : undefined;
+  const appointmentsQuery = useStaffAppointments(hospitalId);
+  const completeMutation = useCompleteAppointment();
+  const cancelMutation = useCancelAppointment();
 
-      const hospital = await hospitalApi.getMyHospital();
+  const loading = hospitalQuery.isFetching || appointmentsQuery.isFetching;
+  const actionLoading = completeMutation.isPending || cancelMutation.isPending;
 
-      if (!hospital) {
-        return;
-      }
+  const appointments = appointmentsQuery.data ?? [];
+  const canMutate = hospitalQuery.data?.status === "APPROVED";
+  const loadError = hospitalQuery.isError || appointmentsQuery.isError;
 
-      const data = await appointmentApi.getStaffAppointments(hospital.id);
-
-      const mappedData = data.map((appt: any) => {
-        let status = appt.status;
-
-        const s = (appt.status || "").toUpperCase();
-
-        if (s === "SCHEDULED" || s === "BOOKED" || s === "UPCOMING") {
-          status = "UPCOMING";
-        } else if (s === "COMPLETED") {
-          status = "COMPLETED";
-        } else if (s === "CANCELLED") {
-          status = "CANCELLED";
-        } else if (s === "MISSED") {
-          status = "MISSED";
-        }
-
-        return {
-          ...appt,
-          vaccine: appt.vaccineName || appt.vaccine || "Unknown",
-          status: status,
-        };
-      });
-
-      setAppointments(mappedData);
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Failed to load appointments");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
+  useQueryErrorToast(
+    appointmentsQuery.isError || hospitalQuery.isError,
+    "Failed to load appointments",
+    appointmentsQuery.error ?? hospitalQuery.error,
+  );
 
   const handleActionRequest = (appointment: StaffAppointment, action: "complete" | "cancel") => {
     setSelectedAppointment(appointment);
@@ -88,22 +62,21 @@ export default function StaffAppointmentsPage() {
     if (!selectedAppointment || !pendingAction) return;
 
     try {
-      setActionLoading(true);
-
       if (pendingAction === "complete") {
-        await appointmentApi.completeAppointment(selectedAppointment.id);
-
-        toast.success("Appointment marked as completed");
+        await completeMutation.mutateAsync(selectedAppointment.id);
+        toastUtils.success("Appointment marked as completed");
       } else {
-        await appointmentApi.cancelAppointment(selectedAppointment.id);
-
-        toast.success("Appointment cancelled successfully");
+        await cancelMutation.mutateAsync(selectedAppointment.id);
+        toastUtils.success("Appointment cancelled successfully");
       }
-      fetchAppointments();
     } catch (error) {
-      toast.error(`Failed to ${pendingAction === "complete" ? "complete" : "cancel"} appointment`);
+      toastUtils.error(
+        getErrorMessage(
+          error,
+          `Failed to ${pendingAction === "complete" ? "complete" : "cancel"} appointment`,
+        ),
+      );
     } finally {
-      setActionLoading(false);
       setIsAlertOpen(false);
       setPendingAction(null);
       setSelectedAppointment(null);
@@ -112,7 +85,13 @@ export default function StaffAppointmentsPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <StaffAppointmentsHeaderSection onRefresh={fetchAppointments} loading={loading} />
+      <StaffAppointmentsHeaderSection
+        onRefresh={() => {
+          void hospitalQuery.refetch();
+          void appointmentsQuery.refetch();
+        }}
+        loading={loading}
+      />
 
       <StaffAppointmentsTabsSection value={activeStatus} onChange={setActiveStatus} />
 
@@ -121,10 +100,19 @@ export default function StaffAppointmentsPage() {
           <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
           Loading appointments...
         </div>
+      ) : loadError ? (
+        <PageLoadError
+          message="Could not load appointments. Please try again."
+          onRetry={() => {
+            void hospitalQuery.refetch();
+            void appointmentsQuery.refetch();
+          }}
+        />
       ) : (
         <StaffAppointmentsListSection
           appointments={appointments}
           activeStatus={activeStatus}
+          canMutate={canMutate}
           onMarkCompleted={(appointment) => handleActionRequest(appointment, "complete")}
           onCancelAppointment={(appointment) => handleActionRequest(appointment, "cancel")}
         />
@@ -150,7 +138,7 @@ export default function StaffAppointmentsPage() {
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
-                confirmAction();
+                void confirmAction();
               }}
               disabled={actionLoading}
               className={

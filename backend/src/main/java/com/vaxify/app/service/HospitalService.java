@@ -27,6 +27,8 @@ public interface HospitalService {
 
     HospitalResponse getHospitalById(Long id);
 
+    HospitalResponse getAdminHospitalById(Long id);
+
     List<HospitalResponse> getPendingHospitals();
 
     HospitalResponse approveHospital(Long hospitalId);
@@ -39,6 +41,8 @@ public interface HospitalService {
     void deleteHospital(Long id);
 
     Hospital findEntityByStaffEmail(String email);
+
+    Hospital requireApprovedStaffHospital(String email);
 
     Hospital findEntityById(Long id);
 }

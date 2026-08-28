@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { TicketCard } from "@/components/appointment/TicketCard";
 import { type Appointment } from "@/types/appointment";
+import { toTicketStatus } from "@/types/appointment";
 
 interface AppointmentTicketDialogProps {
   appointment: Appointment | null;
@@ -38,7 +39,7 @@ export default function AppointmentTicketDialog({ appointment, onClose }: Appoin
             date={appointment.date}
             slot={appointment.slot}
             endTime={appointment.endTime}
-            status={(appointment.status || "BOOKED").toLowerCase() as any}
+            status={toTicketStatus(appointment.status)}
             className="shadow-2xl mx-auto"
           />
         )}

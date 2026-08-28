@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -38,14 +39,13 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/**").permitAll()
                                                 .requestMatchers("/api/ping").permitAll()
-                                                .requestMatchers("/knock-knock").permitAll()
-                                                .requestMatchers(HttpMethod.GET, "/api/hospitals/**").permitAll()
+                                                .requestMatchers("/api/hospitals/my").authenticated()
                                                 .requestMatchers("/api/hospitals/register").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/hospitals/**").permitAll()
 
                                                 .requestMatchers("/actuator/health").permitAll()
 
                                                 .requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
-                                                .requestMatchers(HttpMethod.GET, "/api/files/download/**").permitAll()
 
                                                 // slot management
                                                 // staff can create / update / delete
@@ -64,11 +64,27 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/vaccines/**")
                                                 .hasAnyRole("USER", "STAFF", "ADMIN")
                                                 .requestMatchers("/api/users/**").authenticated()
+                                                .requestMatchers(HttpMethod.POST, "/api/appointments/cleanup")
+                                                .hasRole("ADMIN")
                                                 .requestMatchers("/api/appointments/**").authenticated()
 
                                                 // admin
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
+
+                                .exceptionHandling(exceptions -> exceptions
+                                                .authenticationEntryPoint((request, response, authException) -> {
+                                                        response.setStatus(401);
+                                                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                                                        response.getWriter().write(
+                                                                        "{\"message\":\"Authentication required\",\"status\":\"error\"}");
+                                                })
+                                                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                                        response.setStatus(403);
+                                                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                                                        response.getWriter().write(
+                                                                        "{\"message\":\"Access denied\",\"status\":\"error\"}");
+                                                }))
 
                                 .sessionManagement(session -> session.sessionCreationPolicy(
                                                 SessionCreationPolicy.STATELESS))

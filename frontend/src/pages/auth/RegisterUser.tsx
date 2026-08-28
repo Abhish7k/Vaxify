@@ -7,24 +7,25 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
+import { PHONE_MESSAGE, PHONE_REGEX } from "@/lib/validation";
 import { LoaderCircle } from "lucide-react";
 import { useAuth } from "@/auth/useAuth";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 
 const userRegisterSchema = z
   .object({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
 
-    phone: z.string().min(10, "Enter a valid phone number").max(10, "Enter a valid phone number"),
+    phone: z.string().regex(PHONE_REGEX, PHONE_MESSAGE),
 
     email: z.email("Enter a valid email"),
 
     password: z.string().min(6, "Password must be at least 6 characters").max(20),
 
     confirmPassword: z.string(),
-
-    address: z.string().min(10, "Address is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -35,49 +36,45 @@ type UserRegisterForm = z.infer<typeof userRegisterSchema>;
 
 const RegisterUser = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [allowLeave, setAllowLeave] = useState(false);
 
   const { registerUser } = useAuth();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<UserRegisterForm>({
     resolver: zodResolver(userRegisterSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      phone: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
+
+  useUnsavedChanges(isDirty && !isLoading && !allowLeave);
 
   const onSubmit = async (formData: UserRegisterForm) => {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
       const { confirmPassword, firstName, lastName, ...rest } = formData;
       const registerData = {
         ...rest,
         name: `${firstName} ${lastName}`,
       };
 
+      setAllowLeave(true);
       await registerUser(registerData);
 
-      toast.success("Registered successfully", {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
-    } catch (error: any) {
-      console.log("Register error: ", error);
-
-      // extract error message from backend response if available
-      const errorMessage = error.response?.data?.message || "Register failed. Please try again.";
-
-      toast.error(errorMessage, {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
+      toastUtils.success("Registered successfully");
+    } catch (error) {
+      setAllowLeave(false);
+      toastUtils.error(getErrorMessage(error, "Register failed. Please try again."));
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +85,7 @@ const RegisterUser = () => {
       <CardHeader className="pb-4">
         <CardTitle className="text-xl text-center">Register as User</CardTitle>
 
-        <p className="text-sm text-center text-slate-500">
+        <p className="text-sm text-center text-muted-foreground">
           Create an account to book vaccination appointments
         </p>
       </CardHeader>
@@ -98,66 +95,57 @@ const RegisterUser = () => {
           {/* name */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>First Name</Label>
+              <Label htmlFor="firstName">First Name</Label>
 
-              <Input placeholder="John" {...register("firstName")} />
+              <Input id="firstName" placeholder="John" {...register("firstName")} />
 
-              {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.message}</p>}
+              {errors.firstName && <p className="text-sm text-destructive">{errors.firstName.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label>Last Name</Label>
+              <Label htmlFor="lastName">Last Name</Label>
 
-              <Input placeholder="Doe" {...register("lastName")} />
+              <Input id="lastName" placeholder="Doe" {...register("lastName")} />
 
-              {errors.lastName && <p className="text-sm text-red-500">{errors.lastName.message}</p>}
+              {errors.lastName && <p className="text-sm text-destructive">{errors.lastName.message}</p>}
             </div>
           </div>
 
           {/* email */}
           <div className="space-y-2">
-            <Label>Email</Label>
+            <Label htmlFor="email">Email</Label>
 
-            <Input type="email" placeholder="you@example.com" {...register("email")} />
+            <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />
 
-            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
           </div>
 
           {/* phone */}
           <div className="space-y-2">
-            <Label>Phone Number</Label>
+            <Label htmlFor="phone">Phone Number</Label>
 
-            <Input placeholder="+91XXXXXXXXXX" {...register("phone")} />
+            <Input id="phone" type="tel" inputMode="numeric" maxLength={10} placeholder="9876543210" {...register("phone")} />
 
-            {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
-          </div>
-
-          {/* address */}
-          <div className="space-y-2">
-            <Label>Address</Label>
-
-            <Input placeholder="City, State" {...register("address")} />
-
-            {errors.address && <p className="text-sm text-red-500">{errors.address.message}</p>}
+            {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
           </div>
 
           {/* password */}
           <div className="space-y-2">
-            <Label>Password</Label>
+            <Label htmlFor="password">Password</Label>
 
-            <Input type="password" placeholder="••••••••" {...register("password")} />
+            <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
 
-            {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+            {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
           </div>
 
           {/* confirm password */}
           <div className="space-y-2">
-            <Label>Confirm Password</Label>
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
 
-            <Input type="password" placeholder="••••••••" {...register("confirmPassword")} />
+            <Input id="confirmPassword" type="password" placeholder="••••••••" {...register("confirmPassword")} />
 
             {errors.confirmPassword && (
-              <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
+              <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
             )}
           </div>
 
@@ -172,9 +160,9 @@ const RegisterUser = () => {
             )}
           </Button>
 
-          <p className="text-center text-sm text-slate-600">
+          <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link to="/login" className="text-indigo-600 font-medium hover:underline">
+            <Link to="/login" className="text-primary font-medium hover:underline">
               Sign In
             </Link>
           </p>

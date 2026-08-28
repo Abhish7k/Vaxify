@@ -1,38 +1,19 @@
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { MapPin, ArrowLeft, ExternalLink, Syringe, Clock, FileText } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import AppointmentStatusBadge from "@/components/appointment/my-appointments/AppointmentStatusBadge";
+import HospitalStatusBadge from "@/components/admin/hospitals-page/HospitalStatusBadge";
 import { formatDate } from "date-fns";
+import type { Hospital } from "@/types/hospital";
+import type { Vaccine } from "@/types/vaccine";
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
+import { fadeUpItemSpring, staggerContainer } from "@/lib/motion";
+import { openProtectedDocument } from "@/api/files.api";
 
-const itemVariants: Variants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 15,
-    },
-  },
-};
-
-export default function MainSection({ hospital }: { hospital: any }) {
-  // map backend vaccines to display format if needed
-  const displayVaccines = hospital.vaccines || [];
+export default function MainSection({ hospital }: { hospital: Hospital }) {
+  const displayVaccines: Vaccine[] = hospital.vaccines || [];
 
   const staff = {
     name: hospital.staffName || "N/A",
@@ -47,13 +28,13 @@ export default function MainSection({ hospital }: { hospital: any }) {
 
   return (
     <motion.div
-      variants={containerVariants}
+      variants={staggerContainer}
       initial="hidden"
       animate="visible"
       className="max-w-7xl mx-auto space-y-6 pb-20 p-4 font-sans"
     >
       {/* back btn */}
-      <motion.div variants={itemVariants} className="mb-4">
+      <motion.div variants={fadeUpItemSpring} className="mb-4">
         <button
           onClick={() => window.history.back()}
           className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer"
@@ -65,7 +46,7 @@ export default function MainSection({ hospital }: { hospital: any }) {
 
       {/* header */}
       <motion.div
-        variants={itemVariants}
+        variants={fadeUpItemSpring}
         className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b pb-8"
       >
         <img
@@ -78,7 +59,7 @@ export default function MainSection({ hospital }: { hospital: any }) {
           <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold text-slate-900">{hospital.name}</h1>
 
-            <AppointmentStatusBadge status={hospital.status} />
+            <HospitalStatusBadge status={hospital.status} />
           </div>
           <p className="text-slate-500 flex items-center justify-center md:justify-start gap-2">
             <MapPin className="h-4 w-4" />
@@ -91,7 +72,7 @@ export default function MainSection({ hospital }: { hospital: any }) {
       {/* grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* vaccines */}
-        <motion.div variants={itemVariants}>
+        <motion.div variants={fadeUpItemSpring}>
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -101,7 +82,7 @@ export default function MainSection({ hospital }: { hospital: any }) {
             </CardHeader>
             <CardContent className="space-y-6">
               {displayVaccines.length > 0 ? (
-                displayVaccines.map((v: any) => (
+                displayVaccines.map((v) => (
                   <div
                     key={v.name}
                     className="flex justify-between items-center border-b pb-4 last:border-0 last:pb-0"
@@ -146,7 +127,7 @@ export default function MainSection({ hospital }: { hospital: any }) {
         </motion.div>
 
         {/* staff details */}
-        <motion.div variants={itemVariants}>
+        <motion.div variants={fadeUpItemSpring}>
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -179,7 +160,7 @@ export default function MainSection({ hospital }: { hospital: any }) {
         </motion.div>
 
         {/* Operational Info */}
-        <motion.div variants={itemVariants}>
+        <motion.div variants={fadeUpItemSpring}>
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -190,7 +171,7 @@ export default function MainSection({ hospital }: { hospital: any }) {
             <CardContent className="space-y-3 font-medium">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Working Hours</span>
-                <span>{hospital.workingHours || "9:00 AM – 5:00 PM"}</span>
+                <span>{hospital.workingHours || "Not available"}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Date Joined</span>
@@ -201,7 +182,7 @@ export default function MainSection({ hospital }: { hospital: any }) {
         </motion.div>
 
         {/* Verification */}
-        <motion.div variants={itemVariants}>
+        <motion.div variants={fadeUpItemSpring}>
           <Card className="h-full flex flex-col">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -217,6 +198,10 @@ export default function MainSection({ hospital }: { hospital: any }) {
                     href={hospital.documentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      void openProtectedDocument(hospital.documentUrl!);
+                    }}
                     className="text-primary hover:underline flex items-center gap-1 font-semibold"
                   >
                     View PDF

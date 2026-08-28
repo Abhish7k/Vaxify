@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Pie, PieChart, Label, Cell } from "recharts";
 import type { Appointment } from "@/types/appointment";
+import { isUpcomingStatus } from "@/types/appointment";
 
 import {
   Card,
@@ -67,12 +68,8 @@ export function StaffAppointmentStatusPie({
       const aptDate = parseISO(a.date);
       // filter for last 30 days
       if (isAfter(aptDate, thirtyDaysAgo)) {
-        const status = a.status.toUpperCase();
-        if (
-          status === "BOOKED" ||
-          status === "UPCOMING" ||
-          status === "SCHEDULED"
-        ) {
+        const status = a.status;
+        if (isUpcomingStatus(status)) {
           counts.Scheduled++;
         } else if (status === "COMPLETED") {
           counts.Completed++;

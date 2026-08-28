@@ -1,76 +1,43 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
 
 import MyAppointmentsHeaderSection from "@/components/appointment/my-appointments/MyAppointmentsHeaderSection";
 import MyAppointmentsTabsSection from "@/components/appointment/my-appointments/MyAppointmentsTabsSection";
-import { type Appointment, type AppointmentStatus } from "@/types/appointment";
+import { type Appointment, type UserAppointmentTab } from "@/types/appointment";
 import MyAppointmentsListSection from "@/components/appointment/my-appointments/MyAppointmentsListSection";
-import { appointmentApi } from "@/api/appointment.api";
 import { MyAppointmentsSkeleton } from "@/components/skeletons/MyAppointmentsSkeleton";
 
 import AppointmentTicketDialog from "@/components/appointment/AppointmentTicketDialog";
 import AppointmentCancelDialog from "@/components/appointment/AppointmentCancelDialog";
+import { getErrorMessage } from "@/lib/errors";
+import { useCancelAppointment, useMyAppointments } from "@/hooks/queries/use-appointments";
+import { PageLoadError } from "@/components/ui/page-load-error";
 
 export default function MyAppointmentsPage() {
   const navigate = useNavigate();
 
-  const [activeStatus, setActiveStatus] = useState<AppointmentStatus>("BOOKED");
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeStatus, setActiveStatus] = useState<UserAppointmentTab>("BOOKED");
   const [selectedTicket, setSelectedTicket] = useState<Appointment | null>(null);
 
   const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
 
-  const fetchAppointments = async () => {
-    try {
-      setIsLoading(true);
-
-      const data = await appointmentApi.getMyAppointments();
-
-      setAppointments(data);
-    } catch (error) {
-      console.error("Failed to fetch appointments", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRefresh = async () => {
-    try {
-      setIsLoading(true);
-
-      const data = await appointmentApi.getMyAppointments();
-
-      setAppointments(data);
-    } catch (error) {
-      console.error("Failed to fetch appointments", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
+  const appointmentsQuery = useMyAppointments();
+  const cancelMutation = useCancelAppointment();
+  const appointments = appointmentsQuery.data ?? [];
+  const isLoading = appointmentsQuery.isFetching;
 
   const confirmCancelAppointment = async () => {
     if (!appointmentToCancel) return;
 
     try {
-      setIsCancelling(true);
+      await cancelMutation.mutateAsync(appointmentToCancel.id);
 
-      await appointmentApi.cancelAppointment(appointmentToCancel.id);
-
-      toast.success("Cancelled appointment successfully");
-
-      fetchAppointments();
+      toastUtils.success("Cancelled appointment successfully");
     } catch (error) {
-      toast.error("Failed to cancel appointment");
+      toastUtils.error(getErrorMessage(error, "Failed to cancel appointment"));
     } finally {
-      setIsCancelling(false);
       setIsCancelDialogOpen(false);
       setAppointmentToCancel(null);
     }
@@ -79,7 +46,10 @@ export default function MyAppointmentsPage() {
   return (
     <div className="space-y-8 container mx-auto px-2 sm:px-8 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* header */}
-      <MyAppointmentsHeaderSection onRefresh={handleRefresh} loading={isLoading} />
+      <MyAppointmentsHeaderSection
+        onRefresh={() => void appointmentsQuery.refetch()}
+        loading={isLoading}
+      />
 
       {/* tabs */}
       <MyAppointmentsTabsSection value={activeStatus} onChange={setActiveStatus} />
@@ -87,30 +57,14 @@ export default function MyAppointmentsPage() {
       {/* list */}
       {isLoading ? (
         <MyAppointmentsSkeleton />
+      ) : appointmentsQuery.isError ? (
+        <PageLoadError
+          message="Could not load appointments. Please try again."
+          onRetry={() => void appointmentsQuery.refetch()}
+        />
       ) : (
         <MyAppointmentsListSection
-          appointments={appointments.map((a) => {
-            let status: AppointmentStatus = a.status;
-            const s = (a.status || "").toUpperCase();
-            if (s === "SCHEDULED" || s === "BOOKED" || s === "UPCOMING") {
-              status = "BOOKED";
-            } else if (s === "COMPLETED") {
-              status = "COMPLETED";
-            } else if (s === "CANCELLED") {
-              status = "CANCELLED";
-            } else if (s === "MISSED") {
-              status = "MISSED";
-            }
-
-            return {
-              ...a,
-              centerName: a.centerName || "Unknown Center",
-              centerAddress: a.centerAddress || "",
-              vaccineName: a.vaccineName || a.vaccine || "Unknown Vaccine",
-              slot: a.slot || a.timeSlot || "N/A",
-              status: status,
-            };
-          })}
+          appointments={appointments}
           activeStatus={activeStatus}
           onBrowseCenters={() => navigate("/centers")}
           onViewCenter={(centerId) => navigate(`/centers/${centerId}`)}
@@ -135,7 +89,7 @@ export default function MyAppointmentsPage() {
         isOpen={isCancelDialogOpen}
         onOpenChange={setIsCancelDialogOpen}
         onConfirm={confirmCancelAppointment}
-        isCancelling={isCancelling}
+        isCancelling={cancelMutation.isPending}
       />
     </div>
   );

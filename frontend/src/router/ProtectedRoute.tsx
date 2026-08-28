@@ -1,39 +1,42 @@
 import { useAuth } from "@/auth/useAuth";
+import { RouteSpinner } from "@/components/ui/route-spinner";
+import { PageLoadError } from "@/components/ui/page-load-error";
+import { getHomePath } from "@/lib/auth-paths";
+import { getStoredToken } from "@/lib/auth-session";
 import type { Role } from "@/types/auth";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 interface ProtectedRouteProps {
   allowedRoles?: Role[];
 }
 
 export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading, sessionError, retrySession } = useAuth();
+  const location = useLocation();
 
-  // if user is not authenticated then redirect to login page
+  if (loading) {
+    return <RouteSpinner />;
+  }
+
+  if (sessionError && !isAuthenticated && getStoredToken()) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <PageLoadError
+          message="Could not restore your session. Please try again."
+          onRetry={retrySession}
+        />
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const next = `${location.pathname}${location.search}`;
+    return <Navigate to={`/login?next=${encodeURIComponent(next)}`} replace />;
   }
 
-  // if user is authenticated but not authorized with the right role
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    const role = user.role?.toLowerCase();
-
-    if (role === "admin") {
-      return <Navigate to="/admin/dashboard" replace />;
-    }
-
-    if (role === "staff") {
-      return <Navigate to="/staff/dashboard" replace />;
-    }
-
-    if (role === "user") {
-      return <Navigate to="/dashboard" replace />;
-    }
-
-    // fallback for unknown roles - go to home to break loop
-    return <Navigate to="/" replace />;
+    return <Navigate to={getHomePath(user.role)} replace />;
   }
 
-  // render the child route component
   return <Outlet />;
 };

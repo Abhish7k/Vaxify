@@ -8,6 +8,7 @@ import com.vaxify.app.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import com.vaxify.app.util.SecurityUtils;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,8 @@ public class AppointmentController {
     private final AppointmentCleanupService appointmentCleanupService;
 
     @PostMapping
-    public ResponseEntity<AppointmentResponse> bookAppointment(@RequestBody BookAppointmentRequest request) {
+    public ResponseEntity<AppointmentResponse> bookAppointment(
+            @Valid @RequestBody BookAppointmentRequest request) {
         String email = securityUtils.getCurrentUserEmail();
 
         return ResponseEntity.ok(appointmentService.bookAppointment(request, email));
@@ -46,12 +48,16 @@ public class AppointmentController {
 
     @GetMapping("/hospital/{hospitalId}")
     public ResponseEntity<List<AppointmentResponse>> getAppointmentsByHospital(@PathVariable Long hospitalId) {
-        return ResponseEntity.ok(appointmentService.getAppointmentsByHospital(hospitalId));
+        String email = securityUtils.getCurrentUserEmail();
+
+        return ResponseEntity.ok(appointmentService.getAppointmentsByHospital(hospitalId, email));
     }
 
     @PatchMapping("/{id}/complete")
     public ResponseEntity<Void> completeAppointment(@PathVariable Long id) {
-        appointmentService.completeAppointment(id);
+        String email = securityUtils.getCurrentUserEmail();
+
+        appointmentService.completeAppointment(id, email);
 
         return ResponseEntity.ok().build();
     }

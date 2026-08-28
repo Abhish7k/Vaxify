@@ -17,4 +17,20 @@ export const toastUtils = {
       },
     });
   },
+  warning: (message: string) => {
+    toast.warning(message, {
+      style: {
+        backgroundColor: "#fffbeb",
+        color: "#92400e",
+      },
+    });
+  },
+  info: (message: string) => {
+    toast.info(message, {
+      style: {
+        backgroundColor: "#eff6ff",
+        color: "#1e40af",
+      },
+    });
+  },
 };

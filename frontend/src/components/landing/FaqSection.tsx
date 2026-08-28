@@ -5,7 +5,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AnimatedGroup } from "@/components/ui/animated-group";
-import { motion } from "framer-motion";
 
 interface FaqItem {
   id: string;
@@ -13,24 +12,31 @@ interface FaqItem {
   answer: string;
 }
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
+const transitionVariants = {
+  container: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+      },
     },
   },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 10, filter: "blur(4px)" },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.4,
+  item: {
+    hidden: {
+      opacity: 0,
+      filter: "blur(12px)",
+      y: 12,
+    },
+    visible: {
+      opacity: 1,
+      filter: "blur(0px)",
+      y: 0,
+      transition: {
+        type: "spring" as const,
+        bounce: 0.3,
+        duration: 1.5,
+      },
     },
   },
 };
@@ -40,7 +46,7 @@ export function FaqSection() {
     <section className="relative px-5 sm:px-10 py-16 md:py-32 bg-white overflow-hidden transition-all">
       <div className="mx-auto max-w-3xl px-6 w-full">
         {/* header */}
-        <AnimatedGroup preset="blur-slide" className="text-center mb-16">
+        <AnimatedGroup variants={transitionVariants} className="text-center mb-16">
           <p className="text-[#6366f1] text-[11px] font-mono font-bold mb-1 uppercase tracking-[0.2em]">
             Support & FAQ
           </p>
@@ -54,31 +60,24 @@ export function FaqSection() {
           </p>
         </AnimatedGroup>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="w-full"
-        >
-          <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full">
+          <AnimatedGroup variants={transitionVariants} className="w-full">
             {faqItems.map((item) => (
-              <motion.div key={item.id} variants={itemVariants}>
-                <AccordionItem
-                  value={item.id}
-                  className="border-slate-100 py-2"
-                >
-                  <AccordionTrigger className="text-slate-900 font-medium hover:no-underline hover:text-indigo-600 transition-colors py-4 cursor-pointer">
-                    {item.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-slate-500 leading-relaxed pb-6">
-                    {item.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              </motion.div>
+              <AccordionItem
+                key={item.id}
+                value={item.id}
+                className="border-slate-100 py-2"
+              >
+                <AccordionTrigger className="text-slate-900 font-medium hover:no-underline hover:text-indigo-600 transition-colors py-4 cursor-pointer">
+                  {item.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-slate-500 leading-relaxed pb-6">
+                  {item.answer}
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </Accordion>
-        </motion.div>
+          </AnimatedGroup>
+        </Accordion>
       </div>
     </section>
   );

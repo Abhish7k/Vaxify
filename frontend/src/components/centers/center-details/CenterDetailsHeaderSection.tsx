@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { CenterData } from "@/types/center-details";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/useAuth";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
 
 interface Props {
   center: CenterData;
@@ -19,26 +19,14 @@ const CenterDetailsHeaderSection = ({ center }: Props) => {
     const path = `/appointments/book/${center.id}`;
 
     if (!isAuthenticated) {
-      toast.warning("Login Required", {
-        style: {
-          backgroundColor: "#fffbeb",
-          color: "#92400e",
-        },
-      });
+      toastUtils.warning("Login Required");
 
       setTimeout(() => {
-        toast.info("Redirecting to login page…", {
-          style: {
-            backgroundColor: "#eff6ff",
-            color: "#1e40af",
-          },
-        });
+        toastUtils.info("Redirecting to login page…");
       }, 1000);
 
       setTimeout(() => {
-        navigate("/login", {
-          state: { from: path },
-        });
+        navigate(`/login?next=${encodeURIComponent(path)}`);
       }, 2500);
 
       return;
@@ -60,9 +48,11 @@ const CenterDetailsHeaderSection = ({ center }: Props) => {
             <span className="text-sm sm:text-base">{center.address}</span>
           </div>
 
-          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mt-10">
-            {center.description}
-          </p>
+          {center.description && (
+            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mt-10">
+              {center.description}
+            </p>
+          )}
         </div>
 
         <Card className="sm:w-[80%] md:w-75 transition-all py-0 group">
@@ -70,6 +60,7 @@ const CenterDetailsHeaderSection = ({ center }: Props) => {
             <img
               src="https://ik.imagekit.io/vaxify/icons/calendar.png"
               alt=""
+              aria-hidden="true"
               className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 
               group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300"
             />

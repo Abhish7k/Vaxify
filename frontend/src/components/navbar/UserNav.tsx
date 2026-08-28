@@ -28,13 +28,19 @@ const UserNav = () => {
     <div className="">
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="cursor-pointer">
-          <Avatar>
-            <AvatarImage src={""} />
+          <button
+            type="button"
+            aria-label="Open account menu"
+            className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Avatar>
+              <AvatarImage src={""} alt="" />
 
-            <AvatarFallback>
-              <Avvvatars value={user?.email || "user"} style="character" />
-            </AvatarFallback>
-          </Avatar>
+              <AvatarFallback>
+                <Avvvatars value={user?.email || "user"} style="character" />
+              </AvatarFallback>
+            </Avatar>
+          </button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent side="bottom" align="end" className="min-w-52 p-2">
@@ -52,8 +58,8 @@ const UserNav = () => {
 
           <DropdownMenuSeparator />
 
-          {items.map((item, idx) => (
-            <Link to={item.href} key={idx} className="">
+          {items.map((item) => (
+            <Link to={item.href} key={item.href} className="">
               <DropdownMenuItem className="flex gap-2 items-center hover:bg-gray-100 transition-all w-full cursor-pointer">
                 <item.icon className="size-4" />
 

@@ -1,50 +1,42 @@
 import AdminHospitalFloatingActions from "@/components/admin/hospital-details-page/AdminHospitalActionsSection";
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { toast } from "sonner";
 import MainSection from "@/components/admin/hospital-details-page/AdminHospitalDetailsMainSection";
-import { hospitalApi } from "@/api/hospital.api";
 import { Loader2 } from "lucide-react";
 import { toastUtils } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
+import {
+  useApproveHospital,
+  useAdminHospital,
+  useRejectHospital,
+} from "@/hooks/queries/use-hospitals";
+import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
+import { isNotFoundError } from "@/lib/errors";
+import { PageLoadError } from "@/components/ui/page-load-error";
 
 export default function AdminHospitalDetailsPage() {
   const { hospitalId } = useParams<{ hospitalId: string }>();
-  const [hospital, setHospital] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const hospitalQuery = useAdminHospital(hospitalId);
+  const approveHospital = useApproveHospital();
+  const rejectHospital = useRejectHospital();
+  const hospital = hospitalQuery.data;
+  const loading = hospitalQuery.isPending;
 
-  useEffect(() => {
-    const fetchHospital = async () => {
-      if (!hospitalId) return;
-      try {
-        setLoading(true);
+  const notFound = isNotFoundError(hospitalQuery.error);
 
-        const data = await hospitalApi.getHospitalById(hospitalId);
-
-        setHospital(data);
-      } catch (error) {
-        console.error("Failed to fetch hospital details", error);
-
-        toast.error("Failed to load hospital details");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHospital();
-  }, [hospitalId]);
+  useQueryErrorToast(
+    hospitalQuery.isError && !notFound,
+    "Failed to load hospital details",
+    hospitalQuery.error,
+  );
 
   const handleApproveHospital = async () => {
     if (!hospitalId) return;
     try {
-      await hospitalApi.approveHospital(hospitalId);
-
-      setHospital((prev: any) => ({
-        ...prev,
-        status: "APPROVED",
-      }));
+      await approveHospital.mutateAsync(hospitalId);
 
       toastUtils.success("Approved hospital successfully");
     } catch (error) {
-      toastUtils.error("Failed to approve hospital");
+      toastUtils.error(getErrorMessage(error, "Failed to approve hospital"));
     }
   };
 
@@ -52,16 +44,11 @@ export default function AdminHospitalDetailsPage() {
     if (!hospitalId) return;
 
     try {
-      await hospitalApi.rejectHospital(hospitalId);
+      await rejectHospital.mutateAsync(hospitalId);
 
-      setHospital((prev: any) => ({
-        ...prev,
-        status: "REJECTED",
-      }));
-
-      toastUtils.error("Rejected hospital successfully");
+      toastUtils.success("Rejected hospital successfully");
     } catch (error) {
-      toastUtils.error("Failed to reject hospital");
+      toastUtils.error(getErrorMessage(error, "Failed to reject hospital"));
     }
   };
 
@@ -74,6 +61,17 @@ export default function AdminHospitalDetailsPage() {
   }
 
   if (!hospital) {
+    if (hospitalQuery.isError && !notFound) {
+      return (
+        <div className="flex h-[60vh] items-center justify-center px-4">
+          <PageLoadError
+            message="Could not load hospital details. Please try again."
+            onRetry={() => void hospitalQuery.refetch()}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
         <p className="text-muted-foreground">Hospital not found</p>
@@ -93,6 +91,7 @@ export default function AdminHospitalDetailsPage() {
         status={hospital.status}
         onApprove={handleApproveHospital}
         onReject={handleRejectHospital}
+        isPending={approveHospital.isPending || rejectHospital.isPending}
       />
     </div>
   );

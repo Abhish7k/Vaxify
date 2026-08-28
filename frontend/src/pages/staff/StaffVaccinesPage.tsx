@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { vaccineApi } from "@/api/vaccine.api";
 import type { Vaccine } from "@/types/vaccine";
 import { getVaccineColumns } from "@/components/dashboards/staff/vaccines/VaccineColumns";
 import { Button } from "@/components/ui/button";
@@ -10,50 +9,27 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AddVaccineDialog } from "@/components/dashboards/staff/vaccines/AddVaccineDialog";
 import { DeleteVaccineDialog } from "@/components/dashboards/staff/vaccines/DeleteVaccineDialog";
 import { UpdateStockDialog } from "@/components/dashboards/staff/vaccines/UpdateStockDialog";
-import { toastUtils } from "@/lib/toast";
+import { useMyVaccines } from "@/hooks/queries/use-vaccines";
+import { useMyHospital } from "@/hooks/queries/use-hospitals";
+import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
+import { PageLoadError } from "@/components/ui/page-load-error";
 
 export default function StaffVaccinesPage() {
-  const [vaccines, setVaccines] = useState<Vaccine[]>([]);
-  const [loading, setLoading] = useState(false);
+  const hospitalQuery = useMyHospital();
+  const vaccinesQuery = useMyVaccines();
+  const vaccines = vaccinesQuery.data ?? [];
+  const loading = vaccinesQuery.isFetching;
+  const canMutate = hospitalQuery.data?.status === "APPROVED";
   const [vaccineToDelete, setVaccineToDelete] = useState<Vaccine | null>(null);
   const [vaccineToUpdate, setVaccineToUpdate] = useState<Vaccine | null>(null);
 
-  const fetchVaccines = async () => {
-    setLoading(true);
-    try {
-      const data = await vaccineApi.getMyVaccines();
-
-      setVaccines(data);
-    } catch (error) {
-      console.error("Fetch failed", error);
-
-      toastUtils.error("Failed to fetch vaccines");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRefresh = async () => {
-    setLoading(true);
-
-    try {
-      const data = await vaccineApi.getMyVaccines();
-
-      setVaccines(data);
-    } catch (error) {
-      console.error("Fetch failed", error);
-
-      toastUtils.error("Failed to fetch vaccines");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useQueryErrorToast(
+    vaccinesQuery.isError,
+    "Failed to fetch vaccines",
+    vaccinesQuery.error,
+  );
 
   const { setOpen } = useSidebar();
-
-  useEffect(() => {
-    fetchVaccines();
-  }, []);
 
   // auto-close sidebar on smaller screens for better ux
   useEffect(() => {
@@ -78,8 +54,9 @@ export default function StaffVaccinesPage() {
       getVaccineColumns({
         onUpdate: (v: Vaccine) => setVaccineToUpdate(v),
         onDelete: (v: Vaccine) => setVaccineToDelete(v),
+        canMutate,
       }),
-    [],
+    [canMutate],
   );
 
   return (
@@ -93,12 +70,17 @@ export default function StaffVaccinesPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void vaccinesQuery.refetch()}
+            disabled={loading}
+          >
             <RefreshCcw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
 
-          <AddVaccineDialog onSuccess={fetchVaccines} />
+          {canMutate && <AddVaccineDialog />}
         </div>
       </div>
       <Card className="border-none shadow-none bg-card/50 backdrop-blur-sm">
@@ -110,7 +92,17 @@ export default function StaffVaccinesPage() {
         </CardHeader>
 
         <CardContent>
-          {loading ? (
+          {!canMutate && hospitalQuery.data && (
+            <p className="text-sm text-muted-foreground mb-4">
+              Inventory can be changed after your hospital is approved.
+            </p>
+          )}
+          {vaccinesQuery.isError ? (
+            <PageLoadError
+              message="Could not load vaccines. Please try again."
+              onRetry={() => void vaccinesQuery.refetch()}
+            />
+          ) : loading ? (
             <div className="space-y-4">
               <div className="h-10 w-full bg-muted animate-pulse rounded-xl" />
               <div className="h-64 w-full bg-muted/50 animate-pulse rounded-xl" />
@@ -129,12 +121,10 @@ export default function StaffVaccinesPage() {
       <DeleteVaccineDialog
         vaccine={vaccineToDelete}
         onClose={() => setVaccineToDelete(null)}
-        onSuccess={fetchVaccines}
       />
       <UpdateStockDialog
         vaccine={vaccineToUpdate}
         onClose={() => setVaccineToUpdate(null)}
-        onSuccess={fetchVaccines}
       />
     </div>
   );

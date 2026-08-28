@@ -17,32 +17,21 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatDate } from "@/lib/utils";
 import { useAuthContext } from "@/auth/AuthContext";
-import { hospitalApi } from "@/api/hospital.api";
-import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useMyHospital } from "@/hooks/queries/use-hospitals";
+import { openProtectedDocument } from "@/api/files.api";
+import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
 
 export default function StaffInfoCard() {
   const { user } = useAuthContext();
-  const [hospital, setHospital] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const hospitalQuery = useMyHospital();
+  const hospital = hospitalQuery.data;
+  const loading = hospitalQuery.isPending;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await hospitalApi.getMyHospital();
-
-        setHospital(data);
-      } catch (error) {
-        console.error("Failed to fetch data", error);
-
-        toast.error("Could not load profile details");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  useQueryErrorToast(
+    hospitalQuery.isError,
+    "Could not load profile details",
+    hospitalQuery.error,
+  );
 
   if (loading) {
     return (
@@ -61,10 +50,8 @@ export default function StaffInfoCard() {
     status: hospital?.status || "ACTIVE",
     hospitalName: hospital?.name || "Loading...",
     hospitalId: hospital?.id || "N/A",
-    joinedDate: hospital?.staffCreatedAt
-      ? new Date(hospital.staffCreatedAt).toLocaleDateString()
-      : "January 2026",
-    documentUrl: hospital?.documentUrl || "https://vaxify-docs.s3.amazonaws.com/test-id-card.pdf",
+    joinedDate: hospital?.staffCreatedAt || "",
+    documentUrl: hospital?.documentUrl || "",
   };
 
   const basicInfo = [
@@ -81,7 +68,7 @@ export default function StaffInfoCard() {
   const metadataInfo = [
     { icon: Hash, label: "Staff ID", value: staffData.staffId },
     { icon: Hash, label: "Hospital ID", value: staffData.hospitalId },
-    { icon: Calendar, label: "Joined", value: formatDate(staffData.joinedDate) },
+    { icon: Calendar, label: "Joined", value: staffData.joinedDate ? formatDate(staffData.joinedDate) : "—" },
     {
       icon: BadgeCheck,
       label: "Status",
@@ -143,9 +130,9 @@ export default function StaffInfoCard() {
 
           {/* info rows */}
           <div className="mt-6 space-y-3 text-sm">
-            {basicInfo.map((item, index) => (
+            {basicInfo.map((item) => (
               <InfoRow
-                key={index}
+                key={item.label}
                 icon={<item.icon className="h-4 w-4" />}
                 label={item.label}
                 value={item.value}
@@ -154,9 +141,9 @@ export default function StaffInfoCard() {
 
             {/* metadata */}
             <div className="mt-6 pt-6 border-t border-border/50 space-y-3">
-              {metadataInfo.map((item, index) => (
+              {metadataInfo.map((item) => (
                 <InfoRow
-                  key={index}
+                  key={item.label}
                   icon={<item.icon className="h-4 w-4" />}
                   label={item.label}
                   value={item.value}
@@ -173,12 +160,16 @@ export default function StaffInfoCard() {
                       href={staffData.documentUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        void openProtectedDocument(staffData.documentUrl);
+                      }}
                       className="text-primary hover:underline flex items-center justify-end gap-1"
                     >
                       View Cert <ExternalLink className="h-3 w-3" />
                     </a>
                   ) : (
-                    <span className="text-muted-foreground italic">Pending Upload</span>
+                    <span className="text-muted-foreground italic">No document uploaded</span>
                   )
                 }
               />

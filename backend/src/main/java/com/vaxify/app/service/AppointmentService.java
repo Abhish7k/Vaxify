@@ -2,7 +2,6 @@ package com.vaxify.app.service;
 
 import com.vaxify.app.dtos.appointment.AppointmentResponse;
 import com.vaxify.app.dtos.appointment.BookAppointmentRequest;
-import com.vaxify.app.entities.Slot;
 
 import java.util.List;
 
@@ -15,11 +14,7 @@ public interface AppointmentService {
 
     AppointmentResponse getAppointmentById(Long id);
 
-    List<AppointmentResponse> getAppointmentsByHospital(Long hospitalId);
+    List<AppointmentResponse> getAppointmentsByHospital(Long hospitalId, String actorEmail);
 
-    void completeAppointment(Long appointmentId);
-
-    boolean hasActiveBookings(Slot slot);
-
-    void deleteAppointmentsBySlot(Slot slot);
+    void completeAppointment(Long appointmentId, String actorEmail);
 }

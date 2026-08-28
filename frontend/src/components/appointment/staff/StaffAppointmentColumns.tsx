@@ -12,15 +12,18 @@ import {
 import { MoreHorizontal, ArrowUpDown, Check, X } from "lucide-react";
 import type { Appointment as StaffAppointment } from "@/types/appointment";
 import { formatTimeRange, formatDate } from "@/lib/utils";
+import { isAppointmentCancellable, isAppointmentCompletable, isUpcomingStatus } from "@/types/appointment";
 
 interface GetColumnsProps {
   onMarkCompleted: (appointment: StaffAppointment) => void;
   onCancelAppointment: (appointment: StaffAppointment) => void;
+  canMutate?: boolean;
 }
 
 export const getStaffAppointmentColumns = ({
   onMarkCompleted,
   onCancelAppointment,
+  canMutate = true,
 }: GetColumnsProps): ColumnDef<StaffAppointment>[] => [
   {
     accessorKey: "patientName",
@@ -84,6 +87,7 @@ export const getStaffAppointmentColumns = ({
       const status = row.getValue("status") as string;
       switch (status) {
         case "UPCOMING":
+        case "BOOKED":
           return (
             <Badge
               variant="outline"
@@ -129,7 +133,14 @@ export const getStaffAppointmentColumns = ({
     cell: ({ row }) => {
       const appointment = row.original;
 
-      if (appointment.status !== "UPCOMING") {
+      if (!isUpcomingStatus(appointment.status) || !canMutate) {
+        return null;
+      }
+
+      const canComplete = isAppointmentCompletable(appointment);
+      const canCancel = isAppointmentCancellable(appointment);
+
+      if (!canComplete && !canCancel) {
         return null;
       }
 
@@ -145,6 +156,7 @@ export const getStaffAppointmentColumns = ({
             <DropdownMenuContent align="end" className="w-48 p-2">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              {canComplete && (
               <DropdownMenuItem
                 className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer flex items-center gap-2 py-2"
                 onClick={() => onMarkCompleted(appointment)}
@@ -152,6 +164,8 @@ export const getStaffAppointmentColumns = ({
                 <Check className="h-4 w-4" />
                 Mark Complete
               </DropdownMenuItem>
+              )}
+              {canCancel && (
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex items-center gap-2 py-2"
                 onClick={() => onCancelAppointment(appointment)}
@@ -159,6 +173,7 @@ export const getStaffAppointmentColumns = ({
                 <X className="h-4 w-4" />
                 Cancel
               </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

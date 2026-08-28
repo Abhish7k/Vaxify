@@ -12,6 +12,8 @@ import PasswordInput from "./PasswordInput";
 import { useAuth } from "@/auth/useAuth";
 import QuickDemoLogins from "./QuickDemoLogins";
 import { toastUtils } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
+import axios from "axios";
 
 // zod schema
 const signInSchema = z.object({
@@ -42,13 +44,11 @@ const LoginForm: React.FC = () => {
       await login(formData.email, formData.password);
 
       toastUtils.success("Logged in successfully");
-    } catch (error: any) {
-      console.error("Sign in error: ", error);
-
+    } catch (error) {
       const message =
-        error.response?.status === 401
+        axios.isAxiosError(error) && error.response?.status === 401
           ? "Invalid email or password"
-          : "Invalid credentials. Please try again.";
+          : getErrorMessage(error, "Invalid credentials. Please try again.");
 
       toastUtils.error(message);
     } finally {
@@ -109,30 +109,33 @@ const LoginForm: React.FC = () => {
             )}
           </Button>
 
-          {/* divider */}
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-slate-200" />
-            </div>
+          {import.meta.env.DEV && (
+            <>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
 
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-slate-500">Or continue with</span>
-            </div>
-          </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                </div>
+              </div>
 
-          <QuickDemoLogins
-            onDemoClick={() => {
-              setValue("email", "user@test.com", { shouldValidate: true });
-              setValue("password", "password", { shouldValidate: true });
-            }}
-          />
+              <QuickDemoLogins
+                onDemoClick={() => {
+                  setValue("email", "user@test.com", { shouldValidate: true });
+                  setValue("password", "password", { shouldValidate: true });
+                }}
+              />
+            </>
+          )}
         </form>
       </CardContent>
 
       <CardFooter className="pt-2 flex justify-center">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted-foreground">
           Don't have an account ?{" "}
-          <Link to="/register" className="text-blue-600 hover:underline font-medium">
+          <Link to="/register" className="text-primary hover:underline font-medium">
             Sign up
           </Link>
         </p>

@@ -12,6 +12,7 @@ import { MoreHorizontal, ArrowUpDown, X, MapPin, Ticket, Eye } from "lucide-reac
 import type { Appointment } from "@/types/appointment";
 import { formatTimeRange, formatDate } from "@/lib/utils";
 import AppointmentStatusBadge from "./AppointmentStatusBadge";
+import { isAppointmentCancellable } from "@/types/appointment";
 
 interface GetColumnsProps {
   onCancelAppointment: (appointment: Appointment) => void;
@@ -135,7 +136,7 @@ export const getMyAppointmentsColumns = ({
                 </DropdownMenuItem>
               )}
 
-              {isUpcoming && (
+              {isUpcoming && isAppointmentCancellable(appointment) && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

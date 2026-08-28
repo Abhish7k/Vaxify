@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./button";
 import { ArrowLeft } from "lucide-react";
 
-const GoBackButton = ({ label }: { label: string }) => {
+const GoBackButton = ({ label, fallback = "/" }: { label: string; fallback?: string }) => {
   const navigate = useNavigate();
 
   return (
@@ -10,7 +10,14 @@ const GoBackButton = ({ label }: { label: string }) => {
       variant="outline"
       asChild
       className="group cursor-pointer active:scale-95 transition-all"
-      onClick={() => navigate(-1)}
+      onClick={() => {
+        const idx = (window.history.state as { idx?: number } | null)?.idx;
+        if (typeof idx === "number" && idx > 0) {
+          navigate(-1);
+        } else {
+          navigate(fallback);
+        }
+      }}
     >
       <div>
         <ArrowLeft

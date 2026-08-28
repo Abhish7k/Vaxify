@@ -32,8 +32,8 @@ export default function UserDashboardQuickActions() {
       </CardHeader>
 
       <CardContent className="">
-        {QuickActionItems.map((item, idx) => (
-          <Link to={item.link} key={idx}>
+        {QuickActionItems.map((item) => (
+          <Link to={item.link} key={item.link}>
             <Button
               variant="outline"
               className="w-full cursor-pointer active:scale-95 transition-all mb-3 text-sm"

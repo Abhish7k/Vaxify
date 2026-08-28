@@ -1,22 +1,45 @@
 import axios from "axios";
+import {
+  clearSession,
+  emitAuthLogout,
+  getStoredToken,
+  isAuthRequestUrl,
+} from "@/lib/auth-session";
+import { beginSlowRequestWatch, endSlowRequestWatch } from "./slow-request-toast";
 
-// a central axios instance to use for all api calls with a base config and auth headers
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
 });
 
-// intercept every req and attach jwt token to it
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = getStoredToken();
 
-  // dont send token for auth endpoints (login/signup)
-  const isAuthPath = config.url?.includes("/auth/");
-
-  if (token && !isAuthPath) {
+  if (token && !isAuthRequestUrl(config.url)) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
+  beginSlowRequestWatch(config);
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => {
+    endSlowRequestWatch(response.config, true);
+    return response;
+  },
+  (error) => {
+    endSlowRequestWatch(error.config, false);
+
+    const status = error.response?.status;
+    const url = error.config?.url as string | undefined;
+
+    if (status === 401 && !isAuthRequestUrl(url)) {
+      clearSession();
+      emitAuthLogout();
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export default api;

@@ -6,12 +6,14 @@ interface HospitalHeaderProps {
   name: string;
   status: string;
   onEditClick: () => void;
+  canEdit?: boolean;
 }
 
 export const HospitalHeader = ({
   name,
   status,
   onEditClick,
+  canEdit = true,
 }: HospitalHeaderProps) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -43,6 +45,7 @@ export const HospitalHeader = ({
         <img
           src="https://ik.imagekit.io/vaxify/icons/hospital-2.png"
           alt=""
+          aria-hidden="true"
           className="size-24"
           draggable={false}
         />
@@ -59,6 +62,7 @@ export const HospitalHeader = ({
 
       <div className="flex items-center gap-3">
         {getStatusBadge(status)}
+        {canEdit && (
         <Button
           variant="outline"
           size="sm"
@@ -68,6 +72,7 @@ export const HospitalHeader = ({
           <PenLine className="h-4 w-4" />
           Update Details
         </Button>
+        )}
       </div>
     </div>
   );

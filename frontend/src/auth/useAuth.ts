@@ -1,20 +1,24 @@
 import { useAuthContext } from "./AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loginApi, registerUserApi, registerStaffApi } from "@/api/auth.api";
-import type { Role } from "@/types/auth";
+import type { SignupRequestDto } from "@/api/dto/auth";
+import type { StaffHospitalRegistrationRequestDto } from "@/api/dto/hospital";
+import { clearSession, persistSession } from "@/lib/auth-session";
+import { queryClient } from "@/lib/query-client";
+import { getReturnToFromSearch, resolvePostLoginPath } from "@/lib/auth-paths";
 
-// custom hook for the components to use
 export const useAuth = () => {
   const navigate = useNavigate();
-  const { user, setAuthUser } = useAuthContext();
+  const location = useLocation();
+  const { user, setAuthUser, loading, sessionError, retrySession } = useAuthContext();
 
-  const registerUser = async (registerUserData: unknown) => {
+  const registerUser = async (registerUserData: SignupRequestDto) => {
     await registerUserApi(registerUserData);
 
     navigate("/login");
   };
 
-  const registerStaff = async (registerStaffData: unknown) => {
+  const registerStaff = async (registerStaffData: StaffHospitalRegistrationRequestDto) => {
     await registerStaffApi(registerStaffData);
 
     navigate("/login");
@@ -23,54 +27,28 @@ export const useAuth = () => {
   const login = async (email: string, password: string) => {
     const response = await loginApi(email, password);
 
-    const { token, user } = response;
+    const { token, user: authUser } = response;
 
-    // persist the jwt token & user
-    localStorage.setItem("token", token);
-    localStorage.setItem("storedUser", JSON.stringify(user));
+    persistSession(token, authUser);
+    setAuthUser(authUser);
 
-    // update the auth context with user
-    setAuthUser(user);
-
-    // role base redirect
-    redirectToDashboard(user.role);
+    const fromState = (location.state as { from?: string } | null)?.from;
+    const returnTo = getReturnToFromSearch(location.search) ?? fromState ?? null;
+    navigate(resolvePostLoginPath(authUser.role, returnTo), { replace: true });
   };
 
   const logout = () => {
-    // remove jwt token & user
-    localStorage.removeItem("token");
-    localStorage.removeItem("storedUser");
-
-    // clear auth context
+    clearSession();
+    queryClient.clear();
     setAuthUser(null);
-
-    // redirect
-    navigate(
-      "/",
-      { replace: true }, // replace history to prevent back btn to access protected pages
-    );
-  };
-
-  const redirectToDashboard = (role: Role) => {
-    const normalizedRole = role?.toLowerCase();
-
-    switch (normalizedRole) {
-      case "user":
-        navigate("/dashboard");
-        break;
-      case "staff":
-        navigate("/staff/dashboard");
-        break;
-      case "admin":
-        navigate("/admin/dashboard");
-        break;
-      default:
-        navigate("/");
-    }
+    navigate("/", { replace: true });
   };
 
   return {
     user,
+    loading,
+    sessionError,
+    retrySession,
     isAuthenticated: !!user,
     login,
     logout,

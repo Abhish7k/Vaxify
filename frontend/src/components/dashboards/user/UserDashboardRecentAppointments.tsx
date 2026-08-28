@@ -9,10 +9,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { MapPin, Eye } from "lucide-react";
 import AppointmentStatusBadge from "@/components/appointment/my-appointments/AppointmentStatusBadge";
+import type { Appointment } from "@/types/appointment";
 
 interface UserDashboardRecentAppointmentsProps {
-  appointments: any[];
-  onViewTicket: (appointment: any) => void;
+  appointments: Appointment[];
+  onViewTicket: (appointment: Appointment) => void;
 }
 
 export default function UserDashboardRecentAppointments({
@@ -30,9 +31,9 @@ export default function UserDashboardRecentAppointments({
 
       <CardContent className="space-y-3">
         {appointments && appointments.length > 0 ? (
-          appointments.map((appt, idx) => (
+          appointments.map((appt) => (
             <div
-              key={idx}
+              key={appt.id}
               className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-md border p-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -54,7 +55,7 @@ export default function UserDashboardRecentAppointments({
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 text-muted-foreground cursor-pointer"
-                  title="View Ticket"
+                  aria-label="View ticket"
                   onClick={() => onViewTicket(appt)}
                 >
                   <Eye className="h-4 w-4" />

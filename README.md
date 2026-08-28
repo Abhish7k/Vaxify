@@ -157,11 +157,3 @@ VITE_API_BASE_URL=https://api.vaxify.xyz/api
 ```
 
 (or the `onrender.com` URL) so the browser talks to Render directly instead of through Vercel’s proxy.
-
-## 👥 Meet the Team
-
-| Name         | Role / Contribution | GitHub                                              |
-| ------------ | ------------------- | --------------------------------------------------- |
-| **Abhishek** | Frontend & DevOps   | [@abhish7k](https://github.com/Abhish7k)            |
-| **Indu**     | Backend & Database  | [@indu61](https://github.com/indu61)                |
-| **Rahul**    | Frontend & UI       | [@rahulkhadeeeng](https://github.com/rahulkhadeeng) |

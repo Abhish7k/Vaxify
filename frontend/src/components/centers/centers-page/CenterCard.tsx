@@ -55,12 +55,14 @@ export default function CenterCard({ center, idx }: Props) {
               <img
                 src="https://ik.imagekit.io/vaxify/icons/hospital-2.png"
                 alt=""
+                aria-hidden="true"
                 className="w-full h-full object-contain"
               />
             ) : (
               <img
                 src="https://ik.imagekit.io/vaxify/icons/hospital-1.png"
                 alt=""
+                aria-hidden="true"
                 className="w-full h-full object-contain"
               />
             )}

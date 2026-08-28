@@ -21,6 +21,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
@@ -28,7 +29,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "slots")
+@Table(name = "slots", uniqueConstraints = @UniqueConstraint(name = "uk_slots_hospital_date_start", columnNames = {
+        "hospital_id", "slot_date", "start_time" }))
 @Getter
 @Setter
 @NoArgsConstructor

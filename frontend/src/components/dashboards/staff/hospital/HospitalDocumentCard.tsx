@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { openProtectedDocument } from "@/api/files.api";
 
 interface HospitalDocumentCardProps {
   documentUrl?: string;
@@ -17,7 +18,7 @@ export const HospitalDocumentCard = ({
 }: HospitalDocumentCardProps) => {
   const handleViewDocument = () => {
     if (documentUrl) {
-      window.open(documentUrl, "_blank", "noopener,noreferrer");
+      void openProtectedDocument(documentUrl);
     }
   };
 

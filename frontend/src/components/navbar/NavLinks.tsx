@@ -9,9 +9,9 @@ const NavLinks = () => {
 
   return (
     <div className="hidden md:flex items-center pt-1 gap-4 transition-all">
-      {links.map((link, idx) => (
+      {links.map((link) => (
         <Link
-          key={idx}
+          key={link.href}
           to={link.href}
           className={`font-medium hover:text-foreground/95 transition-all
              ${isActive(pathname, link.href) ? "text-foreground/95" : "text-foreground/70"}
@@ -28,10 +28,6 @@ const links = [
   {
     name: "Centers",
     href: "/centers",
-  },
-  {
-    name: "About",
-    href: "/about",
   },
 ];
 

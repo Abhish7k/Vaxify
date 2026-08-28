@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from "react";
-import { vaccineApi } from "@/api/vaccine.api";
 import type { Vaccine } from "@/types/vaccine";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,24 +16,24 @@ import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { toastUtils } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
+import { useUpdateVaccineStock } from "@/hooks/queries/use-vaccines";
 
 interface UpdateStockDialogProps {
   vaccine: Vaccine | null;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 // base schema
 const baseSchema = z.object({
-  stock: z.preprocess(
-    (val) => String(val),
-    z.string().regex(/^\d+$/, "Stock must be a whole number (no decimals)").transform(Number),
-  ),
+  stock: z.number().int("Stock must be a whole number (no decimals)").min(0, "Stock must be a whole number (no decimals)"),
 });
 
 type UpdateStockFormValues = z.infer<typeof baseSchema>;
 
 export function UpdateStockDialog({ vaccine, onClose, onSuccess }: UpdateStockDialogProps) {
+  const updateStock = useUpdateVaccineStock();
   // refine based on vaccine capacity
   const updateStockSchema = useMemo(() => {
     return baseSchema.refine((data) => data.stock <= (vaccine?.capacity || 0), {
@@ -49,7 +48,7 @@ export function UpdateStockDialog({ vaccine, onClose, onSuccess }: UpdateStockDi
     reset,
     formState: { errors, isSubmitting },
   } = useForm<UpdateStockFormValues>({
-    resolver: zodResolver(updateStockSchema as any),
+    resolver: zodResolver(updateStockSchema),
     defaultValues: { stock: 0 },
   });
 
@@ -64,20 +63,18 @@ export function UpdateStockDialog({ vaccine, onClose, onSuccess }: UpdateStockDi
     if (!vaccine) return;
 
     try {
-      await vaccineApi.updateStock({
+      await updateStock.mutateAsync({
         vaccineId: vaccine.id,
         quantity: data.stock,
       });
 
       toastUtils.success(`Stock updated for ${vaccine.name}`);
 
-      onSuccess();
+      onSuccess?.();
 
       onClose();
     } catch (error) {
-      console.error(error);
-
-      toastUtils.error("Failed to update stock");
+      toastUtils.error(getErrorMessage(error, "Failed to update stock"));
     }
   };
 
@@ -104,9 +101,8 @@ export function UpdateStockDialog({ vaccine, onClose, onSuccess }: UpdateStockDi
               id="stock"
               type="number"
               min="0"
-              {...register("stock")}
+              {...register("stock", { valueAsNumber: true })}
               disabled={isSubmitting}
-              autoFocus
             />
 
             {errors.stock && <p className="text-sm text-destructive">{errors.stock.message}</p>}

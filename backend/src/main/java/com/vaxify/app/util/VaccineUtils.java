@@ -4,6 +4,10 @@ import com.vaxify.app.entities.Vaccine;
 
 public class VaccineUtils {
 
+    public static boolean isInStock(Vaccine v) {
+        return v != null && v.getStock() != null && v.getStock() > 0;
+    }
+
     public static boolean isStockCritical(Vaccine v) {
         if (v == null || v.getCapacity() == null || v.getCapacity() <= 0) {
             return false;

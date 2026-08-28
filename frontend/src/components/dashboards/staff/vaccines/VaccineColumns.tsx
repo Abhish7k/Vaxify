@@ -15,10 +15,15 @@ import { MoreHorizontal, ArrowUpDown, TrendingDown, TrendingUp, AlertTriangle } 
 interface GetColumnsProps {
   onUpdate: (vaccine: Vaccine) => void;
   onDelete: (vaccine: Vaccine) => void;
+  canMutate?: boolean;
 }
 
 // to define the vaccine stock table columns
-export const getVaccineColumns = ({ onUpdate, onDelete }: GetColumnsProps): ColumnDef<Vaccine>[] => [
+export const getVaccineColumns = ({
+  onUpdate,
+  onDelete,
+  canMutate = true,
+}: GetColumnsProps): ColumnDef<Vaccine>[] => [
   // vaccine name column
   {
     accessorKey: "name",
@@ -153,6 +158,8 @@ export const getVaccineColumns = ({ onUpdate, onDelete }: GetColumnsProps): Colu
                 Copy Vaccine ID
               </DropdownMenuItem>
 
+              {canMutate && (
+                <>
               <DropdownMenuSeparator />
 
               <DropdownMenuItem className="cursor-pointer" onClick={() => onUpdate(vaccine)}>
@@ -165,6 +172,8 @@ export const getVaccineColumns = ({ onUpdate, onDelete }: GetColumnsProps): Colu
               >
                 Delete Entry
               </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

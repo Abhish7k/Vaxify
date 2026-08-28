@@ -8,10 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.vaxify.app.dtos.slot.BulkSlotRequest;
+import com.vaxify.app.dtos.slot.BulkSlotResponse;
 import com.vaxify.app.dtos.slot.SlotRequest;
 import com.vaxify.app.dtos.slot.SlotResponse;
 import com.vaxify.app.service.SlotService;
+import com.vaxify.app.util.SecurityUtils;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -20,39 +24,41 @@ import lombok.RequiredArgsConstructor;
 public class SlotController {
 
     private final SlotService slotService;
+    private final SecurityUtils securityUtils;
 
-    // create slot
     @PostMapping("/staff")
-    public ResponseEntity<SlotResponse> createSlot(@RequestBody SlotRequest dto) {
+    public ResponseEntity<SlotResponse> createSlot(@Valid @RequestBody SlotRequest dto) {
+        String email = securityUtils.getCurrentUserEmail();
 
-        SlotResponse response = slotService.createSlot(dto);
+        SlotResponse response = slotService.createSlot(dto, email);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // update slot
-    @PutMapping("/staff/{slotId}")
-    public ResponseEntity<SlotResponse> updateSlot(@PathVariable Long slotId, @RequestBody SlotRequest dto) {
+    @PostMapping("/staff/bulk")
+    public ResponseEntity<BulkSlotResponse> createSlotsBulk(@Valid @RequestBody BulkSlotRequest request) {
+        String email = securityUtils.getCurrentUserEmail();
 
-        SlotResponse response = slotService.updateSlot(slotId, dto);
+        BulkSlotResponse response = slotService.createSlotsBulk(request, email);
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/staff/{slotId}")
+    public ResponseEntity<SlotResponse> updateSlot(@PathVariable Long slotId,
+            @Valid @RequestBody SlotRequest dto) {
+        String email = securityUtils.getCurrentUserEmail();
+
+        SlotResponse response = slotService.updateSlot(slotId, dto, email);
         return ResponseEntity.ok(response);
     }
 
-    // get slot by id
     @GetMapping("/{slotId}")
     public ResponseEntity<SlotResponse> getSlotById(@PathVariable Long slotId) {
 
         return ResponseEntity.ok(slotService.getSlotById(slotId));
     }
 
-    // get all slots
-    @GetMapping
-    public ResponseEntity<List<SlotResponse>> getAllSlots() {
-
-        return ResponseEntity.ok(slotService.getAllSlots());
-    }
-
-    // get slot by hospital
     @GetMapping("/hospital/{hospitalId}")
     public ResponseEntity<List<SlotResponse>> getSlotsByHospital(@PathVariable Long hospitalId) {
 
@@ -60,7 +66,6 @@ public class SlotController {
                 slotService.getSlotsByHospital(hospitalId));
     }
 
-    // get slot by hospital and date
     @GetMapping("/hospital/{hospitalId}/date")
     public ResponseEntity<List<SlotResponse>> getSlotsByHospitalAndDate(
             @PathVariable Long hospitalId,
@@ -70,11 +75,11 @@ public class SlotController {
                 slotService.getSlotsByHospitalAndDate(hospitalId, date));
     }
 
-    // detele slot
     @DeleteMapping("/staff/{slotId}")
     public ResponseEntity<String> deleteSlot(@PathVariable Long slotId) {
+        String email = securityUtils.getCurrentUserEmail();
 
-        slotService.deleteSlot(slotId);
+        slotService.deleteSlot(slotId, email);
 
         return ResponseEntity.ok("Slot deleted successfully");
     }

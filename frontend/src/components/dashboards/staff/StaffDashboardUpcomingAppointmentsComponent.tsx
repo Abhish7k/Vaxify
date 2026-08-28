@@ -21,29 +21,35 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { appointmentApi } from "@/api/appointment.api";
-import { toast } from "sonner";
+import { useCancelAppointment, useCompleteAppointment } from "@/hooks/queries/use-appointments";
+import { toastUtils } from "@/lib/toast";
 import * as React from "react";
 import { formatTime } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/errors";
+import { isAppointmentCancellable, isAppointmentCompletable, isUpcomingStatus } from "@/types/appointment";
 
 interface StaffDashboardUpcomingAppointmentsComponentProps {
   appointments: Appointment[];
   loading: boolean;
   onRefresh: () => void;
+  canMutate?: boolean;
 }
 
 const StaffDashboardUpcomingAppointmentsComponent = ({
   appointments,
   loading,
   onRefresh,
+  canMutate = true,
 }: StaffDashboardUpcomingAppointmentsComponentProps) => {
+  const completeAppointment = useCompleteAppointment();
+  const cancelAppointment = useCancelAppointment();
   const [actionLoading, setActionLoading] = React.useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [pendingAction, setPendingAction] = React.useState<"complete" | "cancel" | null>(null);
   const [pendingId, setPendingId] = React.useState<string | null>(null);
 
   // filter for upcoming/booked status and sort by date/time
-  const upcomingList = appointments.filter((a) => ["BOOKED", "UPCOMING", "scheduled"].includes(a.status)).slice(0, 5);
+  const upcomingList = appointments.filter((a) => isUpcomingStatus(a.status)).slice(0, 5);
 
   const handleActionClick = (id: string, action: "complete" | "cancel") => {
     setPendingId(id);
@@ -59,15 +65,15 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
       setDialogOpen(false);
 
       if (pendingAction === "complete") {
-        await appointmentApi.completeAppointment(pendingId);
-        toast.success("Appointment completed successfully");
+        await completeAppointment.mutateAsync(pendingId);
+        toastUtils.success("Appointment completed successfully");
       } else {
-        await appointmentApi.cancelAppointment(pendingId);
-        toast.success("Appointment cancelled");
+        await cancelAppointment.mutateAsync(pendingId);
+        toastUtils.success("Appointment cancelled");
       }
       onRefresh();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to process action");
+    } catch (error) {
+      toastUtils.error(getErrorMessage(error, "Failed to process action"));
     } finally {
       setActionLoading(null);
       setPendingId(null);
@@ -133,14 +139,16 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
                     <TableCell className="py-4 text-right">
                       {actionLoading === item.id ? (
                         <Loader2 className="h-4 w-4 animate-spin text-muted-foreground mx-auto" />
-                      ) : (
+                      ) : canMutate &&
+                        (isAppointmentCompletable(item) || isAppointmentCancellable(item)) ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted" aria-label="Open appointment actions">
                               <MoreVertical className="h-4 w-4 text-muted-foreground" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40">
+                            {isAppointmentCompletable(item) && (
                             <DropdownMenuItem
                               className="text-emerald-600 cursor-pointer flex items-center gap-2"
                               onClick={() => handleActionClick(item.id, "complete")}
@@ -148,6 +156,8 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
                               <Check className="h-4 w-4" />
                               Mark Complete
                             </DropdownMenuItem>
+                            )}
+                            {isAppointmentCancellable(item) && (
                             <DropdownMenuItem
                               className="text-destructive cursor-pointer flex items-center gap-2"
                               onClick={() => handleActionClick(item.id, "cancel")}
@@ -155,9 +165,10 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
                               <X className="h-4 w-4" />
                               Cancel
                             </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      )}
+                      ) : null}
                     </TableCell>
                   </TableRow>
                 ))

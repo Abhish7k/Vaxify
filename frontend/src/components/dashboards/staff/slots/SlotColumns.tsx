@@ -16,9 +16,10 @@ import { cn, formatTime } from "@/lib/utils";
 
 interface SlotColumnsProps {
   onDelete: (slot: Slot) => void;
+  canMutate?: boolean;
 }
 
-export const getSlotColumns = ({ onDelete }: SlotColumnsProps): ColumnDef<Slot>[] => [
+export const getSlotColumns = ({ onDelete, canMutate = true }: SlotColumnsProps): ColumnDef<Slot>[] => [
   {
     accessorKey: "date",
     header: ({ column }) => (
@@ -115,6 +116,8 @@ export const getSlotColumns = ({ onDelete }: SlotColumnsProps): ColumnDef<Slot>[
   {
     id: "actions",
     cell: ({ row }) => {
+      if (!canMutate) return null;
+
       const slot = row.original;
 
       return (

@@ -3,7 +3,8 @@ package com.vaxify.app.service.impl;
 import com.vaxify.app.dtos.auth.AuthResponse;
 import com.vaxify.app.dtos.auth.LoginRequest;
 import com.vaxify.app.dtos.auth.SignupRequest;
-import com.vaxify.app.exception.VaxifyException;
+import com.vaxify.app.exception.ConflictException;
+import com.vaxify.app.exception.UnauthorizedException;
 import com.vaxify.app.entities.enums.Role;
 import com.vaxify.app.entities.User;
 import com.vaxify.app.mapper.UserMapper;
@@ -29,11 +30,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse signup(SignupRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new VaxifyException("Email already exists");
-        }
-
-        if (request.getRole() == Role.ADMIN) {
-            throw new VaxifyException("Invalid role");
+            throw new ConflictException("Email already exists");
         }
 
         User user = new User();
@@ -41,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setPhone(request.getPhone());
-        user.setRole(request.getRole());
+        user.setRole(Role.USER);
 
         userRepository.save(user);
 
@@ -56,13 +53,13 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new VaxifyException("Invalid credentials"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid credentials"));
 
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 user.getPassword())) {
             log.warn("Failed login attempt for user: {}", request.getEmail());
-            throw new VaxifyException("Invalid credentials");
+            throw new UnauthorizedException("Invalid credentials");
         }
 
         String token = generateToken(user);

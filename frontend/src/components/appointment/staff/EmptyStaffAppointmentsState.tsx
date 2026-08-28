@@ -25,27 +25,11 @@ const copy: Record<StaffAppointmentStatus, { title: string; description: string 
     title: "No upcoming appointments",
     description: "There are no upcoming vaccination appointments scheduled.",
   },
-  scheduled: {
-    title: "No upcoming appointments",
-    description: "There are no upcoming vaccination appointments scheduled.",
-  },
-  BOOKED: {
-    title: "No upcoming appointments",
-    description: "There are no upcoming vaccination appointments scheduled.",
-  },
   COMPLETED: {
     title: "No completed appointments",
     description: "No appointments have been completed yet.",
   },
-  completed: {
-    title: "No completed appointments",
-    description: "No appointments have been completed yet.",
-  },
   CANCELLED: {
-    title: "No cancelled appointments",
-    description: "There are no cancelled appointments.",
-  },
-  cancelled: {
     title: "No cancelled appointments",
     description: "There are no cancelled appointments.",
   },

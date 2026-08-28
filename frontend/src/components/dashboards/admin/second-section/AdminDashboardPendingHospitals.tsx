@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import type { Hospital } from "@/types/hospital";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +22,7 @@ import {
 export default function AdminDashboardPendingHospitals({
   pendingHospitals,
 }: {
-  pendingHospitals: any[];
+  pendingHospitals: Hospital[];
 }) {
   return (
     <Card className="col-span-12 lg:col-span-8">
@@ -87,6 +88,7 @@ export default function AdminDashboardPendingHospitals({
                               size="icon"
                               variant="ghost"
                               className="h-8 w-8 cursor-pointer"
+                              aria-label="Open hospital actions"
                             >
                               <MoreVertical className="h-4 w-4" />
                             </Button>

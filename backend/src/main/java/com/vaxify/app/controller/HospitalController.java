@@ -6,6 +6,7 @@ import com.vaxify.app.dtos.hospital.UpdateHospitalRequest;
 import com.vaxify.app.dtos.hospital.StaffHospitalRegistrationRequest;
 import com.vaxify.app.service.HospitalService;
 import com.vaxify.app.util.SecurityUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/hospitals")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 public class HospitalController {
 
     private final HospitalService hospitalService;
@@ -32,26 +32,23 @@ public class HospitalController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerHospitalStaff(@RequestBody StaffHospitalRegistrationRequest dto) {
+    public ResponseEntity<String> registerHospitalStaff(
+            @Valid @RequestBody StaffHospitalRegistrationRequest dto) {
         hospitalService.registerHospitalStaff(dto);
 
         return ResponseEntity.ok("Hospital registration submitted for approval");
     }
 
     @GetMapping("/my")
-    public HospitalResponse getMyHospital() {
-
+    public ResponseEntity<HospitalResponse> getMyHospital() {
         String email = securityUtils.getCurrentUserEmail();
-
-        return hospitalService.getMyHospital(email);
+        return ResponseEntity.ok(hospitalService.getMyHospital(email));
     }
 
     @PutMapping("/my")
-    public HospitalResponse updateHospital(@RequestBody UpdateHospitalRequest request) {
-
+    public ResponseEntity<HospitalResponse> updateHospital(@Valid @RequestBody UpdateHospitalRequest request) {
         String email = securityUtils.getCurrentUserEmail();
-
-        return hospitalService.updateHospital(request, email);
+        return ResponseEntity.ok(hospitalService.updateHospital(request, email));
     }
 
 }

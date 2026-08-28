@@ -1,9 +1,10 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "./components/navbar/Navbar";
-import NextTopLoader from "nextjs-toploader";
 import { Suspense, useEffect } from "react";
 import ScrollToTop from "./components/ScrollToTop";
 import { warmUpBackend } from "./api/warmup";
+import { RouteSpinner } from "./components/ui/route-spinner";
+import DocumentTitle from "./components/DocumentTitle";
 
 function App() {
   useEffect(() => {
@@ -12,15 +13,14 @@ function App() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <DocumentTitle />
       <ScrollToTop />
-
-      <NextTopLoader color="#4f46e5" showSpinner={false} />
 
       <Navbar />
 
       {/* for router */}
       <main className="flex-1">
-        <Suspense fallback={null}>
+        <Suspense fallback={<RouteSpinner />}>
           <Outlet />
         </Suspense>
       </main>

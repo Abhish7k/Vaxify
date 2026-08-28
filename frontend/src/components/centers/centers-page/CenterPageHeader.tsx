@@ -6,6 +6,7 @@ export default function CentersPageHeader() {
           <img
             src="https://ik.imagekit.io/vaxify/icons/center.png"
             alt=""
+            aria-hidden="true"
             className="w-20 h-20"
             draggable={false}
           />

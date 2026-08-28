@@ -3,25 +3,56 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import GoBackButton from "@/components/ui/go-back-button";
 import { CheckCircle, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { appointmentApi } from "@/api/appointment.api";
+import { useEffect, useMemo, useState } from "react";
+import { toastUtils } from "@/lib/toast";
+import { getErrorMessage, isConflictError } from "@/lib/errors";
+import { parseDateOnly } from "@/lib/utils";
+import { format } from "date-fns";
+import { useBookAppointment } from "@/hooks/queries/use-appointments";
+import { clearBookingDraft, loadBookingDraft } from "@/lib/booking-draft";
+
+type BookingSummaryState = {
+  center: { id: string; name: string; address: string };
+  vaccine: { id: string; name: string };
+  date: string;
+  slot: string;
+};
 
 export default function BookingSummaryPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
   const [isBooking, setIsBooking] = useState(false);
+  const bookAppointment = useBookAppointment();
 
-  // route protection
+  const summary = useMemo<BookingSummaryState | null>(() => {
+    const fromState = state as BookingSummaryState | null;
+    if (fromState?.center && fromState.vaccine && fromState.date && fromState.slot) {
+      return fromState;
+    }
+
+    const draft = loadBookingDraft();
+    if (draft?.center && draft.vaccine && draft.selectedDate && draft.selectedSlot) {
+      return {
+        center: draft.center,
+        vaccine: draft.vaccine,
+        date: draft.selectedDate,
+        slot: draft.selectedSlot,
+      };
+    }
+
+    return null;
+  }, [state]);
+
   useEffect(() => {
-    if (!state) {
+    if (!summary) {
       navigate("/", { replace: true });
     }
-  }, [state, navigate]);
+  }, [summary, navigate]);
 
-  if (!state) return null;
+  if (!summary) return null;
 
-  const { center, vaccine, date, slot } = state;
+  const { center, vaccine, date, slot } = summary;
 
   const handleConfirmBooking = async () => {
     try {
@@ -34,7 +65,8 @@ export default function BookingSummaryPage() {
         slot,
       };
 
-      const appointment = await appointmentApi.bookAppointment(request);
+      const appointment = await bookAppointment.mutateAsync(request);
+      clearBookingDraft(center.id);
 
       navigate("/appointments/book/success", {
         state: {
@@ -47,20 +79,26 @@ export default function BookingSummaryPage() {
         replace: true,
       });
     } catch (error) {
-      console.error("Booking failed", error);
+      const message = getErrorMessage(error, "Booking failed. Please try again.");
+      if (isConflictError(error)) {
+        toastUtils.error(message);
+        const slotTaken = /already full|just taken|no available slot/i.test(message);
+        if (slotTaken) {
+          navigate(`/appointments/book/${center.id}`, {
+            replace: true,
+            state: { slotTaken: true },
+          });
+        }
+        return;
+      }
+
+      toastUtils.error(message);
     } finally {
       setIsBooking(false);
     }
   };
 
-  const formattedDate = new Date(date).toDateString();
-
-  const day = formattedDate.split(" ")[0];
-  const month = formattedDate.split(" ")[1];
-  const dateday = formattedDate.split(" ")[2];
-  const year = formattedDate.split(" ")[3];
-
-  const finalDate = `${day}, ${dateday} ${month}, ${year}`;
+  const finalDate = format(parseDateOnly(date), "EEE, dd MMM, yyyy");
 
   const finalSlot = slot?.slice(0, 5);
 
@@ -91,7 +129,7 @@ export default function BookingSummaryPage() {
       </Card>
 
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
-        <GoBackButton label="Edit booking" />
+        <GoBackButton label="Edit booking" fallback={`/appointments/book/${center.id}`} />
 
         <Button
           className="text-xs sm:text-sm gap-2 cursor-pointer active:scale-95 transition-all"

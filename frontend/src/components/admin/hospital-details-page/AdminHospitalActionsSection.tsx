@@ -17,6 +17,7 @@ type Props = {
   status: "PENDING" | "APPROVED" | "REJECTED";
   onApprove: () => void;
   onReject: () => void;
+  isPending?: boolean;
 };
 
 export default function AdminHospitalFloatingActions({
@@ -24,6 +25,7 @@ export default function AdminHospitalFloatingActions({
   status,
   onApprove,
   onReject,
+  isPending = false,
 }: Props) {
   if (status !== "PENDING") return null;
 
@@ -51,6 +53,7 @@ export default function AdminHospitalFloatingActions({
             <AlertDialogTrigger asChild>
               <Button
                 size="sm"
+                disabled={isPending}
                 className="flex-1 cursor-pointer active:scale-95 transition-all hover:bg-primary/90"
               >
                 <Check className="h-4 w-4 mr-1" />
@@ -71,7 +74,13 @@ export default function AdminHospitalFloatingActions({
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
 
-                <AlertDialogAction onClick={onApprove}>
+                <AlertDialogAction
+                  disabled={isPending}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onApprove();
+                  }}
+                >
                   Confirm
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -84,6 +93,7 @@ export default function AdminHospitalFloatingActions({
               <Button
                 size="sm"
                 variant="outline"
+                disabled={isPending}
                 className="flex-1 text-destructive hover:bg-destructive/10 cursor-pointer active:scale-95 transition-all"
               >
                 <X className="h-4 w-4 mr-1" />
@@ -104,7 +114,11 @@ export default function AdminHospitalFloatingActions({
               <AlertDialogFooter>
                 <AlertDialogCancel>Go back</AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={onReject}
+                  disabled={isPending}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onReject();
+                  }}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
                   Yes, reject

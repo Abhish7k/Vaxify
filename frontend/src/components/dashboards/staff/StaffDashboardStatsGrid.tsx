@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import type { Appointment } from "@/types/appointment";
+import { isUpcomingStatus, type Appointment } from "@/types/appointment";
 import type { Vaccine } from "@/types/vaccine";
 import { motion, type Variants } from "framer-motion";
 
@@ -14,9 +14,7 @@ interface StaffStatsGridProps {
 export default function StaffStatsGrid({ appointments, vaccines, loading }: StaffStatsGridProps) {
   const totalAppointments = appointments.length;
 
-  const upcoming = appointments.filter((a) =>
-    ["BOOKED", "UPCOMING", "scheduled"].includes(a.status),
-  ).length;
+  const upcoming = appointments.filter((a) => isUpcomingStatus(a.status)).length;
 
   const todayStr = format(new Date(), "yyyy-MM-dd");
 
@@ -106,7 +104,7 @@ function StatCard({ title, value, subtitle, icon, loading }: StatCardProps) {
             "absolute -right-8 -bottom-8 w-32 h-32 opacity-85 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full flex items-center justify-center p-4",
           )}
         >
-          <img src={icon} alt="" className="w-full h-full object-contain" draggable={false} />
+          <img src={icon} alt="" aria-hidden="true" className="w-full h-full object-contain" draggable={false} />
         </motion.div>
       </Card>
     </motion.div>

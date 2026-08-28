@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { hospitalApi } from "@/api/hospital.api";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
 
 import { HospitalHeader } from "@/components/dashboards/staff/hospital/HospitalHeader";
 import { HospitalDetailsCard } from "@/components/dashboards/staff/hospital/HospitalDetailsCard";
 import { HospitalStatusCard } from "@/components/dashboards/staff/hospital/HospitalStatusCard";
 import { EditHospitalDialog } from "@/components/dashboards/staff/hospital/EditHospitalDialog";
 import { HospitalDocumentCard } from "@/components/dashboards/staff/hospital/HospitalDocumentCard";
+import { useMyHospital, useUpdateMyHospital } from "@/hooks/queries/use-hospitals";
+import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
+import { getErrorMessage } from "@/lib/errors";
+import { PageLoadError } from "@/components/ui/page-load-error";
+import type { UpdateHospitalRequest } from "@/types/hospital";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -27,62 +31,51 @@ const itemVariants = {
   visible: { opacity: 1, x: 0 },
 };
 
+const emptyForm: UpdateHospitalRequest = {
+  name: "",
+  address: "",
+  city: "",
+  state: "",
+  pincode: "",
+  documentUrl: "",
+};
+
 const MyHospitalPage = () => {
-  const [hospital, setHospital] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const hospitalQuery = useMyHospital();
+  const updateHospital = useUpdateMyHospital();
+  const hospital = hospitalQuery.data;
+  const isLoading = hospitalQuery.isPending;
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [formData, setFormData] = useState(emptyForm);
 
-  // Form state
-  const [formData, setFormData] = useState({
-    name: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
-    documentUrl: "",
-  });
-
-  const fetchMyHospital = async () => {
-    try {
-      setIsLoading(true);
-      const data = await hospitalApi.getMyHospital();
-      setHospital(data);
-      // Initialize form data
-      setFormData({
-        name: data.name || "",
-        address: data.address || "",
-        city: data.city || "",
-        state: data.state || "",
-        pincode: data.pincode || "",
-        documentUrl: data.documentUrl || "",
-      });
-    } catch (error) {
-      console.error("Failed to fetch hospital details:", error);
-      toast.error("Could not load hospital details");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useQueryErrorToast(
+    hospitalQuery.isError,
+    "Could not load hospital details",
+    hospitalQuery.error,
+  );
 
   useEffect(() => {
-    fetchMyHospital();
-  }, []);
+    if (!hospital) return;
+
+    setFormData({
+      name: hospital.name || "",
+      address: hospital.address || "",
+      city: hospital.city || "",
+      state: hospital.state || "",
+      pincode: hospital.pincode || "",
+      documentUrl: hospital.documentUrl || "",
+    });
+  }, [hospital]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting update data:", formData);
     try {
-      setIsUpdating(true);
-      const updatedData = await hospitalApi.updateHospital(formData);
-      setHospital(updatedData);
+      await updateHospital.mutateAsync(formData);
       setIsEditDialogOpen(false);
-      toast.success("Hospital details updated successfully");
+      toastUtils.success("Hospital details updated successfully");
     } catch (error) {
-      console.error("Update failed:", error);
-      toast.error("Failed to update hospital details");
-    } finally {
-      setIsUpdating(false);
+      toastUtils.error(getErrorMessage(error, "Failed to update hospital details"));
     }
   };
 
@@ -95,6 +88,15 @@ const MyHospitalPage = () => {
   }
 
   if (!hospital) {
+    if (hospitalQuery.isError) {
+      return (
+        <PageLoadError
+          message="Could not load hospital details. Please try again."
+          onRetry={() => void hospitalQuery.refetch()}
+        />
+      );
+    }
+
     return (
       <div className="p-8 text-center">
         <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
@@ -117,6 +119,7 @@ const MyHospitalPage = () => {
         name={hospital.name}
         status={hospital.status}
         onEditClick={() => setIsEditDialogOpen(true)}
+        canEdit={hospital.status === "APPROVED"}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -134,7 +137,7 @@ const MyHospitalPage = () => {
         onOpenChange={setIsEditDialogOpen}
         formData={formData}
         setFormData={setFormData}
-        isUpdating={isUpdating}
+        isUpdating={updateHospital.isPending}
         onUpdate={handleUpdate}
       />
     </motion.div>

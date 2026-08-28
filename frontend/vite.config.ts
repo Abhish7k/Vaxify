@@ -37,8 +37,16 @@ export default defineConfig({
             }
 
             // icon libs
-            if (id.includes("lucide-react") || id.includes("react-icons")) {
+            if (id.includes("lucide-react")) {
               return "icons";
+            }
+
+            if (id.includes("recharts")) {
+              return "charts";
+            }
+
+            if (id.includes("framer-motion")) {
+              return "motion";
             }
 
             // table lib

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, parseDateOnly } from "@/lib/utils";
 
 interface TimeSlot {
   time: string;
@@ -10,6 +10,7 @@ interface TimeSlot {
 
 interface AvailableDate {
   date: number;
+  iso?: string;
   hasSlots: boolean;
 }
 
@@ -20,6 +21,8 @@ export interface AppointmentSchedulerProps {
   meetingType: string;
   duration: string;
   timezone: string;
+  selectedDateIso?: string | null;
+  selectedTime?: string | null;
   availableDates?: AvailableDate[];
   timeSlots?: TimeSlot[];
   onDateSelect?: (date: Date) => void;
@@ -28,22 +31,32 @@ export interface AppointmentSchedulerProps {
 }
 
 export function AppointmentScheduler({
+  availableDates = [],
   timeSlots = [],
+  timezone,
+  selectedDateIso,
+  selectedTime,
   onDateSelect,
   onTimeSelect,
 }: AppointmentSchedulerProps) {
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const selectedDateObj = selectedDateIso ? parseDateOnly(selectedDateIso) : null;
 
-  const [selectedDate, setSelectedDate] = useState<number>(today.getDate());
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(
+    () => selectedDateObj?.getMonth() ?? today.getMonth(),
+  );
+  const [currentYear, setCurrentYear] = useState(
+    () => selectedDateObj?.getFullYear() ?? today.getFullYear(),
+  );
   const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("12h");
 
   useEffect(() => {
-    onDateSelect?.(today);
-  }, []);
+    if (!selectedDateObj || Number.isNaN(selectedDateObj.getTime())) return;
+    setCurrentMonth(selectedDateObj.getMonth());
+    setCurrentYear(selectedDateObj.getFullYear());
+  }, [selectedDateIso]);
 
   const monthNames = [
     "January",
@@ -96,26 +109,24 @@ export function AppointmentScheduler({
 
     if (selected < today) return;
 
-    setSelectedDate(day);
-    setSelectedTime(null);
     onDateSelect?.(selected);
   };
 
   const handleTimeClick = (time: string) => {
-    setSelectedTime(time);
     onTimeSelect?.(time);
   };
 
-  const formatTime = (time: string) => {
-    if (timeFormat === "24h") return time;
-    const [h, m] = time.split(":");
+  const formatDisplayTime = (time: string) => {
+    const clock = time.split(":").slice(0, 2).join(":");
+    if (timeFormat === "24h") return clock;
+    const [h, m] = clock.split(":");
     const hour = Number(h);
     const suffix = hour >= 12 ? "PM" : "AM";
     const hour12 = hour % 12 || 12;
     return `${hour12}:${m} ${suffix}`;
   };
 
-  const selectedDateLabel = new Date(currentYear, currentMonth, selectedDate).toLocaleDateString(
+  const selectedDateLabel = (selectedDateObj ?? new Date(currentYear, currentMonth, 1)).toLocaleDateString(
     "en-US",
     {
       weekday: "short",
@@ -123,6 +134,38 @@ export function AppointmentScheduler({
       day: "numeric",
     },
   );
+
+  const isSelectedDay = (day: number) =>
+    Boolean(
+      selectedDateObj &&
+        !Number.isNaN(selectedDateObj.getTime()) &&
+        selectedDateObj.getDate() === day &&
+        selectedDateObj.getMonth() === currentMonth &&
+        selectedDateObj.getFullYear() === currentYear,
+    );
+
+  const isSelectedTime = (time: string) =>
+    Boolean(
+      selectedTime &&
+        time.split(":").slice(0, 2).join(":") === selectedTime.split(":").slice(0, 2).join(":"),
+    );
+
+  const isPastSlotOnSelectedDay = (slotTime: string) => {
+    if (!selectedDateObj || Number.isNaN(selectedDateObj.getTime())) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const selectedDay = new Date(selectedDateObj);
+    selectedDay.setHours(0, 0, 0, 0);
+    if (selectedDay.getTime() !== today.getTime()) return false;
+
+    const [h, m] = slotTime.split(":").map(Number);
+    const slotDate = new Date();
+    slotDate.setHours(h, m, 0, 0);
+
+    return slotDate < new Date();
+  };
 
   return (
     <div className="flex flex-col lg:flex-row w-full border rounded-xl bg-card overflow-hidden shadow-xl transition-all xl:min-w-[650px] ">
@@ -134,12 +177,26 @@ export function AppointmentScheduler({
           </h3>
 
           <div className="flex gap-2">
-            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="cursor-pointer">
-              <ChevronLeft className="h-4 w-4" />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handlePrevMonth}
+              className="cursor-pointer"
+              aria-label="Previous month"
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </Button>
 
-            <Button variant="ghost" size="icon" onClick={handleNextMonth} className="cursor-pointer">
-              <ChevronRight className="h-4 w-4" />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleNextMonth}
+              className="cursor-pointer"
+              aria-label="Next month"
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -163,19 +220,27 @@ export function AppointmentScheduler({
 
               const isFutureOrToday = cellDate >= today;
               const isSunday = cellDate.getDay() === 0;
+              const iso = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+              const dateMeta = availableDates.find(
+                (d) => d.iso === iso || (!d.iso && d.date === day),
+              );
+              const hasSlots = dateMeta ? dateMeta.hasSlots : availableDates.length === 0;
 
-              return isFutureOrToday && !isSunday;
+              return isFutureOrToday && !isSunday && hasSlots;
             })();
 
             return (
               <button
                 key={`${currentYear}-${currentMonth}-${day}`}
+                type="button"
                 disabled={!isAvailable}
                 onClick={() => handleDateClick(day)}
+                aria-pressed={isSelectedDay(day)}
+                aria-label={`${day} ${monthNames[currentMonth]} ${currentYear}`}
                 className={cn(
                   "aspect-square flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer transition-all p-2 lg:px-3 lg:py-2",
-                  day === selectedDate && "bg-primary text-primary-foreground shadow",
-                  day !== selectedDate && isAvailable && "bg-secondary/50 hover:bg-secondary",
+                  isSelectedDay(day) && "bg-primary text-primary-foreground shadow",
+                  !isSelectedDay(day) && isAvailable && "bg-secondary/50 hover:bg-secondary",
                   !isAvailable && "text-muted-foreground/40 cursor-not-allowed",
                 )}
               >
@@ -189,13 +254,19 @@ export function AppointmentScheduler({
       {/* time slots */}
       <div className="w-full lg:w-60 border-t lg:border-t-0 lg:border-l p-6">
         <div className="flex justify-between mb-4">
-          <span className="text-sm font-medium">{selectedDateLabel}</span>
+          <div className="min-w-0">
+            <span className="text-sm font-medium">{selectedDateLabel}</span>
+            <p className="text-[11px] text-muted-foreground truncate">{timezone}</p>
+          </div>
 
           <div className="flex bg-secondary rounded p-1">
             {(["12h", "24h"] as const).map((f) => (
               <button
                 key={f}
+                type="button"
                 onClick={() => setTimeFormat(f)}
+                aria-pressed={timeFormat === f}
+                aria-label={`${f === "12h" ? "12-hour" : "24-hour"} time format`}
                 className={cn(
                   "px-2 py-1 text-xs rounded cursor-pointer transition-all",
                   timeFormat === f && "bg-background",
@@ -208,54 +279,29 @@ export function AppointmentScheduler({
         </div>
 
         <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
-          {timeSlots.map((slot) => (
-            <button
-              key={slot.time}
-              disabled={
-                !slot.available ||
-                (() => {
-                  if (!selectedDate) return false;
-                  const today = new Date();
-                  const selDateObj = new Date(currentYear, currentMonth, selectedDate);
-                  // check if selected date is today (ignoring time)
-                  const isToday = selDateObj.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
+          {timeSlots.map((slot) => {
+            const past = isPastSlotOnSelectedDay(slot.time);
+            const selected = isSelectedTime(slot.time);
 
-                  if (!isToday) return false;
-
-                  // parse slot time HH:mm
-                  const [h, m] = slot.time.split(":").map(Number);
-                  const now = new Date();
-                  const slotDate = new Date();
-                  slotDate.setHours(h, m, 0, 0);
-
-                  return slotDate < now;
-                })()
-              }
-              onClick={() => handleTimeClick(slot.time)}
-              className={cn(
-                "w-full py-2 rounded-lg text-sm transition cursor-pointer",
-                selectedTime === slot.time && "bg-primary text-primary-foreground",
-                slot.available && selectedTime !== slot.time && "bg-secondary/50 hover:bg-secondary",
-                (!slot.available ||
-                  (() => {
-                    // repeat logic for styling
-                    if (!selectedDate) return false;
-                    const today = new Date();
-                    const selDateObj = new Date(currentYear, currentMonth, selectedDate);
-                    const isToday = selDateObj.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
-                    if (!isToday) return false;
-                    const [h, m] = slot.time.split(":").map(Number);
-                    const now = new Date();
-                    const slotDate = new Date();
-                    slotDate.setHours(h, m, 0, 0);
-                    return slotDate < now;
-                  })()) &&
-                  "text-muted-foreground/40 cursor-not-allowed opacity-50 bg-muted/20",
-              )}
-            >
-              {formatTime(slot.time)}
-            </button>
-          ))}
+            return (
+              <button
+                key={slot.time}
+                type="button"
+                disabled={!slot.available || past}
+                onClick={() => handleTimeClick(slot.time)}
+                aria-pressed={selected}
+                className={cn(
+                  "w-full py-2 rounded-lg text-sm transition cursor-pointer",
+                  selected && "bg-primary text-primary-foreground",
+                  slot.available && !selected && "bg-secondary/50 hover:bg-secondary",
+                  (!slot.available || past) &&
+                    "text-muted-foreground/40 cursor-not-allowed opacity-50 bg-muted/20",
+                )}
+              >
+                {formatDisplayTime(slot.time)}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

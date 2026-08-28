@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import GoBackButton from "@/components/ui/go-back-button";
+import DocumentTitle from "@/components/DocumentTitle";
 
 interface NotFoundProps {
   title?: string;
@@ -11,6 +12,7 @@ interface NotFoundProps {
 export function NotFoundPage() {
   return (
     <div className="relative flex flex-col w-full justify-center min-h-[80vh] bg-background p-6 md:p-10">
+      <DocumentTitle />
       <motion.div
         className="relative max-w-5xl mx-auto w-full"
         initial={{ opacity: 0, y: 20 }}
@@ -70,7 +72,7 @@ export function NotFound({
       >
         <GoBackButton label="Go Back" />
 
-        <Button className="ml-2 hover:bg-primary/85 active:scale-95 transition-all">
+        <Button asChild className="ml-2 hover:bg-primary/85 active:scale-95 transition-all">
           <Link to="/">Take me home</Link>
         </Button>
       </motion.div>

@@ -5,19 +5,24 @@ import com.vaxify.app.dtos.hospital.HospitalSummaryResponse;
 import com.vaxify.app.dtos.hospital.StaffHospitalRegisterRequest;
 import com.vaxify.app.dtos.hospital.UpdateHospitalRequest;
 import com.vaxify.app.dtos.hospital.StaffHospitalRegistrationRequest;
+import com.vaxify.app.dtos.notification.HospitalMailData;
+import com.vaxify.app.dtos.notification.NotificationPayloads;
 import com.vaxify.app.entities.*;
+import com.vaxify.app.entities.enums.AppointmentStatus;
 import com.vaxify.app.entities.enums.HospitalStatus;
 import com.vaxify.app.entities.enums.Role;
 import com.vaxify.app.mapper.HospitalMapper;
 import com.vaxify.app.repository.*;
+import com.vaxify.app.exception.ConflictException;
+import com.vaxify.app.exception.ForbiddenException;
+import com.vaxify.app.exception.ResourceNotFoundException;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.service.HospitalService;
+import com.vaxify.app.service.S3Service;
 import com.vaxify.app.service.UserService;
-import com.vaxify.app.service.VaccineService;
 import com.vaxify.app.service.NotificationService;
-import com.vaxify.app.util.SecurityUtils;
+import com.vaxify.app.util.AfterCommit;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +38,12 @@ import lombok.extern.slf4j.Slf4j;
 public class HospitalServiceImpl implements HospitalService {
 
         private final HospitalRepository hospitalRepository;
+        private final VaccineRepository vaccineRepository;
+        private final AppointmentRepository appointmentRepository;
         private final UserService userService;
-        private final VaccineService vaccineService;
         private final HospitalMapper hospitalMapper;
-        private final SecurityUtils securityUtils;
         private final NotificationService notificationService;
+        private final S3Service s3Service;
 
         @Override
         @Transactional
@@ -45,12 +51,12 @@ public class HospitalServiceImpl implements HospitalService {
                 User staffUser = getStaffUser(staffEmail);
 
                 if (staffUser.getRole() != Role.STAFF) {
-                        throw new AccessDeniedException("Only hospital staff can register hospitals");
+                        throw new ForbiddenException("Only hospital staff can register hospitals");
                 }
 
                 hospitalRepository.findByStaffUser(staffUser)
                                 .ifPresent(h -> {
-                                        throw new VaxifyException("Hospital already registered for this staff");
+                                        throw new ConflictException("Hospital already registered for this staff");
                                 });
 
                 Hospital hospital = Hospital.builder()
@@ -73,7 +79,7 @@ public class HospitalServiceImpl implements HospitalService {
                 User staffUser = getStaffUser(staffEmail);
 
                 Hospital hospital = hospitalRepository.findByStaffUser(staffUser)
-                                .orElseThrow(() -> new VaxifyException("No hospital found for this staff"));
+                                .orElseThrow(() -> new ResourceNotFoundException("No hospital found for this staff"));
 
                 return toHospitalResponse(hospital, true, true);
         }
@@ -81,17 +87,14 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         @Transactional
         public HospitalResponse updateHospital(UpdateHospitalRequest req, String staffEmail) {
-                User staffUser = getStaffUser(staffEmail);
-
-                Hospital hospital = hospitalRepository.findByStaffUser(staffUser)
-                                .orElseThrow(() -> new VaxifyException("No hospital found for this staff"));
+                Hospital hospital = requireApprovedStaffHospital(staffEmail);
 
                 hospital.setName(req.getName());
                 hospital.setAddress(req.getAddress());
                 hospital.setCity(req.getCity());
                 hospital.setState(req.getState());
                 hospital.setPincode(req.getPincode());
-                hospital.setDocumentUrl(req.getDocumentUrl());
+                hospital.setDocumentUrl(s3Service.toStoredKey(req.getDocumentUrl(), hospital.getDocumentUrl()));
 
                 Hospital saved = hospitalRepository.save(hospital);
 
@@ -103,18 +106,28 @@ public class HospitalServiceImpl implements HospitalService {
         @Override
         public HospitalResponse getHospitalById(Long id) {
                 Hospital hospital = hospitalRepository.findByIdWithStaff(id)
-                                .orElseThrow(() -> new VaxifyException("Hospital not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Hospital not found"));
 
-                boolean isPrivileged = securityUtils.isPrivileged();
+                if (hospital.getStatus() != HospitalStatus.APPROVED) {
+                        throw new ResourceNotFoundException("Hospital not found");
+                }
 
-                return toHospitalResponse(hospital, false, isPrivileged);
+                return toHospitalResponse(hospital, false, false);
+        }
+
+        @Override
+        public HospitalResponse getAdminHospitalById(Long id) {
+                Hospital hospital = hospitalRepository.findByIdWithStaff(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Hospital not found"));
+
+                return toHospitalResponse(hospital, true, true);
         }
 
         @Override
         public List<HospitalSummaryResponse> getApprovedHospitals() {
                 List<Hospital> hospitals = hospitalRepository.findByStatusWithStaff(HospitalStatus.APPROVED);
 
-                List<Vaccine> allVaccines = vaccineService.getEntitiesByHospitals(hospitals);
+                List<Vaccine> allVaccines = vaccinesFor(hospitals);
 
                 return hospitalMapper.toSummaryResponses(hospitals, allVaccines);
         }
@@ -123,7 +136,7 @@ public class HospitalServiceImpl implements HospitalService {
         public List<HospitalResponse> getAllHospitals() {
                 List<Hospital> hospitals = hospitalRepository.findAllWithStaff();
 
-                List<Vaccine> allVaccines = vaccineService.getEntitiesByHospitals(hospitals);
+                List<Vaccine> allVaccines = vaccinesFor(hospitals);
 
                 return hospitalMapper.toResponses(hospitals, allVaccines, false, true);
         }
@@ -132,7 +145,7 @@ public class HospitalServiceImpl implements HospitalService {
         public List<HospitalResponse> getPendingHospitals() {
                 List<Hospital> hospitals = hospitalRepository.findByStatusWithStaff(HospitalStatus.PENDING);
 
-                List<Vaccine> allVaccines = vaccineService.getEntitiesByHospitals(hospitals);
+                List<Vaccine> allVaccines = vaccinesFor(hospitals);
 
                 return hospitalMapper.toResponses(hospitals, allVaccines, true, true);
         }
@@ -146,9 +159,15 @@ public class HospitalServiceImpl implements HospitalService {
 
                 Hospital saved = hospitalRepository.save(hospital);
 
-                if (saved.getStaffUser() != null) {
-                        notificationService.sendHospitalApproved(saved);
-                }
+                HospitalMailData mailData = saved.getStaffUser() != null
+                                ? NotificationPayloads.fromHospital(saved)
+                                : null;
+
+                AfterCommit.run(() -> {
+                        if (mailData != null) {
+                                notificationService.sendHospitalApproved(mailData);
+                        }
+                });
 
                 log.info("Hospital approved: {} (ID: {})", saved.getName(), hospitalId);
 
@@ -164,9 +183,15 @@ public class HospitalServiceImpl implements HospitalService {
 
                 Hospital saved = hospitalRepository.save(hospital);
 
-                if (saved.getStaffUser() != null) {
-                        notificationService.sendHospitalRejected(saved);
-                }
+                HospitalMailData mailData = saved.getStaffUser() != null
+                                ? NotificationPayloads.fromHospital(saved)
+                                : null;
+
+                AfterCommit.run(() -> {
+                        if (mailData != null) {
+                                notificationService.sendHospitalRejected(mailData);
+                        }
+                });
 
                 log.info("Hospital rejected: {} (ID: {})", saved.getName(), hospitalId);
 
@@ -174,11 +199,11 @@ public class HospitalServiceImpl implements HospitalService {
         }
 
         private Hospital getPendingHospital(Long id) {
-                Hospital hospital = hospitalRepository.findById(id)
-                                .orElseThrow(() -> new VaxifyException("Hospital not found"));
+                Hospital hospital = hospitalRepository.findByIdForUpdate(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Hospital not found"));
 
                 if (hospital.getStatus() != HospitalStatus.PENDING) {
-                        throw new VaxifyException("Hospital is not pending");
+                        throw new ConflictException("Hospital is not pending");
                 }
 
                 return hospital;
@@ -189,7 +214,7 @@ public class HospitalServiceImpl implements HospitalService {
         }
 
         private HospitalResponse toHospitalResponse(Hospital hospital, boolean includeLowStock, boolean isPrivileged) {
-                List<Vaccine> vaccines = vaccineService.getEntitiesByHospital(hospital);
+                List<Vaccine> vaccines = vaccineRepository.findByHospital(hospital);
 
                 return hospitalMapper.toResponse(hospital, vaccines, includeLowStock, isPrivileged);
         }
@@ -204,7 +229,11 @@ public class HospitalServiceImpl implements HospitalService {
                 hospital.setName(dto.getHospitalName());
                 hospital.setAddress(dto.getHospitalAddress());
                 hospital.setLicenseNumber(dto.getLicenseNumber());
-                hospital.setDocumentUrl(dto.getDocument());
+                String documentKey = s3Service.toStoredKey(dto.getDocument(), null);
+                if (documentKey == null || documentKey.isBlank()) {
+                        throw new VaxifyException("Invalid verification document");
+                }
+                hospital.setDocumentUrl(documentKey);
                 hospital.setCity(dto.getCity());
                 hospital.setState(dto.getState());
                 hospital.setPincode(dto.getPincode());
@@ -214,7 +243,9 @@ public class HospitalServiceImpl implements HospitalService {
 
                 Hospital savedHospital = hospitalRepository.save(hospital);
 
-                notificationService.sendHospitalRegistrationReceived(savedHospital);
+                HospitalMailData mailData = NotificationPayloads.fromHospital(savedHospital);
+
+                AfterCommit.run(() -> notificationService.sendHospitalRegistrationReceived(mailData));
 
                 log.info("Hospital registration requested: {} (Staff: {})", savedHospital.getName(), dto.getEmail());
         }
@@ -223,7 +254,15 @@ public class HospitalServiceImpl implements HospitalService {
         @Transactional
         public void deleteHospital(Long id) {
                 Hospital hospital = hospitalRepository.findById(id)
-                                .orElseThrow(() -> new VaxifyException("Hospital not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Hospital not found"));
+
+                if (appointmentRepository.existsBySlotCenterIdAndStatus(id, AppointmentStatus.BOOKED)) {
+                        throw new ConflictException("Cannot delete hospital with active bookings");
+                }
+
+                if (appointmentRepository.existsBySlotCenterId(id)) {
+                        throw new ConflictException("Cannot delete hospital with existing appointment history");
+                }
 
                 User staffUser = hospital.getStaffUser();
 
@@ -242,15 +281,34 @@ public class HospitalServiceImpl implements HospitalService {
         }
 
         @Override
+        public Hospital requireApprovedStaffHospital(String email) {
+                Hospital hospital = findEntityByStaffEmail(email);
+
+                if (hospital.getStatus() != HospitalStatus.APPROVED) {
+                        throw new ForbiddenException("Hospital must be approved before making this change");
+                }
+
+                return hospital;
+        }
+
+        @Override
         public Hospital findEntityById(Long id) {
                 return hospitalRepository.findById(id)
-                                .orElseThrow(() -> new VaxifyException("Hospital not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Hospital not found"));
         }
 
         private Hospital getHospitalByStaffEmail(String email) {
                 User staffUser = userService.findByEmail(email);
 
                 return hospitalRepository.findByStaffUser(staffUser)
-                                .orElseThrow(() -> new VaxifyException("Hospital not found for this staff"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Hospital not found for this staff"));
+        }
+
+        private List<Vaccine> vaccinesFor(List<Hospital> hospitals) {
+                if (hospitals == null || hospitals.isEmpty()) {
+                        return List.of();
+                }
+
+                return vaccineRepository.findByHospitalIn(hospitals);
         }
 }

@@ -1,59 +1,57 @@
+import type { VaccineRequestDto } from "@/api/dto/vaccine";
+import type { VaccineResponseDto } from "@/api/dto/hospital";
+import { mapVaccine } from "@/api/mappers/vaccine";
 import type { UpdateStockRequest, Vaccine } from "@/types/vaccine";
-
 import api from "./axios";
 
 export const vaccineApi = {
-  // get all vaccines
   getVaccines: async (): Promise<Vaccine[]> => {
-    const response = await api.get<Vaccine[]>("/vaccines");
-
-    return response.data;
+    const response = await api.get<VaccineResponseDto[]>("/vaccines");
+    return response.data.map(mapVaccine);
   },
 
-  // get vaccines by hospital id
   getVaccinesByHospitalId: async (hospitalId: string): Promise<Vaccine[]> => {
-    const response = await api.get<Vaccine[]>(
+    const response = await api.get<VaccineResponseDto[]>(
       `/vaccines/hospital/${hospitalId}`,
     );
-
-    return response.data;
+    return response.data.map(mapVaccine);
   },
 
-  // get vaccines for logged-in staff's hospital
   getMyVaccines: async (): Promise<Vaccine[]> => {
-    const response = await api.get<Vaccine[]>("/vaccines/staff");
-
-    return response.data;
+    const response = await api.get<VaccineResponseDto[]>("/vaccines/staff");
+    return response.data.map(mapVaccine);
   },
 
-  // add new vaccine
   addVaccine: async (
     vaccine: Omit<Vaccine, "id" | "lastUpdated">,
   ): Promise<Vaccine> => {
-    const response = await api.post<Vaccine>("/vaccines/staff", vaccine);
-
-    return response.data;
+    const response = await api.post<VaccineResponseDto>(
+      "/vaccines/staff",
+      {
+        name: vaccine.name,
+        type: vaccine.type,
+        manufacturer: vaccine.manufacturer,
+        stock: vaccine.stock,
+        capacity: vaccine.capacity,
+      } satisfies VaccineRequestDto,
+    );
+    return mapVaccine(response.data);
   },
 
-  // update stock
   updateStock: async (request: UpdateStockRequest): Promise<Vaccine> => {
-    const response = await api.put<Vaccine>(
+    const response = await api.put<VaccineResponseDto>(
       `/vaccines/staff/${request.vaccineId}`,
       { stock: request.quantity },
     );
-
-    return response.data;
+    return mapVaccine(response.data);
   },
 
-  // delete vaccine
   deleteVaccine: async (id: string): Promise<void> => {
     await api.delete(`/vaccines/staff/${id}`);
   },
 
-  // get low stock alerts
   getLowStockAlerts: async (): Promise<Vaccine[]> => {
-    const response = await api.get<Vaccine[]>("/vaccines/alerts");
-
-    return response.data;
+    const response = await api.get<VaccineResponseDto[]>("/vaccines/alerts");
+    return response.data.map(mapVaccine);
   },
 };

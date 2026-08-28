@@ -1,15 +1,15 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import type { AppointmentStatus } from "@/types/appointment";
+import type { UserAppointmentTab } from "@/types/appointment";
 
 type Props = {
-  value: AppointmentStatus;
-  onChange: (value: AppointmentStatus) => void;
+  value: UserAppointmentTab;
+  onChange: (value: UserAppointmentTab) => void;
 };
 
 export default function MyAppointmentsTabsSection({ value, onChange }: Props) {
   return (
-    <Tabs value={value} onValueChange={(val) => onChange(val as AppointmentStatus)}>
+    <Tabs value={value} onValueChange={(val) => onChange(val as UserAppointmentTab)}>
       <TabsList className="">
         <TabsTrigger value="BOOKED">Upcoming</TabsTrigger>
         <TabsTrigger value="COMPLETED">Completed</TabsTrigger>

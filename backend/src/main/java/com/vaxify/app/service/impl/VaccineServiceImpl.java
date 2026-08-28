@@ -2,22 +2,28 @@ package com.vaxify.app.service.impl;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.vaxify.app.dtos.vaccine.UpdateStockRequest;
 import com.vaxify.app.dtos.vaccine.VaccineRequest;
 import com.vaxify.app.dtos.vaccine.VaccineResponse;
+import com.vaxify.app.dtos.notification.NotificationPayloads;
+import com.vaxify.app.dtos.notification.VaccineStockMailData;
 import com.vaxify.app.entities.Hospital;
 import com.vaxify.app.entities.Vaccine;
+import com.vaxify.app.entities.enums.AppointmentStatus;
+import com.vaxify.app.repository.AppointmentRepository;
 import com.vaxify.app.repository.VaccineRepository;
 import com.vaxify.app.service.HospitalService;
 import com.vaxify.app.service.NotificationService;
 import com.vaxify.app.service.VaccineService;
+import com.vaxify.app.exception.ConflictException;
+import com.vaxify.app.exception.ForbiddenException;
+import com.vaxify.app.exception.ResourceNotFoundException;
 import com.vaxify.app.exception.VaxifyException;
 import com.vaxify.app.mapper.VaccineMapper;
-import com.vaxify.app.util.VaccineUtils;
+import com.vaxify.app.util.AfterCommit;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,18 +34,15 @@ import lombok.extern.slf4j.Slf4j;
 public class VaccineServiceImpl implements VaccineService {
 
     private final VaccineRepository vaccineRepository;
-
-    @Autowired
-    @Lazy
-    private HospitalService hospitalService;
-
+    private final AppointmentRepository appointmentRepository;
+    private final HospitalService hospitalService;
     private final NotificationService notificationService;
     private final VaccineMapper vaccineMapper;
 
     @Override
     @Transactional
     public VaccineResponse createVaccine(VaccineRequest dto, String staffEmail) {
-        Hospital hospital = hospitalService.findEntityByStaffEmail(staffEmail);
+        Hospital hospital = hospitalService.requireApprovedStaffHospital(staffEmail);
 
         Vaccine vaccine = vaccineMapper.toEntity(dto);
 
@@ -65,33 +68,23 @@ public class VaccineServiceImpl implements VaccineService {
 
     @Override
     @Transactional
-    public VaccineResponse updateVaccine(Long id, VaccineRequest dto, String staffEmail) {
-        Vaccine vaccine = vaccineRepository.findById(id)
-                .orElseThrow(() -> new VaxifyException("Vaccine not found"));
+    public VaccineResponse updateStock(Long id, UpdateStockRequest dto, String staffEmail) {
+        Vaccine vaccine = vaccineRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Vaccine not found"));
 
-        // verify ownership
-        Hospital staffHospital = hospitalService.findEntityByStaffEmail(staffEmail);
+        Hospital staffHospital = hospitalService.requireApprovedStaffHospital(staffEmail);
 
         if (!vaccine.getHospital().getId().equals(staffHospital.getId())) {
-            throw new VaxifyException("Unauthorized: This vaccine does not belong to your hospital");
+            throw new ForbiddenException("This vaccine does not belong to your hospital");
         }
 
-        vaccineMapper.updateEntity(vaccine, dto);
-
-        // check defaults
-        if (vaccine.getStock() == null) {
-            vaccine.setStock(0);
-        }
-
-        if (vaccine.getCapacity() == null) {
-            vaccine.setCapacity(0);
-        }
+        vaccine.setStock(dto.getStock());
 
         validateStockAndCapacity(vaccine.getStock(), vaccine.getCapacity());
 
         Vaccine saved = vaccineRepository.save(vaccine);
 
-        log.info("Vaccine updated: {} (ID: {}) for hospital: {}",
+        log.info("Vaccine stock updated: {} (ID: {}) for hospital: {}",
                 saved.getName(), saved.getId(), staffHospital.getName());
 
         checkStockAlerts(saved);
@@ -100,11 +93,11 @@ public class VaccineServiceImpl implements VaccineService {
     }
 
     private void validateStockAndCapacity(Integer stock, Integer capacity) {
-        if (stock < 0) {
+        if (stock == null || stock < 0) {
             throw new VaxifyException("Stock cannot be negative");
         }
 
-        if (capacity <= 0) {
+        if (capacity == null || capacity <= 0) {
             throw new VaxifyException("Capacity must be greater than zero");
         }
 
@@ -117,13 +110,21 @@ public class VaccineServiceImpl implements VaccineService {
     @Transactional
     public void deleteVaccine(Long id, String staffEmail) {
         Vaccine vaccine = vaccineRepository.findById(id)
-                .orElseThrow(() -> new VaxifyException("Vaccine not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vaccine not found"));
 
         // verify ownership
-        Hospital staffHospital = hospitalService.findEntityByStaffEmail(staffEmail);
+        Hospital staffHospital = hospitalService.requireApprovedStaffHospital(staffEmail);
 
         if (!vaccine.getHospital().getId().equals(staffHospital.getId())) {
-            throw new VaxifyException("Unauthorized access");
+            throw new ForbiddenException("Unauthorized access");
+        }
+
+        if (appointmentRepository.existsByVaccineAndStatus(vaccine, AppointmentStatus.BOOKED)) {
+            throw new ConflictException("Cannot delete vaccine with active bookings");
+        }
+
+        if (appointmentRepository.existsByVaccine(vaccine)) {
+            throw new ConflictException("Cannot delete vaccine with existing appointment history");
         }
 
         vaccineRepository.delete(vaccine);
@@ -136,7 +137,7 @@ public class VaccineServiceImpl implements VaccineService {
     @Transactional(readOnly = true)
     public VaccineResponse getVaccineById(Long id) {
         Vaccine vaccine = vaccineRepository.findById(id)
-                .orElseThrow(() -> new VaxifyException("Vaccine not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vaccine not found"));
 
         return vaccineMapper.toResponse(vaccine);
     }
@@ -145,7 +146,14 @@ public class VaccineServiceImpl implements VaccineService {
     @Transactional(readOnly = true)
     public Vaccine findEntityById(Long id) {
         return vaccineRepository.findById(id)
-                .orElseThrow(() -> new VaxifyException("Vaccine not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vaccine not found"));
+    }
+
+    @Override
+    @Transactional
+    public Vaccine findEntityByIdForUpdate(Long id) {
+        return vaccineRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Vaccine not found"));
     }
 
     @Override
@@ -192,47 +200,60 @@ public class VaccineServiceImpl implements VaccineService {
             log.warn("CRITICAL STOCK ALERT: Vaccine {} at {}% ({} units left) [Hospital: {}]",
                     vaccine.getName(), (stock * 100 / capacity), stock, vaccine.getHospital().getName());
 
-            notificationService.sendVaccineStockCritical(vaccine, stock, capacity);
+            VaccineStockMailData mailData = NotificationPayloads.fromVaccine(vaccine, stock, capacity);
+            AfterCommit.run(() -> notificationService.sendVaccineStockCritical(mailData));
         }
         // < 40% warning
         else if (stock < (capacity * 0.4)) {
             log.info("Low stock warning: Vaccine {} at {}% ({} units left) [Hospital: {}]",
                     vaccine.getName(), (stock * 100 / capacity), stock, vaccine.getHospital().getName());
 
-            notificationService.sendVaccineStockLow(vaccine, stock, capacity);
+            VaccineStockMailData mailData = NotificationPayloads.fromVaccine(vaccine, stock, capacity);
+            AfterCommit.run(() -> notificationService.sendVaccineStockLow(mailData));
         }
     }
 
     @Override
     @Transactional
     public void deductStock(Vaccine vaccine) {
-        vaccine.setStock(vaccine.getStock() - 1);
+        Vaccine locked = vaccineRepository.findByIdForUpdate(vaccine.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Vaccine not found"));
 
-        vaccineRepository.save(vaccine);
+        if (locked.getStock() == null || locked.getStock() <= 0) {
+            throw new ConflictException("Vaccine is out of stock");
+        }
 
-        log.info("Stock deducted: Vaccine={}, New Stock={}", vaccine.getName(), vaccine.getStock());
+        locked.setStock(locked.getStock() - 1);
 
-        checkStockAlerts(vaccine);
+        vaccineRepository.save(locked);
+
+        log.info("Stock deducted: Vaccine={}, New Stock={}", locked.getName(), locked.getStock());
+
+        checkStockAlerts(locked);
     }
 
     @Override
     @Transactional
     public void refundStock(Vaccine vaccine) {
-        vaccine.setStock(vaccine.getStock() + 1);
+        Vaccine locked = vaccineRepository.findByIdForUpdate(vaccine.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Vaccine not found"));
 
-        vaccineRepository.save(vaccine);
-
-        log.info("Stock refunded: Vaccine={}, New Stock={}", vaccine.getName(), vaccine.getStock());
+        int stock = locked.getStock() == null ? 0 : locked.getStock();
+        Integer capacity = locked.getCapacity();
+        if (capacity == null || stock < capacity) {
+            locked.setStock(stock + 1);
+            vaccineRepository.save(locked);
+            log.info("Stock refunded: Vaccine={}, New Stock={}", locked.getName(), locked.getStock());
+        } else {
+            log.warn("Skipped stock refund that would exceed capacity: Vaccine={}, Stock={}, Capacity={}",
+                    locked.getName(), stock, capacity);
+        }
     }
 
     @Override
     public void validateAvailable(Vaccine vaccine) {
         if (vaccine.getStock() <= 0) {
-            throw new VaxifyException("Vaccine is out of stock");
-        }
-
-        if (VaccineUtils.isStockCritical(vaccine)) {
-            throw new VaxifyException("Booking suspended: Vaccine stock is critically low (< 20%)");
+            throw new ConflictException("Vaccine is out of stock");
         }
     }
 

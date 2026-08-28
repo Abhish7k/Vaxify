@@ -78,14 +78,10 @@ public class FileUploadRateLimitFilter extends OncePerRequestFilter {
     }
 
     private String clientIp(HttpServletRequest request) {
-        String cf = request.getHeader("CF-Connecting-IP");
-        if (cf != null && !cf.isBlank()) {
-            return cf.trim();
-        }
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            return forwarded.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
+        // After server.forward-headers-strategy=framework, RemoteAddr is the
+        // proxy-resolved client IP. Raw X-Forwarded-For / CF-Connecting-IP
+        // are not trusted here because they are client-spoofable on a direct hit.
+        String remote = request.getRemoteAddr();
+        return remote == null || remote.isBlank() ? "unknown" : remote;
     }
 }

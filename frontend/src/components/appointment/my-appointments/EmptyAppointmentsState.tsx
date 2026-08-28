@@ -1,31 +1,15 @@
 import { CalendarX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { AppointmentStatus } from "@/types/appointment";
+import type { UserAppointmentTab } from "@/types/appointment";
 
 type Props = {
-  status: AppointmentStatus;
+  status: UserAppointmentTab;
   onBrowseCenters?: () => void;
 };
 
 export default function EmptyAppointmentsState({ status, onBrowseCenters }: Props) {
-  const copy: Record<AppointmentStatus, { title: string; description: string }> = {
-    UPCOMING: {
-      title: "No upcoming appointments",
-      description: "You don’t have any upcoming vaccination appointments.",
-    },
-    scheduled: {
-      title: "No upcoming appointments",
-      description: "You don’t have any upcoming vaccination appointments.",
-    },
-    completed: {
-      title: "No completed appointments",
-      description: "You haven’t completed any appointments yet.",
-    },
-    cancelled: {
-      title: "No cancelled appointments",
-      description: "You don’t have any cancelled appointments.",
-    },
+  const copy: Record<UserAppointmentTab, { title: string; description: string }> = {
     BOOKED: {
       title: "No upcoming appointments",
       description: "You don’t have any upcoming vaccination appointments.",

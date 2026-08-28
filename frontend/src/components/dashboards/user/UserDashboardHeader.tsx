@@ -1,23 +1,12 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.16, 1, 0.3, 1] as any,
-    },
-  },
-};
+import { fadeUpItemSlow } from "@/lib/motion";
 
 export default function UserDashboardHeader() {
   return (
     <motion.div
-      variants={item}
+      variants={fadeUpItemSlow}
       className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
     >
       <div>

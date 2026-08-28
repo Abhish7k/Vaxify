@@ -1,13 +1,8 @@
-export type AdminHospital = {
-  id: string;
-  name: string;
-  address: string;
-  staffName: string;
-  staffEmail: string;
-  status: HospitalStatus;
-};
+import type { Hospital, HospitalStatus } from "./hospital";
 
-export type HospitalStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type { HospitalStatus };
+
+export type AdminHospital = Hospital;
 
 export const copy: Record<
   HospitalStatus,

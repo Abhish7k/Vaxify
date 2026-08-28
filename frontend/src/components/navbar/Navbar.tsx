@@ -6,7 +6,7 @@ import MobileNav from "./MobileNav";
 import { useAuth } from "@/auth/useAuth";
 
 const Navbar = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   return (
     <div className="sticky top-0 z-50 h-16 px-4 py-3 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -18,7 +18,12 @@ const Navbar = () => {
               to="/"
               className="flex items-center gap-2 text-xl min-[600px]:text-2xl font-bold text-indigo-600"
             >
-              <img src="/logo.svg" alt="" className="w-5 h-5 min-[600px]:w-8 min-[500px]:h-8" />
+              <img
+                src="/logo.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-5 h-5 min-[600px]:w-8 min-[500px]:h-8"
+              />
               Vaxify
             </Link>
           </div>
@@ -30,19 +35,18 @@ const Navbar = () => {
         </div>
 
         <div className="flex gap-3 sm:gap-5 items-center">
-          {isAuthenticated ? (
-            // user dropdown menu for nav
-            <div className="flex items-center gap-5">
-              <UserNav />
-            </div>
-          ) : (
-            // auth button
-            <div className="flex gap-2">
-              <SignInButton />
+          {!loading &&
+            (isAuthenticated ? (
+              <div className="flex items-center gap-5">
+                <UserNav />
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <SignInButton />
 
-              <SignUpButton />
-            </div>
-          )}
+                <SignUpButton />
+              </div>
+            ))}
 
           {/* navbar for smaller screens */}
           <MobileNav />

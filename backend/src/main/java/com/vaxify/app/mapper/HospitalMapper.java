@@ -24,13 +24,7 @@ public class HospitalMapper {
                         boolean isPrivileged) {
                 List<VaccineResponse> vaccineResponses = vaccines == null ? List.of()
                                 : vaccines.stream()
-                                                .filter(v -> {
-                                                        if (includeLowStock) {
-                                                                return true;
-                                                        }
-
-                                                        return !VaccineUtils.isStockCritical(v);
-                                                })
+                                                .filter(v -> includeLowStock || VaccineUtils.isInStock(v))
                                                 .map(this::toVaccineResponse)
                                                 .collect(Collectors.toList());
 
@@ -44,10 +38,17 @@ public class HospitalMapper {
                                 .state(hospital.getState())
                                 .pincode(hospital.getPincode())
                                 .status(hospital.getStatus())
-                                .staffName(hospital.getStaffUser() != null ? hospital.getStaffUser().getName() : null)
-                                .staffEmail(hospital.getStaffUser() != null ? hospital.getStaffUser().getEmail() : null)
-                                .staffPhone(hospital.getStaffUser() != null ? hospital.getStaffUser().getPhone() : null)
-                                .staffCreatedAt(hospital.getStaffUser() != null ? hospital.getStaffUser().getCreatedAt()
+                                .staffName(isPrivileged && hospital.getStaffUser() != null
+                                                ? hospital.getStaffUser().getName()
+                                                : null)
+                                .staffEmail(isPrivileged && hospital.getStaffUser() != null
+                                                ? hospital.getStaffUser().getEmail()
+                                                : null)
+                                .staffPhone(isPrivileged && hospital.getStaffUser() != null
+                                                ? hospital.getStaffUser().getPhone()
+                                                : null)
+                                .staffCreatedAt(isPrivileged && hospital.getStaffUser() != null
+                                                ? hospital.getStaffUser().getCreatedAt()
                                                 : null)
                                 .availableVaccines(vaccineResponses)
                                 .build();
@@ -103,6 +104,7 @@ public class HospitalMapper {
 
                 Map<Long, List<String>> vaccineNamesByHospital = allVaccines == null ? Map.of()
                                 : allVaccines.stream()
+                                                .filter(VaccineUtils::isInStock)
                                                 .collect(Collectors.groupingBy(
                                                                 v -> v.getHospital().getId(),
                                                                 Collectors.mapping(Vaccine::getName,

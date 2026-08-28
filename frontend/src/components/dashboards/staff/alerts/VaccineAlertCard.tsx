@@ -50,7 +50,7 @@ export function VaccineAlertCard({
                 : "text-orange-600 border-orange-200 bg-orange-50/50"
             }
           >
-            {isCritical ? "Blocked" : "Low Stock"}
+            {isCritical ? "Critical" : "Low Stock"}
           </Badge>
         </div>
       </CardHeader>
@@ -77,9 +77,10 @@ export function VaccineAlertCard({
             {isCritical ? (
               <div className="space-y-2">
                 <p className="text-xs text-red-500 font-medium flex items-center justify-center bg-red-50 p-2 rounded-md border border-red-100">
-                  Bookings halted
+                  Stock is critically low. Restock soon.
                 </p>
 
+                {onRestockClick && (
                 <Button
                   size="sm"
                   className="w-full h-8 text-xs"
@@ -88,8 +89,10 @@ export function VaccineAlertCard({
                 >
                   Add Stock
                 </Button>
+                )}
               </div>
             ) : (
+              onRestockClick && (
               <Button
                 size="sm"
                 variant="outline"
@@ -98,6 +101,7 @@ export function VaccineAlertCard({
               >
                 Restock
               </Button>
+              )
             )}
           </div>
         </div>

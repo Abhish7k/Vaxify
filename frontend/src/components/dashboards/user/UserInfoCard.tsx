@@ -4,33 +4,21 @@ import { User, Mail, Phone, Hash, Calendar, ClipboardList, Loader2 } from "lucid
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatDate } from "@/lib/utils";
-import { userApi, type UserProfile, type UserStats } from "@/api/user.api";
-import { useEffect, useState } from "react";
-import { toastUtils } from "@/lib/toast";
+import { useUserProfile, useUserStats } from "@/hooks/queries/use-users";
+import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
 
 export default function UserInfoCard() {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [stats, setStats] = useState<UserStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const profileQuery = useUserProfile();
+  const statsQuery = useUserStats();
+  const profile = profileQuery.data ?? null;
+  const stats = statsQuery.data ?? null;
+  const loading = profileQuery.isPending || statsQuery.isPending;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [profileData, statsData] = await Promise.all([userApi.getProfile(), userApi.getStats()]);
-
-        setProfile(profileData);
-
-        setStats(statsData);
-      } catch (error) {
-        console.error("Failed to fetch profile", error);
-
-        toastUtils.error("Failed to fetch profile");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  useQueryErrorToast(
+    profileQuery.isError || statsQuery.isError,
+    "Failed to fetch profile",
+    profileQuery.error ?? statsQuery.error,
+  );
 
   if (loading) {
     return (
@@ -117,9 +105,9 @@ export default function UserInfoCard() {
           {/* dynamic info rows */}
           <div className="mt-10 space-y-3 text-sm">
             {/* basic info */}
-            {basicInfo.map((item, index) => (
+            {basicInfo.map((item) => (
               <InfoRow
-                key={index}
+                key={item.label}
                 icon={<item.icon className="h-4 w-4" />}
                 label={item.label}
                 value={item.value}
@@ -128,9 +116,9 @@ export default function UserInfoCard() {
 
             {/* metadata section */}
             <div className="mt-6 pt-6 border-t border-border/50 space-y-3">
-              {metadataInfo.map((item, index) => (
+              {metadataInfo.map((item) => (
                 <InfoRow
-                  key={index}
+                  key={item.label}
                   icon={<item.icon className="h-4 w-4" />}
                   label={item.label}
                   value={item.value}

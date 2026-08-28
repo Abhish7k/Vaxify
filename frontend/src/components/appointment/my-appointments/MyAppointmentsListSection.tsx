@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import EmptyAppointmentsState from "./EmptyAppointmentsState";
-import type { Appointment, AppointmentStatus } from "@/types/appointment";
+import type { Appointment, UserAppointmentTab } from "@/types/appointment";
 import { getMyAppointmentsColumns } from "./MyAppointmentsColumns";
 
 export default function MyAppointmentsListSection({
@@ -49,7 +49,7 @@ export default function MyAppointmentsListSection({
 
 type Props = {
   appointments: Appointment[];
-  activeStatus: AppointmentStatus;
+  activeStatus: UserAppointmentTab;
   onBrowseCenters: () => void;
   onViewCenter: (centerId: string) => void;
   onCancelAppointment: (appointment: Appointment) => void;

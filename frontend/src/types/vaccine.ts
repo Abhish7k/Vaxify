@@ -6,6 +6,9 @@ export interface Vaccine {
   stock: number;
   capacity: number;
   lastUpdated: string;
+  hospitalId?: string;
+  hospitalName?: string;
+  price?: number;
 }
 
 export interface UpdateStockRequest {

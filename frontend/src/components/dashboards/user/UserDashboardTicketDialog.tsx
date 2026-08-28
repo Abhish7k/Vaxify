@@ -6,9 +6,11 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { TicketCard } from "@/components/appointment/TicketCard";
+import type { Appointment } from "@/types/appointment";
+import { toTicketStatus } from "@/types/appointment";
 
 interface UserDashboardTicketDialogProps {
-  selectedTicket: any | null;
+  selectedTicket: Appointment | null;
   onClose: () => void;
 }
 
@@ -37,11 +39,7 @@ export default function UserDashboardTicketDialog({
             }}
             date={selectedTicket.date}
             slot={selectedTicket.slot}
-            status={
-              selectedTicket.status === "BOOKED"
-                ? "scheduled"
-                : (selectedTicket.status.toLowerCase() as any)
-            }
+            status={toTicketStatus(selectedTicket.status)}
             className="shadow-2xl"
           />
         )}

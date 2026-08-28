@@ -2,7 +2,7 @@ import { Building2, MapPin, User, Mail, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import type { AdminHospital } from "@/types/admin-hospital";
-import AppointmentStatusBadge from "@/components/appointment/my-appointments/AppointmentStatusBadge";
+import HospitalStatusBadge from "./HospitalStatusBadge";
 import AdminHospitalCardActions from "./AdminHospitalCardActions";
 
 type Props = {
@@ -10,6 +10,7 @@ type Props = {
   onApprove: () => void;
   onReject: () => void;
   onDelete: () => void;
+  isPending?: boolean;
 };
 
 export default function AdminHospitalCard({
@@ -17,6 +18,7 @@ export default function AdminHospitalCard({
   onApprove,
   onReject,
   onDelete,
+  isPending,
 }: Props) {
   return (
     <div
@@ -63,7 +65,7 @@ export default function AdminHospitalCard({
           </div>
 
           {/* status */}
-          <AppointmentStatusBadge status={hospital.status} />
+          <HospitalStatusBadge status={hospital.status} />
         </div>
 
         {/* separator */}
@@ -90,6 +92,7 @@ export default function AdminHospitalCard({
             onApprove={onApprove}
             onReject={onReject}
             onDelete={onDelete}
+            isPending={isPending}
           />
         </div>
       </div>

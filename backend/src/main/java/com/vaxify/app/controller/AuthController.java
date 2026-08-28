@@ -4,7 +4,9 @@ import com.vaxify.app.dtos.auth.AuthResponse;
 import com.vaxify.app.dtos.auth.LoginRequest;
 import com.vaxify.app.dtos.auth.SignupRequest;
 import com.vaxify.app.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,13 +20,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public AuthResponse signup(@RequestBody SignupRequest request) {
-        return authService.signup(request);
+    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
+        return ResponseEntity.ok(authService.signup(request));
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest request) {
-        return authService.login(request);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 
 }

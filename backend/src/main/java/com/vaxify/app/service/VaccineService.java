@@ -1,6 +1,7 @@
 package com.vaxify.app.service;
 
 import java.util.List;
+import com.vaxify.app.dtos.vaccine.UpdateStockRequest;
 import com.vaxify.app.dtos.vaccine.VaccineRequest;
 import com.vaxify.app.dtos.vaccine.VaccineResponse;
 import com.vaxify.app.entities.Hospital;
@@ -10,7 +11,7 @@ public interface VaccineService {
 
     VaccineResponse createVaccine(VaccineRequest dto, String staffEmail);
 
-    VaccineResponse updateVaccine(Long id, VaccineRequest dto, String staffEmail);
+    VaccineResponse updateStock(Long id, UpdateStockRequest dto, String staffEmail);
 
     void deleteVaccine(Long id, String staffEmail);
 
@@ -28,6 +29,8 @@ public interface VaccineService {
     void checkStockAlerts(Vaccine vaccine);
 
     Vaccine findEntityById(Long id);
+
+    Vaccine findEntityByIdForUpdate(Long id);
 
     void deductStock(Vaccine vaccine);
 

@@ -1,21 +1,19 @@
 import { useAuth } from "@/auth/useAuth";
-import { Navigate, Outlet } from "react-router-dom";
+import { RouteSpinner } from "@/components/ui/route-spinner";
+import { getReturnToFromSearch, resolvePostLoginPath } from "@/lib/auth-paths";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 export const PublicRoute = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <RouteSpinner />;
+  }
 
   if (isAuthenticated && user) {
-    const role = user.role?.toLowerCase();
-
-    if (role === "admin") {
-      return <Navigate to="/admin/dashboard" replace />;
-    }
-
-    if (role === "staff") {
-      return <Navigate to="/staff/dashboard" replace />;
-    }
-
-    return <Navigate to="/dashboard" replace />;
+    const returnTo = getReturnToFromSearch(location.search);
+    return <Navigate to={resolvePostLoginPath(user.role, returnTo)} replace />;
   }
 
   return <Outlet />;

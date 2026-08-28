@@ -13,3 +13,9 @@ export interface LoginResponse {
   token: string;
   user: AuthUser;
 }
+
+export function toRole(raw: string | undefined | null): Role {
+  const role = (raw || "").toLowerCase();
+  if (role === "staff" || role === "admin") return role;
+  return "user";
+}

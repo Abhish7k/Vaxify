@@ -1,54 +1,45 @@
 import api from "./axios";
+import type { BulkSlotResponseDto, SlotRequestDto, SlotResponseDto } from "@/api/dto/slot";
+import { mapSlot } from "@/api/mappers/slot";
+import type { BulkSlotResult, CreateSlotRequest, Slot } from "@/types/slot";
 
-export type SlotStatus = "AVAILABLE" | "FULL" | "CANCELLED";
+export type { Slot, CreateSlotRequest, SlotStatus, BulkSlotResult } from "@/types/slot";
 
-export interface Slot {
-  id: string;
-  hospitalId: string;
-  hospitalName: string;
-  date: string; // yyyy-mm-dd
-  startTime: string; // hh:mm:ss
-  endTime: string; // hh:mm:ss
-  capacity: number;
-  bookedCount: number;
-  status: SlotStatus;
-}
-
-export interface CreateSlotRequest {
-  hospitalId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  capacity: number;
-  status: SlotStatus;
+function toSlotRequestDto(data: CreateSlotRequest): SlotRequestDto {
+  return {
+    hospitalId: data.hospitalId,
+    date: data.date,
+    startTime: data.startTime,
+    endTime: data.endTime,
+    capacity: data.capacity,
+  };
 }
 
 export const slotsApi = {
-  // get slots by hospital
   getSlotsByHospital: async (hospitalId: string): Promise<Slot[]> => {
-    const response = await api.get<any[]>(`/slots/hospital/${hospitalId}`);
-
-    return response.data.map((s) => ({
-      ...s,
-      id: String(s.id),
-      hospitalId: String(s.hospitalId),
-    }));
+    const response = await api.get<SlotResponseDto[]>(`/slots/hospital/${hospitalId}`);
+    return response.data.map(mapSlot);
   },
 
-  // create new slot
   createSlot: async (data: CreateSlotRequest): Promise<Slot> => {
-    const response = await api.post<any>("/slots/staff", data);
+    const response = await api.post<SlotResponseDto>(
+      "/slots/staff",
+      toSlotRequestDto(data),
+    );
+    return mapSlot(response.data);
+  },
 
-    const s = response.data;
-
+  bulkCreateSlots: async (slots: CreateSlotRequest[]): Promise<BulkSlotResult> => {
+    const response = await api.post<BulkSlotResponseDto>("/slots/staff/bulk", {
+      slots: slots.map(toSlotRequestDto),
+    });
     return {
-      ...s,
-      id: String(s.id),
-      hospitalId: String(s.hospitalId),
+      created: response.data.created,
+      skipped: response.data.skipped,
+      createdSlots: (response.data.createdSlots ?? []).map(mapSlot),
     };
   },
 
-  // delete slot
   deleteSlot: async (slotId: string): Promise<void> => {
     await api.delete(`/slots/staff/${slotId}`);
   },

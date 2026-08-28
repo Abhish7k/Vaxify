@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { vaccineApi } from "@/api/vaccine.api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,9 +17,11 @@ import { Plus } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { toastUtils } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
+import { useAddVaccine } from "@/hooks/queries/use-vaccines";
 
 interface AddVaccineDialogProps {
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 // zod schema
@@ -29,14 +30,8 @@ const addVaccineSchema = z
     name: z.string().min(1, "Vaccine name is required"),
     type: z.string().min(1, "Vaccine type is required"),
     manufacturer: z.string().min(1, "Manufacturer is required"),
-    stock: z.preprocess(
-      (val) => String(val),
-      z.string().regex(/^\d+$/, "Stock must be a whole number").transform(Number),
-    ),
-    capacity: z.preprocess(
-      (val) => String(val),
-      z.string().regex(/^\d+$/, "Capacity must be a whole number").transform(Number),
-    ),
+    stock: z.number().int("Stock must be a whole number").min(0, "Stock must be a whole number"),
+    capacity: z.number().int("Capacity must be a whole number").min(1, "Capacity must be greater than zero"),
   })
   .refine((data) => data.stock <= data.capacity, {
     message: "Stock cannot exceed capacity",
@@ -48,6 +43,7 @@ type AddVaccineFormValues = z.infer<typeof addVaccineSchema>;
 export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
   const [open, setOpen] = useState(false);
   const [isOtherType, setIsOtherType] = useState(false);
+  const addVaccine = useAddVaccine();
 
   const {
     register,
@@ -57,13 +53,13 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<AddVaccineFormValues>({
-    resolver: zodResolver(addVaccineSchema as any),
+    resolver: zodResolver(addVaccineSchema),
     defaultValues: {
       name: "",
       type: "Viral Vector",
       manufacturer: "",
       stock: 0,
-      capacity: 0,
+      capacity: 1,
     },
   });
 
@@ -81,7 +77,7 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
 
   const onSubmit = async (data: AddVaccineFormValues) => {
     try {
-      const result = await vaccineApi.addVaccine(data);
+      const result = await addVaccine.mutateAsync(data);
 
       toastUtils.success(`${result.name} added to inventory`);
 
@@ -89,11 +85,9 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
 
       reset(); // reset form
 
-      onSuccess();
+      onSuccess?.();
     } catch (error) {
-      toastUtils.error("Failed to add vaccine");
-
-      console.error(error);
+      toastUtils.error(getErrorMessage(error, "Failed to add vaccine"));
     }
   };
 
@@ -108,7 +102,16 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) {
+          reset();
+          setIsOtherType(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="h-4 w-4 mr-2" />
@@ -161,10 +164,12 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
             {/* show input if custom type is needed */}
             {isOtherType && (
               <Input
+                id="custom-vaccine-type"
                 placeholder="Enter Custom Vaccine Type"
                 value={typeValue}
                 onChange={(e) => setValue("type", e.target.value, { shouldValidate: true })}
                 className="mt-2"
+                aria-label="Custom vaccine type"
               />
             )}
 
@@ -189,7 +194,13 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
           <div className="grid gap-2">
             <Label htmlFor="stock">Initial Stock</Label>
 
-            <Input id="stock" type="number" min="0" {...register("stock")} disabled={isSubmitting} />
+            <Input
+              id="stock"
+              type="number"
+              min="0"
+              {...register("stock", { valueAsNumber: true })}
+              disabled={isSubmitting}
+            />
 
             {errors.stock && <p className="text-sm text-destructive">{errors.stock.message}</p>}
           </div>
@@ -200,9 +211,8 @@ export function AddVaccineDialog({ onSuccess }: AddVaccineDialogProps) {
             <Input
               id="capacity"
               type="number"
-              min="0"
-              placeholder="Total storage limit"
-              {...register("capacity")}
+              min="1"
+              {...register("capacity", { valueAsNumber: true })}
               disabled={isSubmitting}
             />
 

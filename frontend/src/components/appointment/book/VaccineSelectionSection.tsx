@@ -52,6 +52,7 @@ export default function VaccineSelectionSection({
                   key={vaccine.id}
                   type="button"
                   onClick={() => onSelect(vaccine.id)}
+                  aria-pressed={isSelected}
                   className={cn(
                     "text-left rounded-xl border p-4 hover:shadow-sm cursor-pointer active:scale-95 transition-all text-foreground",
                     "focus:outline-none focus:ring-2 focus:ring-ring",
@@ -66,6 +67,7 @@ export default function VaccineSelectionSection({
                       <img
                         src="https://ik.imagekit.io/vaxify/icons/booster.png"
                         alt=""
+                        aria-hidden="true"
                         className="h-14 w-14"
                         draggable={false}
                       />

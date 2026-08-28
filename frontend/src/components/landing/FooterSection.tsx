@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion, type Variants } from "framer-motion";
+import { AnimatedGroup } from "@/components/ui/animated-group";
 
 interface FooterLink {
   title: string;
@@ -11,56 +11,59 @@ interface FooterSection {
   links: FooterLink[];
 }
 
-export function Footer() {
-  const containerVariants: Variants = {
-    hidden: { opacity: 0, y: 24 },
-    visible: (i: number) => ({
+const transitionVariants = {
+  container: {
+    hidden: { opacity: 0 },
+    visible: {
       opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+      },
+    },
+  },
+  item: {
+    hidden: {
+      opacity: 0,
+      filter: "blur(12px)",
+      y: 12,
+    },
+    visible: {
+      opacity: 1,
+      filter: "blur(0px)",
       y: 0,
       transition: {
-        delay: i * 0.2,
-        duration: 0.8,
-        ease: [0.16, 1, 0.3, 1],
+        type: "spring" as const,
+        bounce: 0.3,
+        duration: 1.5,
       },
-    }),
-  };
+    },
+  },
+};
 
+export function Footer() {
   return (
     <footer className="relative mt-20 bg-white">
       <div className="relative mx-auto max-w-6xl px-6 py-14 rounded-t-4xl border-t border-slate-100">
         <div className="grid gap-12 md:grid-cols-[1.2fr_2fr]">
-          {/* brand stack */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            custom={0}
-            variants={containerVariants}
-            className="space-y-4"
-          >
+          <AnimatedGroup variants={transitionVariants} className="">
             <div>
               <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-indigo-600 w-fit">
-                <img src="/logo.svg" alt="" className="w-8 h-8" />
+                <img src="/logo.svg" alt="" aria-hidden="true" className="w-8 h-8" />
                 Vaxify
               </Link>
             </div>
 
-            <p className="text-slate-400 text-xs mt-8">
-              © {new Date().getFullYear()} Vaxify. All rights reserved.
+            <p className="text-slate-400 text-xs mt-4">
+              Simplifying Vaccination Management for Everyone
             </p>
-          </motion.div>
+          </AnimatedGroup>
 
-          {/* links grid */}
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
-            {footerLinks.map((section, index) => (
-              <motion.div
-                key={section.label}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                custom={index + 1}
-                variants={containerVariants}
-              >
+          <AnimatedGroup
+            variants={transitionVariants}
+            className="grid grid-cols-2 gap-10 sm:grid-cols-3"
+          >
+            {footerLinks.map((section) => (
+              <div key={section.label}>
                 <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900">
                   {section.label}
                 </h3>
@@ -92,9 +95,9 @@ export function Footer() {
                     );
                   })}
                 </ul>
-              </motion.div>
+              </div>
             ))}
-          </div>
+          </AnimatedGroup>
         </div>
       </div>
     </footer>
@@ -114,10 +117,9 @@ const footerLinks: FooterSection[] = [
   {
     label: "Company",
     links: [
-      { title: "About", href: "/about" },
-      { title: "FAQs", href: "/faqs" },
-      { title: "Privacy Policy", href: "/privacy-policy" },
-      { title: "Terms of Service", href: "/terms-of-service" },
+      { title: "FAQs", href: "/" },
+      { title: "Privacy Policy", href: "/" },
+      { title: "Terms of Service", href: "/" },
     ],
   },
   {
@@ -125,7 +127,7 @@ const footerLinks: FooterSection[] = [
     links: [
       {
         title: "GitHub Repository",
-        href: "https://github.com/Abhish7k/vaxify-mono",
+        href: "https://github.com/Abhish7k/vaxify",
       },
       { title: "Contact Support", href: "mailto:contact@vaxify.xyz" },
     ],

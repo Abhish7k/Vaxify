@@ -5,36 +5,72 @@ import { motion } from "framer-motion";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import { cn } from "@/lib/utils";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
+const transitionVariants = {
+  container: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+      },
+    },
+  },
+  item: {
+    hidden: {
+      opacity: 0,
+      filter: "blur(12px)",
+      y: 12,
+    },
+    visible: {
+      opacity: 1,
+      filter: "blur(0px)",
+      y: 0,
+      transition: {
+        type: "spring" as const,
+        bounce: 0.3,
+        duration: 1.5,
+      },
     },
   },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.5,
-    },
-  },
-};
+function getFeatureCalendar(referenceDate = new Date()) {
+  const year = referenceDate.getFullYear();
+  const month = referenceDate.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const lastOfMonth = new Date(year, month + 1, 0);
+
+  const gridStart = new Date(firstOfMonth);
+  gridStart.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
+
+  const gridEnd = new Date(lastOfMonth);
+  gridEnd.setDate(lastOfMonth.getDate() + (6 - lastOfMonth.getDay()));
+
+  const cells: Date[] = [];
+  for (const cursor = new Date(gridStart); cursor <= gridEnd; cursor.setDate(cursor.getDate() + 1)) {
+    cells.push(new Date(cursor));
+  }
+
+  return {
+    cells,
+    month,
+    monthLabel: firstOfMonth.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    }),
+  };
+}
 
 export function Features() {
   const [selectedDate, setSelectedDate] = useState(2);
+  const { cells: calendarCells, month: calendarMonth, monthLabel: calendarMonthLabel } =
+    getFeatureCalendar();
 
   return (
     <section className="relative px-5 sm:px-10 py-16 md:py-32 bg-white overflow-hidden transition-all">
       <div className="mx-auto max-w-5xl px-6 w-full">
         {/* header */}
-        <AnimatedGroup preset="blur-slide" className="text-center mb-16">
+        <AnimatedGroup variants={transitionVariants} className="text-center mb-16">
           <p className="text-[#6366f1] text-[11px] font-mono font-bold mb-1 uppercase tracking-[0.2em]">
             Key Features
           </p>
@@ -44,14 +80,14 @@ export function Features() {
         </AnimatedGroup>
 
         <motion.div
-          variants={containerVariants}
+          variants={transitionVariants.container}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="mx-auto grid gap-2 grid-cols-1 sm:grid-cols-5"
+          className="mx-auto grid gap-2 grid-cols-1 sm:grid-cols-5 items-stretch"
         >
           {/* card 1 - staff dashboard */}
-          <motion.div variants={itemVariants} className="sm:col-span-3">
+          <motion.div variants={transitionVariants.item} className="sm:col-span-3 h-full min-h-0">
             <Card className="group h-full overflow-hidden shadow-sm border-slate-200 sm:rounded-none sm:rounded-tl-2xl">
               <CardHeader>
                 <div className="md:p-4">
@@ -81,7 +117,7 @@ export function Features() {
           </motion.div>
 
           {/* card 2 - low stock alerts */}
-          <motion.div variants={itemVariants} className="sm:col-span-2">
+          <motion.div variants={transitionVariants.item} className="sm:col-span-2 h-full min-h-0">
             <Card className="group h-full overflow-hidden shadow-sm border-slate-200 sm:rounded-none sm:rounded-tr-2xl bg-white">
               <div className="p-6 flex flex-col h-full">
                 <p className="text-lg font-semibold text-slate-900 mb-2">Smart Inventory Alerts</p>
@@ -96,9 +132,9 @@ export function Features() {
           </motion.div>
 
           {/* card 3 - admin approval */}
-          <motion.div variants={itemVariants} className="sm:col-span-2">
-            <Card className="group h-full p-0 shadow-sm border-slate-200 sm:rounded-none sm:rounded-bl-2xl bg-white overflow-hidden flex flex-col min-h-[300px] sm:min-h-0">
-              <div className="p-6 pb-2">
+          <motion.div variants={transitionVariants.item} className="sm:col-span-2 h-full min-h-0">
+            <Card className="group h-full p-0 shadow-sm border-slate-200 sm:rounded-none sm:rounded-bl-2xl bg-white overflow-hidden flex flex-col min-h-75 sm:min-h-0">
+              <div className="px-6 pt-6 pb-2">
                 <p className="text-lg font-semibold text-slate-900">Admin Approval</p>
                 <p className="text-slate-500 text-sm mt-2">
                   Verify hospital credentials with a single click.
@@ -146,72 +182,74 @@ export function Features() {
           </motion.div>
 
           {/* card 4 - smart appointment booking */}
-          <motion.div variants={itemVariants} className="sm:col-span-3">
-            <Card className="group h-full relative shadow-sm border-slate-200 sm:rounded-none sm:rounded-br-2xl overflow-hidden flex flex-col">
-              <CardHeader className="p-6 md:p-8 z-10 relative">
-                <p className="font-semibold text-lg text-slate-900">Smart Appointment Booking</p>
+          <motion.div variants={transitionVariants.item} className="sm:col-span-3 h-full min-h-0">
+            <Card className="group h-full relative p-0 shadow-sm border-slate-200 sm:rounded-none sm:rounded-br-2xl overflow-hidden flex flex-col">
+              <div className="px-6 pt-6 pb-2 z-10 relative">
+                <p className="text-lg font-semibold text-slate-900">Smart Appointment Booking</p>
                 <p className="text-slate-500 mt-2 max-w-sm text-sm">
                   Intelligent slot management that prevents overbooking and optimizes hospital capacity.
                 </p>
-              </CardHeader>
+              </div>
 
-              <div className="relative h-64 pl-6 md:pl-32 overflow-hidden mt-auto">
-                <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-white via-white/40 to-transparent z-10 pointer-events-none"></div>
-
+              <div className="relative h-80 pl-6 md:pl-32 overflow-hidden mt-auto">
                 <div
                   className="bg-white h-full w-full rounded-tl-lg border-l border-t border-slate-200 overflow-hidden shadow-sm p-5 flex flex-col
                   max-w-sm right-0 absolute
                 "
                 >
                   {/* mock calendar component */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4 text-gray-600 mb-0.5" />
+                  <div className="min-h-0 flex-1 overflow-hidden relative">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <CalendarIcon className="h-4 w-4 text-gray-600 mb-0.5" />
 
-                      <span className="text-[11px] font-bold text-slate-700">
-                        {new Date().toLocaleDateString("en-US", {
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </span>
+                        <span className="text-[11px] font-bold text-slate-700">
+                          {calendarMonthLabel}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1 mb-2">
+                      {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+                        <span
+                          key={`header-${i}`}
+                          className="text-[10px] text-slate-400 font-bold w-6 h-5 flex items-center justify-center"
+                        >
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-x-1 gap-y-1">
+                      {calendarCells.map((day) => {
+                        const date = day.getDate();
+                        const isCurrentMonth = day.getMonth() === calendarMonth;
+                        const isSelected = isCurrentMonth && selectedDate === date;
+
+                        return (
+                          <button
+                            type="button"
+                            key={`${day.getFullYear()}-${day.getMonth()}-${date}`}
+                            onClick={() => {
+                              if (isCurrentMonth) setSelectedDate(date);
+                            }}
+                            aria-pressed={isSelected}
+                            className={cn(
+                              "h-6 w-6 flex items-center justify-center rounded-md text-[10px] cursor-pointer transition-all",
+                              !isCurrentMonth && "text-slate-300",
+                              isCurrentMonth && !isSelected && "text-slate-600 hover:bg-slate-100",
+                              isSelected && "bg-indigo-400 text-white shadow-md font-bold scale-110",
+                            )}
+                          >
+                            {date}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-7 gap-1 mb-4">
-                    {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-                      <span
-                        key={`header-${i}`}
-                        className="text-[10px] text-slate-400 font-bold w-6 h-6 flex items-center justify-center"
-                      >
-                        {d}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="grid grid-cols-7 gap-x-1 gap-y-3">
-                    {Array.from({ length: 14 }).map((_, i) => {
-                      const date = 1 + i;
-                      const isSelected = selectedDate === date;
-
-                      return (
-                        <div
-                          key={`date-${i}`}
-                          onClick={() => setSelectedDate(date)}
-                          className={cn(
-                            "h-6 w-6 flex items-center justify-center rounded-md text-[10px] cursor-pointer transition-all",
-                            isSelected
-                              ? "bg-indigo-400 text-white shadow-md font-bold scale-110"
-                              : "text-slate-600 hover:bg-slate-100",
-                          )}
-                        >
-                          {date}
-                        </div>
-                      );
-                    })}
-                  </div>
-
                   {/* time slots mockup */}
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-2 shrink-0 space-y-2 relative z-10">
                     <div className="flex items-center justify-between p-2 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-all duration-300 cursor-pointer">
                       <span className="text-[10px] text-slate-600 font-medium">09:00 AM</span>
                       <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
@@ -246,7 +284,7 @@ interface Message {
 
 const FeaturedMessageCard = () => {
   return (
-    <div className="w-full h-[240px] bg-slate-50/50 p-2 overflow-hidden font-sans relative rounded-xl border border-b-0 rounded-b-none border-slate-100">
+    <div className="w-full h-60 bg-slate-50/50 p-2 overflow-hidden font-sans relative rounded-xl border border-b-0 rounded-b-none border-slate-100">
       {/* fade shadow overlay */}
       <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-white via-white/40 to-transparent z-10 pointer-events-none"></div>
 
@@ -254,7 +292,7 @@ const FeaturedMessageCard = () => {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`flex gap-3 items-start p-3 border border-slate-200 bg-white rounded-lg shadow-sm transform transition duration-300 ease-in-out cursor-pointer animate-scaleUp hover:translate-y-[-2px] hover:shadow-md`}
+            className={`flex gap-3 items-start p-3 border border-slate-200 bg-white rounded-lg shadow-sm transform transition duration-300 ease-in-out cursor-pointer animate-scaleUp hover:-translate-y-0.5 hover:shadow-md`}
           >
             <div className={`w-8 h-8 min-w-8 min-h-8 rounded-lg bg-linear-to-br ${msg.color}`} />
             <div className="flex flex-col">

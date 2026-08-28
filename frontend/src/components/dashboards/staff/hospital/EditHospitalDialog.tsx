@@ -13,28 +13,24 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { FileDropzone } from "@/components/ui/file-dropzone";
+import type { UpdateHospitalRequest } from "@/types/hospital";
+import type { Dispatch, SetStateAction } from "react";
+import { PINCODE_MESSAGE, PINCODE_REGEX } from "@/lib/validation";
 
 const hospitalSchema = z.object({
-  name: z.string().min(3, "Hospital name must be at least 3 characters"),
-  address: z.string().min(10, "Address must be at least 10 characters"),
+  name: z.string().min(2, "Hospital name must be between 2 and 100 characters"),
+  address: z.string().min(5, "Address must be at least 5 characters"),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
-  pincode: z.string().regex(/^\d{6}$/, "Pincode must be exactly 6 digits"),
+  pincode: z.string().regex(PINCODE_REGEX, PINCODE_MESSAGE),
   documentUrl: z.string().optional(),
 });
 
 interface EditHospitalDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  formData: {
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-    pincode: string;
-    documentUrl?: string;
-  };
-  setFormData: (data: any) => void;
+  formData: UpdateHospitalRequest;
+  setFormData: Dispatch<SetStateAction<UpdateHospitalRequest>>;
   isUpdating: boolean;
   onUpdate: (e: React.FormEvent) => void;
 }
@@ -174,9 +170,10 @@ export const EditHospitalDialog = ({
             </div>
 
             <div className="grid gap-2">
-              <Label>Verification Document</Label>
+              <Label htmlFor="verification-document">Verification Document</Label>
 
               <FileDropzone
+                id="verification-document"
                 value={formData.documentUrl}
                 onChange={(url, fileName) => setFormData({ ...formData, documentUrl: fileName || url })}
               />

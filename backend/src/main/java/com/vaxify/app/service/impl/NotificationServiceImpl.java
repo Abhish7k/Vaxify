@@ -1,16 +1,14 @@
 package com.vaxify.app.service.impl;
 
-import com.vaxify.app.entities.Appointment;
-import com.vaxify.app.entities.Hospital;
-import com.vaxify.app.entities.Vaccine;
+import com.vaxify.app.dtos.notification.AppointmentMailData;
+import com.vaxify.app.dtos.notification.HospitalMailData;
+import com.vaxify.app.dtos.notification.VaccineStockMailData;
 import com.vaxify.app.service.EmailService;
 import com.vaxify.app.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.format.DateTimeFormatter;
-
-import org.springframework.scheduling.annotation.Async;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -20,14 +18,10 @@ public class NotificationServiceImpl implements NotificationService {
 
         private final EmailService emailService;
 
-        private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy");
-
-        private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("hh:mm a");
-
         @Override
         @Async
-        public void sendHospitalRegistrationReceived(Hospital hospital) {
-                if (hospital.getStaffUser() == null) {
+        public void sendHospitalRegistrationReceived(HospitalMailData data) {
+                if (data == null || data.staffEmail() == null) {
                         return;
                 }
 
@@ -38,18 +32,16 @@ public class NotificationServiceImpl implements NotificationService {
                                                 "You have successfully registered your hospital '%s' on Vaxify.\n" +
                                                 "Your application is currently PENDING approval from the admin.\n" +
                                                 "You will be notified once the status changes.",
-                                hospital.getStaffUser().getName(),
-                                hospital.getName());
+                                data.staffName(),
+                                data.hospitalName());
 
-                sendWithSignature(hospital.getStaffUser().getEmail(), subject, content);
-
-                log.info("Sent registration received notification to: {}", hospital.getStaffUser().getEmail());
+                sendWithSignature(data.staffEmail(), subject, content, "hospital registration received");
         }
 
         @Override
         @Async
-        public void sendHospitalApproved(Hospital hospital) {
-                if (hospital.getStaffUser() == null) {
+        public void sendHospitalApproved(HospitalMailData data) {
+                if (data == null || data.staffEmail() == null) {
                         return;
                 }
 
@@ -60,18 +52,16 @@ public class NotificationServiceImpl implements NotificationService {
                                                 "Your hospital registration for '%s' has been APPROVED by the admin.\n"
                                                 +
                                                 "You can now login and manage your hospital dashboard.",
-                                hospital.getStaffUser().getName(),
-                                hospital.getName());
+                                data.staffName(),
+                                data.hospitalName());
 
-                sendWithSignature(hospital.getStaffUser().getEmail(), subject, content);
-
-                log.info("Sent hospital approved notification to: {}", hospital.getStaffUser().getEmail());
+                sendWithSignature(data.staffEmail(), subject, content, "hospital approved");
         }
 
         @Override
         @Async
-        public void sendHospitalRejected(Hospital hospital) {
-                if (hospital.getStaffUser() == null) {
+        public void sendHospitalRejected(HospitalMailData data) {
+                if (data == null || data.staffEmail() == null) {
                         return;
                 }
 
@@ -82,39 +72,36 @@ public class NotificationServiceImpl implements NotificationService {
                                                 "Your hospital registration for '%s' has been REJECTED by the admin.\n"
                                                 +
                                                 "Please contact support for more details.",
-                                hospital.getStaffUser().getName(),
-                                hospital.getName());
+                                data.staffName(),
+                                data.hospitalName());
 
-                sendWithSignature(hospital.getStaffUser().getEmail(), subject, content);
-
-                log.info("Sent hospital rejected notification to: {}", hospital.getStaffUser().getEmail());
+                sendWithSignature(data.staffEmail(), subject, content, "hospital rejected");
         }
 
         @Override
         @Async
-        public void sendVaccineStockCritical(Vaccine vaccine, int stock, int capacity) {
-                if (vaccine.getHospital() == null || vaccine.getHospital().getStaffUser() == null) {
+        public void sendVaccineStockCritical(VaccineStockMailData data) {
+                if (data == null || data.staffEmail() == null) {
                         return;
                 }
 
-                String subject = "CRITICAL: Vaccine Stock Critical (<20%) - Booking Blocked Warning";
+                String subject = "CRITICAL: Vaccine Stock Critical (<20%)";
 
                 String body = String.format(
                                 "The stock for vaccine '%s' is CRITICAL (%d/%d).\n" +
-                                                "Bookings may be blocked soon if stock runs out. Please restock immediately.",
-                                vaccine.getName(),
-                                stock,
-                                capacity);
+                                                "Please restock immediately so bookings are not interrupted.",
+                                data.vaccineName(),
+                                data.stock(),
+                                data.capacity());
 
-                emailService.sendSimpleEmail(vaccine.getHospital().getStaffUser().getEmail(), subject, body);
-
-                log.info("Sent vaccine stock critical alert for hospital: {}", vaccine.getHospital().getId());
+                sendDirect(data.staffEmail(), subject, body,
+                                "vaccine stock critical alert for hospital " + data.hospitalId());
         }
 
         @Override
         @Async
-        public void sendVaccineStockLow(Vaccine vaccine, int stock, int capacity) {
-                if (vaccine.getHospital() == null || vaccine.getHospital().getStaffUser() == null) {
+        public void sendVaccineStockLow(VaccineStockMailData data) {
+                if (data == null || data.staffEmail() == null) {
                         return;
                 }
 
@@ -123,19 +110,18 @@ public class NotificationServiceImpl implements NotificationService {
                 String body = String.format(
                                 "The stock for vaccine '%s' is running low (%d/%d).\n" +
                                                 "Please arrange for restocking.",
-                                vaccine.getName(),
-                                stock,
-                                capacity);
+                                data.vaccineName(),
+                                data.stock(),
+                                data.capacity());
 
-                emailService.sendSimpleEmail(vaccine.getHospital().getStaffUser().getEmail(), subject, body);
-
-                log.info("Sent vaccine stock low alert for hospital: {}", vaccine.getHospital().getId());
+                sendDirect(data.staffEmail(), subject, body,
+                                "vaccine stock low alert for hospital " + data.hospitalId());
         }
 
         @Override
         @Async
-        public void sendAppointmentConfirmation(Appointment appointment) {
-                if (appointment.getUser() == null) {
+        public void sendAppointmentConfirmation(AppointmentMailData data) {
+                if (data == null || data.recipientEmail() == null) {
                         return;
                 }
 
@@ -152,24 +138,22 @@ public class NotificationServiceImpl implements NotificationService {
                                                 "- Center: %s\n" +
                                                 "- Address: %s\n\n" +
                                                 "Please arrive 15 minutes before your scheduled time.",
-                                appointment.getUser().getName(),
-                                appointment.getId(),
-                                appointment.getVaccine().getName(),
-                                appointment.getSlot().getDate().format(DATE_FORMATTER),
-                                appointment.getSlot().getStartTime().format(TIME_FORMATTER),
-                                appointment.getSlot().getCenter().getName(),
-                                appointment.getSlot().getCenter().getAddress());
+                                data.recipientName(),
+                                data.appointmentId(),
+                                data.vaccineName(),
+                                data.date(),
+                                data.time(),
+                                data.centerName(),
+                                data.centerAddress());
 
-                sendWithSignature(appointment.getUser().getEmail(), subject, content);
-
-                log.info("Sent appointment confirmation to: {} (Appt ID: {})",
-                                appointment.getUser().getEmail(), appointment.getId());
+                sendWithSignature(data.recipientEmail(), subject, content,
+                                "appointment confirmation for " + data.appointmentId());
         }
 
         @Override
         @Async
-        public void sendAppointmentCancellation(Appointment appointment) {
-                if (appointment.getUser() == null) {
+        public void sendAppointmentCancellation(AppointmentMailData data) {
+                if (data == null || data.recipientEmail() == null) {
                         return;
                 }
 
@@ -179,20 +163,18 @@ public class NotificationServiceImpl implements NotificationService {
                                 "Dear %s,\n\n" +
                                                 "The vaccination appointment #%d for %s has been CANCELLED.\n" +
                                                 "If you did not request this, please contact support.",
-                                appointment.getUser().getName(),
-                                appointment.getId(),
-                                appointment.getVaccine().getName());
+                                data.recipientName(),
+                                data.appointmentId(),
+                                data.vaccineName());
 
-                sendWithSignature(appointment.getUser().getEmail(), subject, content);
-
-                log.info("Sent appointment cancellation notice to: {} (Appt ID: {})",
-                                appointment.getUser().getEmail(), appointment.getId());
+                sendWithSignature(data.recipientEmail(), subject, content,
+                                "appointment cancellation for " + data.appointmentId());
         }
 
         @Override
         @Async
-        public void sendVaccinationCompletion(Appointment appointment) {
-                if (appointment.getUser() == null) {
+        public void sendVaccinationCompletion(AppointmentMailData data) {
+                if (data == null || data.recipientEmail() == null) {
                         return;
                 }
 
@@ -204,18 +186,23 @@ public class NotificationServiceImpl implements NotificationService {
                                                 +
                                                 "You can download your certificate from the Vaxify dashboard.\n\n" +
                                                 "Thank you for doing your part!",
-                                appointment.getUser().getName(),
-                                appointment.getVaccine().getName());
+                                data.recipientName(),
+                                data.vaccineName());
 
-                sendWithSignature(appointment.getUser().getEmail(), subject, content);
-
-                log.info("Sent vaccination completion notice to: {} (Appt ID: {})",
-                                appointment.getUser().getEmail(), appointment.getId());
+                sendWithSignature(data.recipientEmail(), subject, content,
+                                "vaccination completion for " + data.appointmentId());
         }
 
-        private void sendWithSignature(String to, String subject, String content) {
-                String body = content + "\n\nRegards,\nVaxify Team";
+        private void sendWithSignature(String to, String subject, String content, String purpose) {
+                sendDirect(to, subject, content + "\n\nRegards,\nVaxify Team", purpose);
+        }
 
-                emailService.sendSimpleEmail(to, subject, body);
+        private void sendDirect(String to, String subject, String body, String purpose) {
+                try {
+                        emailService.sendSimpleEmail(to, subject, body);
+                        log.info("Sent {} to {}", purpose, to);
+                } catch (Exception e) {
+                        log.error("Failed to send {} to {}", purpose, to, e);
+                }
         }
 }

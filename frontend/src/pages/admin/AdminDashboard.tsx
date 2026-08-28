@@ -1,85 +1,68 @@
-import { useState, useEffect, useCallback } from "react";
-import { motion, type Variants } from "framer-motion";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import { RefreshCw } from "lucide-react";
-import { toast } from "sonner";
 
 import AdminDashboardSecondSection from "@/components/dashboards/admin/second-section/AdminDashboardSecondSection";
 import AdminDashboardStatsGrid from "@/components/dashboards/admin/AdminDashboardStatsGrid";
-import { adminApi, type AdminStats } from "@/api/admin.api";
 import { AdminDashboardSkeleton } from "@/components/skeletons/AdminDashboardSkeleton";
 import { Button } from "@/components/ui/button";
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 15,
-    },
-  },
-};
+import { useAdminActivities, useAdminStats } from "@/hooks/queries/use-admin";
+import { usePendingHospitals } from "@/hooks/queries/use-hospitals";
+import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
+import { fadeUpItemSpring, staggerContainer } from "@/lib/motion";
+import { PageLoadError } from "@/components/ui/page-load-error";
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [pendingHospitals, setPendingHospitals] = useState<any[]>([]);
-  const [activities, setActivities] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const statsQuery = useAdminStats();
+  const pendingQuery = usePendingHospitals();
+  const activitiesQuery = useAdminActivities();
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchData = useCallback(async (isRefresh = false) => {
+  const loading = statsQuery.isPending || pendingQuery.isPending || activitiesQuery.isPending;
+  const loadError = statsQuery.isError || pendingQuery.isError || activitiesQuery.isError;
+
+  useQueryErrorToast(
+    statsQuery.isError || pendingQuery.isError || activitiesQuery.isError,
+    "Failed to load dashboard data",
+    statsQuery.error ?? pendingQuery.error ?? activitiesQuery.error,
+  );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
     try {
-      if (isRefresh) setRefreshing(true);
-      else setLoading(true);
-
-      const [statsData, hospitalsData, activitiesData] = await Promise.all([
-        adminApi.getStats(),
-        adminApi.getPendingHospitals(),
-        adminApi.getActivities(),
+      await Promise.all([
+        statsQuery.refetch(),
+        pendingQuery.refetch(),
+        activitiesQuery.refetch(),
       ]);
-
-      setStats(statsData);
-      setPendingHospitals(hospitalsData);
-      setActivities(activitiesData);
-    } catch (error) {
-      console.error("Failed to fetch dashboard data", error);
-      toast.error("Failed to load dashboard data");
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  };
 
   if (loading) {
     return <AdminDashboardSkeleton />;
   }
 
+  if (loadError) {
+    return (
+      <PageLoadError
+        message="Could not load dashboard data. Please try again."
+        onRetry={() => void handleRefresh()}
+      />
+    );
+  }
+
   return (
     <motion.div
-      variants={containerVariants}
+      variants={staggerContainer}
       initial="hidden"
       animate="visible"
       className="space-y-8"
     >
       {/* header */}
       <motion.div
-        variants={itemVariants}
+        variants={fadeUpItemSpring}
         className="flex items-center justify-between"
       >
         <div>
@@ -92,7 +75,7 @@ const AdminDashboard = () => {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => fetchData(true)}
+          onClick={() => void handleRefresh()}
           disabled={refreshing}
           className="gap-2"
         >
@@ -104,15 +87,15 @@ const AdminDashboard = () => {
       </motion.div>
 
       {/* stats */}
-      <motion.div variants={itemVariants}>
-        <AdminDashboardStatsGrid stats={stats} />
+      <motion.div variants={fadeUpItemSpring}>
+        <AdminDashboardStatsGrid stats={statsQuery.data ?? null} />
       </motion.div>
 
       {/* middle section */}
-      <motion.div variants={itemVariants}>
+      <motion.div variants={fadeUpItemSpring}>
         <AdminDashboardSecondSection
-          pendingHospitals={pendingHospitals}
-          activities={activities}
+          pendingHospitals={pendingQuery.data ?? []}
+          activities={activitiesQuery.data ?? []}
         />
       </motion.div>
     </motion.div>

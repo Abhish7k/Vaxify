@@ -6,6 +6,8 @@ interface Props {
 }
 
 const CenterDetailsInfoSection = ({ center }: Props) => {
+  if (!center.features?.length) return null;
+
   return (
     <Card>
       <CardHeader>
@@ -13,8 +15,8 @@ const CenterDetailsInfoSection = ({ center }: Props) => {
       </CardHeader>
 
       <CardContent className="grid md:grid-cols-2 gap-4">
-        {center.features.map((feature, i) => (
-          <div key={i} className="flex gap-3 text-sm text-muted-foreground">
+        {center.features.map((feature) => (
+          <div key={feature} className="flex gap-3 text-sm text-muted-foreground">
             <span>•</span>
             <span>{feature}</span>
           </div>

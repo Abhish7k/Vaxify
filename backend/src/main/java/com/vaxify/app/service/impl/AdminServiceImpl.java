@@ -8,7 +8,6 @@ import com.vaxify.app.repository.AppointmentRepository;
 import com.vaxify.app.repository.HospitalRepository;
 import com.vaxify.app.repository.UserRepository;
 import com.vaxify.app.service.AdminService;
-import com.vaxify.app.service.AppointmentCleanupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,32 +24,22 @@ public class AdminServiceImpl implements AdminService {
         private final HospitalRepository hospitalRepository;
         private final UserRepository userRepository;
         private final AppointmentRepository appointmentRepository;
-        private final AppointmentCleanupService appointmentCleanupService;
 
         @Override
-        @Transactional
         public AdminStatsResponse getAdminStats() {
-                appointmentCleanupService.cleanupOverdue();
-
-                AdminStatsResponse response = AdminStatsResponse.builder()
+                return AdminStatsResponse.builder()
                                 .totalHospitals(hospitalRepository.count())
                                 .pendingApprovals(hospitalRepository.countByStatus(HospitalStatus.PENDING))
                                 .totalUsers(userRepository.countByRole(Role.USER))
                                 .activeCenters(hospitalRepository.countByStatus(HospitalStatus.APPROVED))
                                 .totalAppointments(appointmentRepository.count())
                                 .build();
-
-                return response;
         }
 
         @Override
-        @Transactional
         public List<AdminActivityResponse> getRecentActivities() {
-                appointmentCleanupService.cleanupOverdue();
-
                 List<AdminActivityResponse> activities = new ArrayList<>();
 
-                // Add Recent Hospitals
                 hospitalRepository.findTop5ByOrderByCreatedAtDesc().forEach(h -> {
                         String action = h.getStatus() == HospitalStatus.PENDING
                                         ? "New hospital registered"
@@ -65,7 +54,6 @@ public class AdminServiceImpl implements AdminService {
                                         .build());
                 });
 
-                // Add Recent User Registrations
                 userRepository.findTop5ByRoleOrderByCreatedAtDesc(Role.USER).forEach(u -> {
                         activities.add(AdminActivityResponse.builder()
                                         .id("u-" + u.getId())
@@ -76,7 +64,6 @@ public class AdminServiceImpl implements AdminService {
                                         .build());
                 });
 
-                // Sort by timestamp desc and limit to 5
                 return activities.stream()
                                 .sorted((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()))
                                 .limit(5)

@@ -1,22 +1,14 @@
 import { CheckCircle, XCircle, Building2, UserPlus, Clock } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-interface Activity {
-  id: string;
-  action: string;
-  target: string;
-  type: "USER" | "HOSPITAL";
-  status?: string;
-  timestamp: string;
-}
+import type { AdminActivity } from "@/types/admin";
 
 export default function AdminDashboardRecentActivity({
   activities,
 }: {
-  activities: Activity[];
+  activities: AdminActivity[];
 }) {
-  const getIcon = (item: Activity) => {
+  const getIcon = (item: AdminActivity) => {
     if (item.type === "USER")
       return { icon: UserPlus, color: "text-indigo-600" };
     if (item.status === "APPROVED")

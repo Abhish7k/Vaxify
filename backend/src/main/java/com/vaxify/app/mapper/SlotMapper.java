@@ -39,12 +39,8 @@ public class SlotMapper {
         slot.setStartTime(dto.getStartTime());
         slot.setEndTime(dto.getEndTime());
         slot.setCapacity(dto.getCapacity());
-
-        if (dto.getStatus() != null) {
-            slot.setStatus(dto.getStatus());
-        } else {
-            slot.setStatus(SlotStatus.AVAILABLE);
-        }
+        slot.setBookedCount(0);
+        slot.setStatus(SlotStatus.AVAILABLE);
 
         return slot;
     }
@@ -69,9 +65,15 @@ public class SlotMapper {
         if (dto.getCapacity() != null) {
             slot.setCapacity(dto.getCapacity());
         }
+    }
 
-        if (dto.getStatus() != null) {
-            slot.setStatus(dto.getStatus());
+    public void applyDerivedStatus(Slot slot) {
+        if (slot == null) {
+            return;
         }
+
+        int booked = slot.getBookedCount() == null ? 0 : slot.getBookedCount();
+        int capacity = slot.getCapacity() == null ? 0 : slot.getCapacity();
+        slot.setStatus(capacity > 0 && booked >= capacity ? SlotStatus.FULL : SlotStatus.AVAILABLE);
     }
 }

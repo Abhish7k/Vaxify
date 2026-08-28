@@ -1,100 +1,49 @@
 import { motion } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { userApi, type UserProfile } from "@/api/user.api";
 import { toastUtils } from "@/lib/toast";
+import { fadeUpItemSlow, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import AdminUsersTable from "@/components/admin/users-page/UsersTable";
 import { AdminUsersTableSkeleton } from "@/components/skeletons/AdminUsersTableSkeleton";
-
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.16, 1, 0.3, 1] as any,
-    },
-  },
-};
+import { useAdminUsers, useDeleteUser } from "@/hooks/queries/use-users";
+import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
+import { getErrorMessage } from "@/lib/errors";
+import { PageLoadError } from "@/components/ui/page-load-error";
+import type { UserProfile } from "@/api/user.api";
 
 const AdminUsersPage = () => {
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const usersQuery = useAdminUsers();
+  const deleteUser = useDeleteUser();
+  const users = usersQuery.data ?? [];
+  const loading = usersQuery.isFetching;
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-
-      const data = await userApi.getAllUsers();
-
-      setUsers(data);
-    } catch (error) {
-      console.error("Failed to fetch users", error);
-
-      toastUtils.error("Failed to load users");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRefresh = async () => {
-    try {
-      setLoading(true);
-
-      const data = await userApi.getAllUsers();
-
-      setUsers(data);
-    } catch (error) {
-      console.error("Failed to fetch users", error);
-
-      toastUtils.error("Failed to load users");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  useQueryErrorToast(
+    usersQuery.isError,
+    "Failed to load users",
+    usersQuery.error,
+  );
 
   const handleDeleteUser = async (user: UserProfile) => {
     try {
-      await userApi.deleteUser(user.id);
+      await deleteUser.mutateAsync(user.id);
 
       toastUtils.success("User deleted successfully");
-
-      fetchUsers();
     } catch (error) {
-      console.error("Failed to delete user", error);
-
-      toastUtils.error("Failed to delete user");
+      toastUtils.error(getErrorMessage(error, "Failed to delete user"));
     }
   };
 
   return (
     <motion.div
-      variants={container}
+      variants={staggerContainer}
       initial="hidden"
       animate="show"
       className="px-5 py-5 md:px-10 space-y-8"
     >
       {/* header */}
       <motion.div
-        variants={item}
+        variants={fadeUpItemSlow}
         className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
       >
         <div>
@@ -107,7 +56,7 @@ const AdminUsersPage = () => {
         <Button
           variant="outline"
           size="sm"
-          onClick={handleRefresh}
+          onClick={() => void usersQuery.refetch()}
           disabled={loading}
           className="gap-2 text-xs sm:text-sm transition-all min-w-[120px]"
         >
@@ -117,9 +66,14 @@ const AdminUsersPage = () => {
       </motion.div>
 
       {/* users data table */}
-      <motion.div variants={item} className="w-full">
+      <motion.div variants={fadeUpItemSlow} className="w-full">
         {loading ? (
           <AdminUsersTableSkeleton />
+        ) : usersQuery.isError ? (
+          <PageLoadError
+            message="Could not load users. Please try again."
+            onRetry={() => void usersQuery.refetch()}
+          />
         ) : (
           <AdminUsersTable users={users} onDelete={handleDeleteUser} />
         )}

@@ -3,8 +3,6 @@ package com.vaxify.app.entities;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import com.vaxify.app.entities.enums.AppointmentStatus;
 
@@ -44,12 +42,10 @@ public class Appointment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "slot_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Slot slot;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vaccine_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Vaccine vaccine;
 
     @Enumerated(EnumType.STRING)

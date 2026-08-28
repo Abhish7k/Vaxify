@@ -18,6 +18,7 @@ type Props = {
   onApprove: () => void;
   onReject: () => void;
   onDelete: () => void;
+  isPending?: boolean;
 };
 
 export default function AdminHospitalCardActions({
@@ -26,6 +27,7 @@ export default function AdminHospitalCardActions({
   onApprove,
   onReject,
   onDelete,
+  isPending = false,
 }: Props) {
   return (
     <div className="flex justify-end gap-2 pt-2">
@@ -36,6 +38,7 @@ export default function AdminHospitalCardActions({
             <AlertDialogTrigger asChild>
               <Button
                 size="sm"
+                disabled={isPending}
                 className="cursor-pointer active:scale-95 transition-all"
               >
                 <Check className="h-4 w-4 mr-0.5" />
@@ -60,8 +63,12 @@ export default function AdminHospitalCardActions({
                 </AlertDialogCancel>
 
                 <AlertDialogAction
+                  disabled={isPending}
                   className="cursor-pointer active:scale-95 transition-all"
-                  onClick={onApprove}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onApprove();
+                  }}
                 >
                   Confirm
                 </AlertDialogAction>
@@ -75,6 +82,7 @@ export default function AdminHospitalCardActions({
               <Button
                 size="sm"
                 variant="outline"
+                disabled={isPending}
                 className="text-destructive hover:bg-destructive/10 cursor-pointer active:scale-95 transition-all"
               >
                 <X className="h-4 w-4 mr-1" />
@@ -99,7 +107,11 @@ export default function AdminHospitalCardActions({
                 </AlertDialogCancel>
 
                 <AlertDialogAction
-                  onClick={onReject}
+                  disabled={isPending}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onReject();
+                  }}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer active:scale-95 transition-all"
                 >
                   Yes, reject
@@ -116,6 +128,7 @@ export default function AdminHospitalCardActions({
           <Button
             size="sm"
             variant="ghost"
+            disabled={isPending}
             className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer active:scale-95 transition-all"
           >
             <Trash2 className="h-4 w-4" />
@@ -137,7 +150,11 @@ export default function AdminHospitalCardActions({
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={onDelete}
+              disabled={isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                onDelete();
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer active:scale-95 transition-all"
             >
               Yes, delete

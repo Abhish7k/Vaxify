@@ -2,10 +2,12 @@ import { useCallback, useState } from "react";
 import { useDropzone, type FileRejection } from "react-dropzone";
 import { UploadCloud, File, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { uploadFile } from "@/api/files.api";
 
 interface SingleImageDropzoneProps {
+  id?: string;
   width?: number;
   height?: number;
   className?: string;
@@ -15,6 +17,7 @@ interface SingleImageDropzoneProps {
 }
 
 export const FileDropzone = ({
+  id,
   className,
   value,
   onChange,
@@ -29,9 +32,9 @@ export const FileDropzone = ({
         const rejection = fileRejections[0];
 
         if (rejection.errors[0].code === "file-too-large") {
-          toast.error("File is too large. Max size is 5MB.");
+          toastUtils.error("File is too large. Max size is 5MB.");
         } else {
-          toast.error(rejection.errors[0].message);
+          toastUtils.error(rejection.errors[0].message);
         }
         return;
       }
@@ -49,12 +52,9 @@ export const FileDropzone = ({
           onChange(response.fileUrl, response.fileName);
         }
 
-        toast.success("Document uploaded successfully");
-      } catch (error: any) {
-        const errorMsg =
-          error.response?.data?.error || "Document upload failed";
-        toast.error(errorMsg);
-        console.error(error);
+        toastUtils.success("Document uploaded successfully");
+      } catch (error) {
+        toastUtils.error(getErrorMessage(error, "Document upload failed"));
       } finally {
         setLoading(false);
       }
@@ -85,8 +85,9 @@ export const FileDropzone = ({
           onClick={() => onChange?.("")}
           className="text-muted-foreground hover:text-red-500 transition-colors"
           disabled={disabled || loading}
+          aria-label="Remove uploaded document"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
     );
@@ -102,7 +103,7 @@ export const FileDropzone = ({
         className,
       )}
     >
-      <input {...getInputProps()} />
+      <input {...getInputProps({ id })} />
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-4">

@@ -13,4 +13,6 @@ public interface S3Service {
     String getFileUrl(String fileName);
 
     String resolveUrl(String path);
+
+    String toStoredKey(String incoming, String currentKey);
 }

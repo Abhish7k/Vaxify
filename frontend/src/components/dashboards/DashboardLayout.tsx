@@ -8,10 +8,13 @@ import AppSidebar from "./sidebar/AppSidebar";
 import { Separator } from "../ui/separator";
 import UserNav from "../navbar/UserNav";
 import { Suspense } from "react";
+import { RouteSpinner } from "@/components/ui/route-spinner";
+import DocumentTitle from "@/components/DocumentTitle";
 
 const DashboardLayout = () => {
   return (
     <SidebarProvider>
+      <DocumentTitle />
       <AppSidebar />
 
       <SidebarInset>
@@ -33,7 +36,7 @@ const DashboardLayout = () => {
           </header>
 
           <main className="flex-1 overflow-y-auto p-6">
-            <Suspense fallback={null}>
+            <Suspense fallback={<RouteSpinner />}>
               <Outlet />
             </Suspense>
           </main>

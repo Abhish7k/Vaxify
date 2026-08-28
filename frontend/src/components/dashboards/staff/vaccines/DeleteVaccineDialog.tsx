@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { vaccineApi } from "@/api/vaccine.api";
 import type { Vaccine } from "@/types/vaccine";
 import {
   AlertDialog,
@@ -11,13 +9,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
+import { toastUtils } from "@/lib/toast";
 import { Loader2 } from "lucide-react";
+import { getErrorMessage } from "@/lib/errors";
+import { useDeleteVaccine } from "@/hooks/queries/use-vaccines";
 
 interface DeleteVaccineDialogProps {
   vaccine: Vaccine | null;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 export function DeleteVaccineDialog({
@@ -25,36 +25,22 @@ export function DeleteVaccineDialog({
   onClose,
   onSuccess,
 }: DeleteVaccineDialogProps) {
-  const [deleting, setDeleting] = useState(false);
+  const deleteVaccine = useDeleteVaccine();
+  const deleting = deleteVaccine.isPending;
 
   const handleDelete = async () => {
     if (!vaccine) return;
 
-    setDeleting(true);
     try {
-      await vaccineApi.deleteVaccine(vaccine.id);
+      await deleteVaccine.mutateAsync(vaccine.id);
 
-      toast.success("Vaccine deleted successfully", {
-        style: {
-          backgroundColor: "#e7f9ed",
-          color: "#0f7a28",
-        },
-      });
+      toastUtils.success("Vaccine deleted successfully");
 
-      onSuccess();
+      onSuccess?.();
 
       onClose();
     } catch (error) {
-      console.error("Delete failed", error);
-
-      toast.error("Failed to delete vaccine", {
-        style: {
-          backgroundColor: "#ffe5e5",
-          color: "#b00000",
-        },
-      });
-    } finally {
-      setDeleting(false);
+      toastUtils.error(getErrorMessage(error, "Failed to delete vaccine"));
     }
   };
 

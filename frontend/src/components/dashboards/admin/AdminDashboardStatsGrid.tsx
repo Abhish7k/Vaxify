@@ -28,10 +28,16 @@ export default function AdminDashboardStatsGrid({ stats }: { stats: AdminStats |
       subtitle: "Operational vaccination centers",
       icon: "https://ik.imagekit.io/vaxify/icons/center.png",
     },
+    {
+      title: "Total Appointments",
+      value: stats?.totalAppointments ?? 0,
+      subtitle: "Booked on the platform",
+      icon: "https://ik.imagekit.io/vaxify/icons/calendar.png",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {statsConfig.map((stat) => (
         <StatCard key={stat.title} {...stat} />
       ))}
@@ -72,7 +78,7 @@ function StatCard({ title, value, subtitle, icon }: StatCardProps) {
           variants={imageAnimation}
           className="absolute -right-8 -bottom-8 w-32 h-32 opacity-90 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full flex items-center justify-center p-4"
         >
-          <img src={icon} alt="" className="w-full h-full object-contain" draggable={false} />
+          <img src={icon} alt="" aria-hidden="true" className="w-full h-full object-contain" draggable={false} />
         </motion.div>
       </Card>
     </motion.div>

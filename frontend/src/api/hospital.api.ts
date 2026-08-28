@@ -1,71 +1,48 @@
 import type { Center } from "@/types/hospital";
+import type { Hospital } from "@/types/hospital";
+import type { UpdateHospitalRequest } from "@/types/hospital";
+import type {
+  HospitalResponseDto,
+  HospitalSummaryDto,
+  UpdateHospitalRequestDto,
+} from "@/api/dto/hospital";
+import { mapHospital, mapHospitalSummary } from "@/api/mappers/hospital";
 import api from "./axios";
 
 export const hospitalApi = {
-  // get all hospitals
   getAllHospitals: async (): Promise<Center[]> => {
-    const response = await api.get<any[]>("/hospitals");
-
-    return response.data.map((h: any) => ({
-      id: String(h.id),
-      name: h.name,
-      address: h.address,
-      // Handle either the full DTO or the summary DTO
-      availableVaccines: h.availableVaccineNames || (h.availableVaccines || []).map((v: any) => v.name),
-      staffEmail: h.staffEmail,
-      staffPhone: h.staffPhone,
-    }));
+    const response = await api.get<HospitalSummaryDto[]>("/hospitals");
+    return response.data.map(mapHospitalSummary);
   },
 
-  // get hospital by id
-  getHospitalById: async (id: string): Promise<Center | undefined> => {
-    const response = await api.get<any>(`/hospitals/${id}`);
-
+  getHospitalById: async (id: string): Promise<Hospital | undefined> => {
+    const response = await api.get<HospitalResponseDto>(`/hospitals/${id}`);
     if (!response.data) return undefined;
-
-    return {
-      ...response.data,
-
-      id: String(response.data.id),
-
-      // keep availableVaccines as string[] for compatibility with Center type
-      availableVaccines: (response.data.availableVaccines || []).map(
-        (v: any) => v.name,
-      ),
-
-      // add rawVaccines for detailed view
-      vaccines: response.data.availableVaccines,
-    } as any;
+    return mapHospital(response.data);
   },
 
-  // register new hospital
-  registerHospital: async (hospitalData: unknown) => {
-    await api.post("/hospitals/register", hospitalData);
+  getAdminHospitalById: async (id: string): Promise<Hospital | undefined> => {
+    const response = await api.get<HospitalResponseDto>(`/admin/hospitals/${id}`);
+    if (!response.data) return undefined;
+    return mapHospital(response.data);
   },
 
-  // get my hospital (for staff)
-  getMyHospital: async (): Promise<any> => {
-    const response = await api.get<any>("/hospitals/my");
-
-    return response.data;
+  getMyHospital: async (): Promise<Hospital> => {
+    const response = await api.get<HospitalResponseDto>("/hospitals/my");
+    return mapHospital(response.data);
   },
 
-  // update hospital details (for staff)
-  updateHospital: async (data: any): Promise<any> => {
-    const response = await api.put<any>("/hospitals/my", data);
-
-    return response.data;
+  updateHospital: async (data: UpdateHospitalRequest): Promise<Hospital> => {
+    const response = await api.put<HospitalResponseDto>(
+      "/hospitals/my",
+      data satisfies UpdateHospitalRequestDto,
+    );
+    return mapHospital(response.data);
   },
 
-  // admin
-  getAdminHospitals: async (): Promise<any[]> => {
-    const response = await api.get<any[]>("/admin/hospitals");
-
-    // map to ensure types
-    return response.data.map((h) => ({
-      ...h,
-      id: String(h.id),
-    }));
+  getAdminHospitals: async (): Promise<Hospital[]> => {
+    const response = await api.get<HospitalResponseDto[]>("/admin/hospitals");
+    return response.data.map(mapHospital);
   },
 
   approveHospital: async (id: string): Promise<void> => {

@@ -1,5 +1,5 @@
 import { MapPin } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -7,17 +7,16 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 
 interface HospitalDetailsCardProps {
   hospital: {
     name: string;
-    licenseNumber: string;
+    licenseNumber?: string;
     address: string;
     city?: string;
     pincode?: string;
   };
-  itemVariants: any;
+  itemVariants: Variants;
 }
 
 export const HospitalDetailsCard = ({
@@ -38,19 +37,19 @@ export const HospitalDetailsCard = ({
       <CardContent className="p-8 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <motion.div variants={itemVariants} className="space-y-2">
-            <Label className="text-slate-500 font-normal">Hospital Name</Label>
-            <p className="font-semibold text-xl text-slate-900 ">
+            <p className="text-sm text-muted-foreground font-normal">Hospital Name</p>
+            <p className="font-semibold text-xl text-foreground ">
               {hospital.name}
             </p>
           </motion.div>
 
           <motion.div variants={itemVariants} className="space-y-2">
-            <Label className="text-slate-500 font-normal">
+            <p className="text-sm text-muted-foreground font-normal">
               Registration ID
-            </Label>
+            </p>
 
             <div className="flex items-center gap-2 font-mono text-sm rounded-lg w-fit ">
-              <span className="text-slate-700 ">{hospital.licenseNumber}</span>
+              <span className="text-foreground ">{hospital.licenseNumber || "N/A"}</span>
             </div>
           </motion.div>
         </div>
@@ -69,23 +68,23 @@ export const HospitalDetailsCard = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
-              <Label className="text-slate-500 font-normal">
+              <p className="text-sm text-muted-foreground font-normal">
                 Street Address
-              </Label>
-              <p className="text-sm leading-relaxed text-slate-600 ">
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground ">
                 {hospital.address}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-slate-500 font-normal">City</Label>
-                <p className="text-sm font-medium text-slate-700 ">
+                <p className="text-sm text-muted-foreground font-normal">City</p>
+                <p className="text-sm font-medium text-foreground ">
                   {hospital.city || "N/A"}
                 </p>
               </div>
               <div className="space-y-2">
-                <Label className="text-slate-500 font-normal">Pincode</Label>
-                <p className="text-sm font-medium text-slate-700 ">
+                <p className="text-sm text-muted-foreground font-normal">Pincode</p>
+                <p className="text-sm font-medium text-foreground ">
                   {hospital.pincode || "N/A"}
                 </p>
               </div>
