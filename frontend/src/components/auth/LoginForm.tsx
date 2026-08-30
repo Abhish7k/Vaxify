@@ -23,6 +23,9 @@ const signInSchema = z.object({
 
 type SignInSchemaType = z.infer<typeof signInSchema>;
 
+const showDemoLogin =
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true";
+
 const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -109,7 +112,7 @@ const LoginForm: React.FC = () => {
             )}
           </Button>
 
-          {import.meta.env.DEV && (
+          {showDemoLogin && (
             <>
               <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">
