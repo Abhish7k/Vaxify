@@ -23,40 +23,33 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules")) {
-            // util libs
-            if (
-              id.includes("zod") ||
-              id.includes("axios") ||
-              id.includes("date-fns") ||
-              id.includes("clsx") ||
-              id.includes("tailwind-merge") ||
-              id.includes("class-variance-authority")
-            ) {
-              return "utils";
-            }
+          if (!id.includes("node_modules")) return;
 
-            // icon libs
-            if (id.includes("lucide-react")) {
-              return "icons";
-            }
-
-            if (id.includes("recharts")) {
-              return "charts";
-            }
-
-            if (id.includes("framer-motion")) {
-              return "motion";
-            }
-
-            // table lib
-            if (id.includes("@tanstack")) {
-              return "tables";
-            }
+          if (
+            id.includes("react-hook-form") ||
+            id.includes("@hookform") ||
+            id.includes("zod")
+          ) {
+            return "forms";
           }
+
+          if (
+            id.includes("axios") ||
+            id.includes("date-fns") ||
+            id.includes("clsx") ||
+            id.includes("tailwind-merge") ||
+            id.includes("class-variance-authority")
+          ) {
+            return "utils";
+          }
+
+          if (id.includes("lucide-react")) return "icons";
+          if (id.includes("recharts")) return "charts";
+          if (id.includes("framer-motion")) return "motion";
+          if (id.includes("@tanstack")) return "tables";
         },
       },
     },
     chunkSizeWarningLimit: 1000,
-  }
+  },
 });
