@@ -1,0 +1,28 @@
+# Render blueprint for Vaxify RAG service (runtime only — ingestion runs via CI/local CLI).
+services:
+  - type: web
+    name: vaxify-rag
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    buildFilter:
+      paths:
+        - rag-service/**
+    envVars:
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: PINECONE_INDEX_NAME
+        value: vaxify-kb-v1
+      - key: EMBEDDING_MODEL
+        value: gemini-embedding-001
+      - key: EMBEDDING_DIMENSION
+        value: "768"
+      - key: INGESTION_VERSION
+        value: "1.0.0"
+      - key: LOG_LEVEL
+        value: INFO

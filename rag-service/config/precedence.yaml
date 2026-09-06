@@ -1,0 +1,105 @@
+# Topic-specific source precedence — RAG_KNOWLEDGE_BASE_SPEC.md §6
+# Lower rank = higher precedence for that topic.
+
+topics:
+  schedule:
+    S5: 1
+    S4: 2
+    S2: 3
+    S6: 3
+    S1: 4
+    S3: 4
+    S7: 4
+    S8: 5
+
+  pcv:
+    S6: 1
+    S5: 2
+    S4: 3
+    S2: 4
+    S1: 5
+    S3: 5
+    S7: 5
+    S8: 5
+
+  td_tt:
+    S7: 1
+    S5: 1
+    S4: 3
+    S2: 4
+    S1: 5
+    S3: 5
+    S6: 4
+    S8: 5
+
+  pregnancy:
+    S5: 1
+    S7: 2
+    S1: 3
+    S2: 3
+    S3: 3
+    S4: 4
+    S6: 4
+    S8: 5
+
+  safety:
+    S8: 1
+    S6: 2
+    S1: 3
+    S2: 3
+    S3: 3
+    S5: 4
+    S4: 4
+    S7: 4
+
+  side_effects:
+    S8: 1
+    S1: 2
+    S2: 2
+    S6: 3
+    S3: 3
+    S5: 4
+    S4: 4
+    S7: 4
+
+  newborn:
+    S5: 1
+    S2: 2
+    S4: 3
+    S1: 3
+    S3: 3
+    S6: 4
+    S7: 4
+    S8: 5
+
+  cost:
+    S3: 1
+    S1: 1
+    S5: 2
+    S2: 3
+    S4: 3
+    S6: 3
+    S7: 3
+    S8: 4
+
+  immunity:
+    S3: 1
+    S1: 1
+    S2: 2
+    S5: 3
+    S4: 3
+    S6: 3
+    S7: 3
+    S8: 4
+
+  campaign:
+    S1: 1
+    S3: 1
+    S5: 2
+    S2: 3
+    S4: 3
+    S6: 3
+    S7: 3
+    S8: 4
+
+default_rank: 5

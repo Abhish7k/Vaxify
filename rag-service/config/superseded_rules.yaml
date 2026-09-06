@@ -1,0 +1,24 @@
+# Superseded content rules — RAG_KNOWLEDGE_BASE_SPEC.md §4
+
+rules:
+  - id: s1_tt_pregnancy
+    source_id: S1
+    question_numbers: [20, 21]
+    reason: "TT-era pregnancy guidance superseded by S5/S7 Td"
+
+  - id: s2_ch3_tt
+    source_id: S2
+    pages: [20, 21]
+    text_contains: ["tetanus toxoid", "TT"]
+    reason: "Ch.3 TT pregnancy guidance superseded"
+
+  - id: s2_table5_schedule
+    source_id: S2
+    pages: [68]
+    entire_page: true
+    reason: "2017 NIS Table 5 superseded by S5"
+
+  - id: s3_q16_tt
+    source_id: S3
+    question_numbers: [16]
+    reason: "TT pregnancy reference superseded by S5 Td"

@@ -1,0 +1,118 @@
+# Source registry — authoritative include/exclude per RAG_KNOWLEDGE_BASE_SPEC.md §2
+
+sources:
+  S1:
+    disk_path: "india/FAQ_on_Immunization_for_Parents-English.pdf"
+    source_path: "india/FAQ_on_Immunization_for_Parents-English.pdf"
+    source: "FAQ_Parents"
+    source_type: PDF
+    publisher: MoHFW
+    region: india
+    doc_date: "2017-01-01"
+    capture_date: null
+    audience: public
+    chunker: faq
+    include_pages: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 26]
+    exclude_questions: []
+    default_topic: immunity
+
+  S2:
+    disk_path: "india/FAQ_on_Immunization_for_Health_Workers-English.pdf"
+    source_path: "india/FAQ_on_Immunization_for_Health_Workers-English.pdf"
+    source: "FAQ_Health_Workers"
+    source_type: PDF
+    publisher: MoHFW
+    region: india
+    doc_date: "2017-01-01"
+    capture_date: null
+    audience: health_worker
+    chunker: mixed
+    include_pages: [8, 9, 10, 11, 20, 21, 22, 24, 25, 68]
+    page_modes:
+      68: schedule_table
+    default_topic: immunity
+
+  S3:
+    disk_path: "india/FAQ_on_Immunization_for_other_stakeholders-English.pdf"
+    source_path: "india/FAQ_on_Immunization_for_other_stakeholders-English.pdf"
+    source: "FAQ_Stakeholders"
+    source_type: PDF
+    publisher: MoHFW
+    region: india
+    doc_date: "2017-01-01"
+    capture_date: null
+    audience: public
+    chunker: faq
+    include_pages: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    exclude_questions: [31, 32]
+    default_topic: immunity
+
+  S4:
+    disk_path: "india/MCP_Guide_Book.pdf"
+    source_path: "india/MCP_Guide_Book.pdf"
+    source: "MCP_Guide_Book"
+    source_type: PDF
+    publisher: "MoHFW+MWCD"
+    region: india
+    doc_date: "2018-01-01"
+    capture_date: null
+    audience: health_worker
+    chunker: section
+    include_pages: [69, 70, 71, 72, 73]
+    chapter: "Ch.14 Immunization"
+    default_topic: schedule
+
+  S5:
+    disk_path: "india/National_ Immunization_Schedule.pdf"
+    source_path: "india/National_ Immunization_Schedule.pdf"
+    source: "National_Immunization_Schedule"
+    source_type: PDF
+    publisher: MoHFW
+    region: india
+    doc_date: "2020-05-29"
+    capture_date: null
+    audience: public
+    chunker: schedule
+    include_pages: [1, 2, 3]
+    default_topic: schedule
+
+  S6:
+    disk_path: "india/PCV_Operational_Guidelines.pdf"
+    source_path: "india/PCV_Operational_Guidelines.pdf"
+    source: "PCV_Operational_Guidelines"
+    source_type: PDF
+    publisher: MoHFW
+    region: india
+    doc_date: "2021-01-01"
+    capture_date: null
+    audience: public
+    chunker: section
+    include_pages: [19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+    default_topic: pcv
+
+  S7:
+    disk_path: "india/Td_vaccine_operational_guidelines.pdf"
+    source_path: "india/Td_vaccine_operational_guidelines.pdf"
+    source: "Td_Operational_Guidelines"
+    source_type: PDF
+    publisher: MoHFW
+    region: india
+    doc_date: "2018-01-01"
+    capture_date: null
+    audience: public
+    chunker: section
+    include_pages: [1]
+    default_topic: td_tt
+
+  S8:
+    disk_path: "who/WHO_Vaccine_Safety_QA.html.html"
+    source_path: "who/WHO_Vaccine_Safety_QA.html"
+    source: "WHO_Vaccine_Safety_QA"
+    source_type: HTML
+    publisher: WHO
+    region: global
+    doc_date: null
+    capture_date: "2025-09-23"
+    audience: public
+    chunker: who_qa
+    default_topic: safety
