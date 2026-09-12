@@ -18,7 +18,7 @@ rules:
     entire_page: true
     reason: "2017 NIS Table 5 superseded by S5"
 
-  - id: s3_q16_tt
+  - id: s3_tt_pregnancy
     source_id: S3
-    question_numbers: [16]
-    reason: "TT pregnancy reference superseded by S5 Td"
+    question_numbers: [15, 16]
+    reason: "TT-era pregnancy guidance (Q15 what vaccines / Q16 why) superseded by S5/S7 Td; spec §4 cites Q16, PDF Q15 holds the TT vaccine answer"

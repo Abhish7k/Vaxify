@@ -58,3 +58,41 @@ class PineconeStore:
         batch_size = 100
         for start in range(0, len(ids), batch_size):
             self._index.delete(ids=ids[start : start + batch_size])
+
+    def query(
+        self,
+        vector: list[float],
+        *,
+        top_k: int = 5,
+        filter: dict | None = None,
+        include_metadata: bool = True,
+    ) -> list[dict]:
+        """Similarity search in the default namespace."""
+        if len(vector) != self.dimension:
+            raise ValueError(
+                f"Query vector dimension {len(vector)} != index dimension {self.dimension}"
+            )
+        response = self._index.query(
+            vector=vector,
+            top_k=top_k,
+            filter=filter,
+            include_metadata=include_metadata,
+        )
+        matches = getattr(response, "matches", None) or response.get("matches", [])
+        results: list[dict] = []
+        for match in matches:
+            match_id = getattr(match, "id", None) or match.get("id")
+            score = getattr(match, "score", None)
+            if score is None and isinstance(match, dict):
+                score = match.get("score", 0.0)
+            metadata = getattr(match, "metadata", None)
+            if metadata is None and isinstance(match, dict):
+                metadata = match.get("metadata", {})
+            results.append(
+                {
+                    "id": match_id,
+                    "score": float(score or 0.0),
+                    "metadata": dict(metadata or {}),
+                }
+            )
+        return results

@@ -36,8 +36,8 @@ def apply_superseded_rules(chunk: RawChunk, source_id: str) -> bool:
             if all(term.lower() in text_lower for term in contains_only):
                 return True
 
-    # TT-era schedule in pregnancy answers
-    if source_id in ("S1", "S3") and chunk.question_number in (20, 21, 16):
+    # TT-era pregnancy answers (S1 Q20–21; S3 Q15–16 — both are TT-era)
+    if source_id in ("S1", "S3") and chunk.question_number in (15, 16, 20, 21):
         if "tt" in text_lower or "tetanus toxoid" in text_lower:
             return True
 

@@ -126,6 +126,10 @@ def run_ingest(
     )
 
     if dry_run or skip_embed:
+        # Preserve prior Pinecone membership so a later --force can delete stale IDs.
+        if previous and previous.indexed_chunk_ids:
+            manifest.indexed_chunk_ids = list(previous.indexed_chunk_ids)
+            manifest.embedded_at = previous.embedded_at
         _save_manifest(manifest_path, manifest)
         return manifest
 

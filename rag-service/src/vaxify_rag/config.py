@@ -47,6 +47,20 @@ class Settings(BaseSettings):
     min_page_chars: int = 30
     min_chunk_chars: int = 40
 
+    # Phase 2A retrieval
+    retrieval_top_k: int = 5
+    retrieval_score_tie_epsilon: float = 0.02
+
+    # Phase 2B generation
+    generation_model: str = "gemini-3.6-flash"
+    generation_temperature: float = 0.1
+    generation_max_output_tokens: int = 1024
+    # Answerability: multi-signal (not a single arbitrary threshold)
+    answerability_min_top_score: float = 0.55
+    answerability_strong_top_score: float = 0.70
+    answerability_min_term_overlap: float = 0.4
+    generation_max_context_chunks: int = 5
+
 
 @lru_cache
 def get_settings() -> Settings:

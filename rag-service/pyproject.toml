@@ -39,6 +39,7 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 markers = [
     "pinecone: tests requiring Pinecone API credentials",
+    "live: tests requiring live Gemini + Pinecone credentials",
 ]
 
 [tool.ruff]
