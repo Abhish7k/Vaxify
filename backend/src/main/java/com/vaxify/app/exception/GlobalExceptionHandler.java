@@ -42,6 +42,12 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<Map<String, String>> handleServiceUnavailable(ServiceUnavailableException ex) {
+        log.warn("Upstream service unavailable: {}", ex.getMessage());
+        return error(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
     @ExceptionHandler(VaxifyException.class)
     public ResponseEntity<Map<String, String>> handleVaxifyException(VaxifyException ex) {
         log.warn("Client error: {}", ex.getMessage());

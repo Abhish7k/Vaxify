@@ -68,6 +68,9 @@ public class SecurityConfig {
                                                 .hasRole("ADMIN")
                                                 .requestMatchers("/api/appointments/**").authenticated()
 
+                                                // AI assistant (JWT required; do not forward JWT to RAG)
+                                                .requestMatchers("/api/ai/**").authenticated()
+
                                                 // admin
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())

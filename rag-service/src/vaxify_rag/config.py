@@ -43,6 +43,8 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
     port: int = 8001
+    # Shared secret for Spring Boot → RAG service calls (header: X-RAG-Internal-Key)
+    rag_internal_key: str = ""
 
     min_page_chars: int = 30
     min_chunk_chars: int = 40

@@ -30,4 +30,8 @@ services:
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - FRONTEND_URL=${FRONTEND_URL}
       - BACKEND_URL=${BACKEND_URL:-http://localhost:8080}
+      - RAG_SERVICE_URL=${RAG_SERVICE_URL:-http://host.docker.internal:8001}
+      - RAG_CONNECT_TIMEOUT_MS=${RAG_CONNECT_TIMEOUT_MS:-5000}
+      - RAG_READ_TIMEOUT_MS=${RAG_READ_TIMEOUT_MS:-60000}
+      - RAG_INTERNAL_KEY=${RAG_INTERNAL_KEY}
     restart: unless-stopped
