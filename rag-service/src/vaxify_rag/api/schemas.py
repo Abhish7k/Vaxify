@@ -6,6 +6,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from vaxify_rag.config import trusted_https_url
+
 
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
@@ -20,16 +22,23 @@ class AskRequest(BaseModel):
 
 
 class CitationResponse(BaseModel):
-    chunk_id: str
+    """Public citation provenance. No chunk text, vector ids, scores, or paths."""
+
     source: str
     source_id: str
-    source_path: str
+    title: str = ""
+    publisher: str | None = None
+    document_date: str | None = None
+    source_url: str | None = None
     page_start: int | None = None
     page_end: int | None = None
     section: str = ""
     topic: str = ""
-    score: float
-    preview: str = ""
+
+    @field_validator("source_url")
+    @classmethod
+    def source_url_must_be_https(cls, value: str | None) -> str | None:
+        return trusted_https_url(value)
 
 
 class AskResponse(BaseModel):

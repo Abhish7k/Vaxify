@@ -18,3 +18,4 @@ def test_s8_canonical_path():
     assert cfg["source_path"] == "who/WHO_Vaccine_Safety_QA.html"
     assert cfg["doc_date"] is None
     assert cfg["capture_date"] == "2025-09-23"
+    assert cfg["source_url"].startswith("https://www.who.int/")

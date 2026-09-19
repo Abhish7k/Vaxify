@@ -34,7 +34,14 @@ class FakeAskService:
                     section="Birth",
                     topic="schedule",
                     score=0.91,
-                    preview="At birth, BCG and Hepatitis B...",
+                    passage="At birth, BCG and Hepatitis B are given.",
+                    title="National Immunization Schedule",
+                    publisher="MoHFW",
+                    document_date="2020-05-29",
+                    source_url=(
+                        "https://prod-cdn.preprod.co-vin.in/uwin-prod/pdf/"
+                        "National+Immunization+Schedule+(NIS)+for+SRM.pdf"
+                    ),
                 )
             ],
             used_chunk_ids=["c1"],
@@ -100,25 +107,10 @@ def test_ask_returns_answer_payload(client: TestClient) -> None:
     assert body["status"] == "answered"
     assert "BCG" in body["answer"]
     assert body["citations"][0]["source_id"] == "S5"
+    assert body["citations"][0]["source_url"].endswith("for+SRM.pdf")
+    forbidden = {"chunk_id", "score", "source_path", "preview", "passage", "authority_rank"}
+    assert forbidden.isdisjoint(body["citations"][0])
     assert client.fake_ask.calls == ["What vaccines are given at birth?"]  # type: ignore[attr-defined]
-
-
-def test_ask_rejects_blank_question(client: TestClient) -> None:
-    response = client.post(
-        "/ask",
-        json={"question": "   "},
-        headers=_headers(),
-    )
-    assert response.status_code == 422
-
-
-def test_ask_rejects_oversized_question(client: TestClient) -> None:
-    response = client.post(
-        "/ask",
-        json={"question": "x" * 2001},
-        headers=_headers(),
-    )
-    assert response.status_code == 422
 
 
 def test_ask_maps_upstream_failure_to_503(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -141,7 +133,30 @@ def test_ask_maps_upstream_failure_to_503(monkeypatch: pytest.MonkeyPatch) -> No
     get_settings.cache_clear()
 
     assert response.status_code == 503
-    assert "unavailable" in response.json()["detail"].lower()
+    body = response.json()
+    assert body["code"] == "service_unavailable"
+    assert body["status"] == "error"
+    assert "unavailable" in body["message"].lower()
+
+
+def test_ask_rejects_blank_question(client: TestClient) -> None:
+    response = client.post(
+        "/ask",
+        json={"question": "   "},
+        headers=_headers(),
+    )
+    assert response.status_code == 400
+    assert response.json()["code"] == "validation_error"
+
+
+def test_ask_rejects_oversized_question(client: TestClient) -> None:
+    response = client.post(
+        "/ask",
+        json={"question": "x" * 2001},
+        headers=_headers(),
+    )
+    assert response.status_code == 400
+    assert response.json()["code"] == "validation_error"
 
 
 def test_health_remains_public(client: TestClient) -> None:

@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from vaxify_rag.config import get_settings
+from vaxify_rag.errors import classify_exception
 from vaxify_rag.generation.answerability import AnswerabilityDecision, assess_evidence
-from vaxify_rag.generation.gemini_generator import GeminiAnswerGenerator
+from vaxify_rag.generation.groq_generator import GroqAnswerGenerator
 from vaxify_rag.generation.prompts import ABSTENTION_MESSAGE
 from vaxify_rag.logging import get_logger
 from vaxify_rag.models.answer import AnswerResult, Citation
@@ -60,20 +61,24 @@ class AskService:
         self,
         *,
         retriever: Retriever | None = None,
-        generator: GeminiAnswerGenerator | None = None,
+        generator: GroqAnswerGenerator | None = None,
     ) -> None:
         self.settings = get_settings()
         self.retriever = retriever or Retriever()
-        self.generator = generator or GeminiAnswerGenerator()
+        self.generator = generator or GroqAnswerGenerator()
 
     def ask(self, query: str, *, top_k: int | None = None) -> AnswerResult:
         query = (query or "").strip()
         if not query:
             raise ValueError("query must be non-empty")
 
-        retrieval = self.retriever.retrieve(query, top_k=top_k)
+        try:
+            retrieval = self.retriever.retrieve(query, top_k=top_k)
+        except Exception as exc:  # noqa: BLE001
+            raise classify_exception(exc, stage="retrieval", provider="pinecone") from exc
+
         decision = assess_evidence(retrieval)
-        model = self.settings.generation_model
+        model = self.settings.groq_model
 
         if not decision.sufficient:
             logger.info(
@@ -96,17 +101,11 @@ class AskService:
         try:
             payload = self.generator.generate(query, context)
         except Exception as exc:  # noqa: BLE001
-            logger.warning("generation_failed", error=str(exc)[:300])
-            return _abstain_result(
-                query,
-                reason="generation_error",
-                decision=decision,
-                message=(
-                    "I could not generate a grounded answer right now. "
-                    "Please try again shortly."
-                ),
-                model=model,
-            )
+            raise classify_exception(
+                exc,
+                stage="generation",
+                provider="groq",
+            ) from exc
 
         if bool(payload.get("abstain")):
             return _abstain_result(

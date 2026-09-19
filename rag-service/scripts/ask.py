@@ -78,6 +78,8 @@ def print_answer(result: AnswerResult) -> None:
                 f"(score={cite.score:.4f}) id={cite.chunk_id}"
             )
             _out(f"    {cite.preview}")
+            if cite.source_url:
+                _out(f"    {cite.source_url}")
 
 
 def main() -> int:

@@ -1,6 +1,6 @@
-"""Optional live Gemini + Pinecone evaluation for Phase 2B.
+"""Optional live Groq + Gemini-embedding + Pinecone evaluation for Phase 2B.
 
-Skipped unless GOOGLE_API_KEY and PINECONE_API_KEY are set.
+Skipped unless GOOGLE_API_KEY, GROQ_API_KEY, and PINECONE_API_KEY are set.
 Run: pytest tests/integration/test_ask_live.py -m live -q
 """
 
@@ -25,7 +25,11 @@ EVAL = [
 
 
 def _keys_present() -> bool:
-    return bool(os.getenv("GOOGLE_API_KEY")) and bool(os.getenv("PINECONE_API_KEY"))
+    return (
+        bool(os.getenv("GOOGLE_API_KEY"))
+        and bool(os.getenv("GROQ_API_KEY"))
+        and bool(os.getenv("PINECONE_API_KEY"))
+    )
 
 
 @pytest.mark.skipif(not _keys_present(), reason="API keys not configured")

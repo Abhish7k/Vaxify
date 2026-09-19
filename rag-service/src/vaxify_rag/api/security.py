@@ -4,9 +4,15 @@ from __future__ import annotations
 
 import hmac
 
-from fastapi import Header, HTTPException, status
+from fastapi import Header
 
 from vaxify_rag.config import get_settings
+from vaxify_rag.errors import (
+    SAFE_MESSAGES,
+    SERVICE_UNAVAILABLE,
+    UNAUTHORIZED,
+    RagError,
+)
 
 INTERNAL_KEY_HEADER = "X-RAG-Internal-Key"
 
@@ -17,13 +23,17 @@ def require_internal_key(
     """Reject requests that do not present the shared internal key."""
     expected = (get_settings().rag_internal_key or "").strip()
     if not expected:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="RAG internal key is not configured",
+        raise RagError(
+            code=SERVICE_UNAVAILABLE,
+            message=SAFE_MESSAGES[SERVICE_UNAVAILABLE],
+            stage="auth",
+            detail="RAG_INTERNAL_KEY is not configured",
         )
     provided = (x_rag_internal_key or "").strip()
     if not provided or not hmac.compare_digest(provided, expected):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+        raise RagError(
+            code=UNAUTHORIZED,
+            message=SAFE_MESSAGES[UNAUTHORIZED],
+            stage="auth",
             detail="Invalid or missing internal key",
         )

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from vaxify_rag.generation.answerability import assess_evidence, term_overlap_ratio
-from vaxify_rag.generation.gemini_generator import parse_generation_json
+from vaxify_rag.generation.json_parse import parse_generation_json
 from vaxify_rag.generation.pipeline import AskService
 from vaxify_rag.generation.prompts import build_user_prompt, sanitize_evidence_text
 from vaxify_rag.models.retrieval import RetrievedChunk, RetrievalResult
@@ -177,6 +177,13 @@ def test_grounded_generation_and_citations():
     assert result.citations[0].source_id == "S5"
     assert result.citations[0].page_start == 2
     assert result.citations[0].chunk_id == "c1"
+    assert result.citations[0].passage == "At birth, BCG and Hepatitis B vaccines are given."
+    assert "passage" not in result.citations[0].to_public_dict()
+    assert result.citations[0].source_url == (
+        "https://prod-cdn.preprod.co-vin.in/uwin-prod/pdf/"
+        "National+Immunization+Schedule+(NIS)+for+SRM.pdf"
+    )
+    assert "chunk_id" not in result.citations[0].to_public_dict()
     assert len(generator.calls) == 1
 
 

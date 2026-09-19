@@ -19,7 +19,8 @@ Rules:
 4. Do not use outside/general knowledge.
 5. Prefer Indian National Immunization Schedule (Td, not TT) when both appear.
 6. Every factual sentence must be supportable by at least one cited evidence id.
-7. Respond with a single JSON object only (no markdown fences).
+7. Respond with a single JSON object only (no markdown fences, no reasoning, no prose).
+8. Do not include chain-of-thought or hidden reasoning in the response.
 
 JSON schema:
 {

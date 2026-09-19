@@ -1,10 +1,17 @@
 # Source registry — authoritative include/exclude per RAG_KNOWLEDGE_BASE_SPEC.md §2
+#
+# title and source_url are citation provenance only. They are resolved by source_id
+# when a citation is built. They are not embedded, not sent to the model, and do
+# not require Pinecone re-ingestion. source_url values are the direct official
+# document URLs from docs-to-links-mapping.txt (not the NHM landing page).
 
 sources:
   S1:
     disk_path: "india/FAQ_on_Immunization_for_Parents-English.pdf"
     source_path: "india/FAQ_on_Immunization_for_Parents-English.pdf"
     source: "FAQ_Parents"
+    title: "FAQ on Immunization for Parents"
+    source_url: "https://nhm.gov.in/New_Updates_2018/NHM_Components/Immunization/Guildelines_for_immunization/FAQ_on_Immunization_for_Parents-English.pdf"
     source_type: PDF
     publisher: MoHFW
     region: india
@@ -20,6 +27,8 @@ sources:
     disk_path: "india/FAQ_on_Immunization_for_Health_Workers-English.pdf"
     source_path: "india/FAQ_on_Immunization_for_Health_Workers-English.pdf"
     source: "FAQ_Health_Workers"
+    title: "FAQ on Immunization for Health Workers"
+    source_url: "https://nhm.gov.in/New_Updates_2018/NHM_Components/Immunization/Guildelines_for_immunization/FAQ_on_Immunization_for_Health_Workers-English.pdf"
     source_type: PDF
     publisher: MoHFW
     region: india
@@ -36,6 +45,8 @@ sources:
     disk_path: "india/FAQ_on_Immunization_for_other_stakeholders-English.pdf"
     source_path: "india/FAQ_on_Immunization_for_other_stakeholders-English.pdf"
     source: "FAQ_Stakeholders"
+    title: "FAQ on Immunization for Other Stakeholders"
+    source_url: "https://nhm.gov.in/New_Updates_2018/NHM_Components/Immunization/Guildelines_for_immunization/FAQ_on_Immunization_for_other_stakeholders-English.pdf"
     source_type: PDF
     publisher: MoHFW
     region: india
@@ -51,6 +62,8 @@ sources:
     disk_path: "india/MCP_Guide_Book.pdf"
     source_path: "india/MCP_Guide_Book.pdf"
     source: "MCP_Guide_Book"
+    title: "MCP Guide Book"
+    source_url: "https://nhm.gov.in/New_Updates_2018/NHM_Components/Immunization/Guildelines_for_immunization/MCP_Guide_Book.pdf"
     source_type: PDF
     publisher: "MoHFW+MWCD"
     region: india
@@ -66,6 +79,8 @@ sources:
     disk_path: "india/National_ Immunization_Schedule.pdf"
     source_path: "india/National_ Immunization_Schedule.pdf"
     source: "National_Immunization_Schedule"
+    title: "National Immunization Schedule"
+    source_url: "https://prod-cdn.preprod.co-vin.in/uwin-prod/pdf/National+Immunization+Schedule+(NIS)+for+SRM.pdf"
     source_type: PDF
     publisher: MoHFW
     region: india
@@ -80,6 +95,8 @@ sources:
     disk_path: "india/PCV_Operational_Guidelines.pdf"
     source_path: "india/PCV_Operational_Guidelines.pdf"
     source: "PCV_Operational_Guidelines"
+    title: "PCV Operational Guidelines"
+    source_url: "https://nhm.gov.in/New_Updates_2018/NHM_Components/Immunization/Guildelines_for_immunization/Operational_Guidelines_for_PCV_introduction.pdf"
     source_type: PDF
     publisher: MoHFW
     region: india
@@ -94,6 +111,8 @@ sources:
     disk_path: "india/Td_vaccine_operational_guidelines.pdf"
     source_path: "india/Td_vaccine_operational_guidelines.pdf"
     source: "Td_Operational_Guidelines"
+    title: "Td Vaccine Operational Guidelines"
+    source_url: "https://nhm.gov.in/New_Updates_2018/NHM_Components/Immunization/Guildelines_for_immunization/Td_vaccine_operational_guidelines.pdf"
     source_type: PDF
     publisher: MoHFW
     region: india
@@ -108,6 +127,8 @@ sources:
     disk_path: "who/WHO_Vaccine_Safety_QA.html.html"
     source_path: "who/WHO_Vaccine_Safety_QA.html"
     source: "WHO_Vaccine_Safety_QA"
+    title: "WHO Vaccine Safety Q&A"
+    source_url: "https://www.who.int/news-room/questions-and-answers/item/vaccines-and-immunization-vaccine-safety"
     source_type: HTML
     publisher: WHO
     region: global

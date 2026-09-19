@@ -5,6 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import yaml
 from pydantic import Field
@@ -53,10 +54,13 @@ class Settings(BaseSettings):
     retrieval_top_k: int = 5
     retrieval_score_tie_epsilon: float = 0.02
 
-    # Phase 2B generation
-    generation_model: str = "gemini-3.6-flash"
+    # Phase 2B generation (Groq / Qwen)
+    groq_api_key: str = ""
+    groq_model: str = "qwen/qwen3.6-27b"
     generation_temperature: float = 0.1
     generation_max_output_tokens: int = 1024
+    generation_timeout_seconds: float = 60.0
+    generation_max_retries: int = 5
     # Answerability: multi-signal (not a single arbitrary threshold)
     answerability_min_top_score: float = 0.55
     answerability_strong_top_score: float = 0.70
@@ -87,3 +91,54 @@ def get_precedence_config() -> dict[str, Any]:
 @lru_cache
 def get_superseded_config() -> dict[str, Any]:
     return load_yaml(get_settings().config_path / "superseded_rules.yaml")
+
+
+def _optional_text(value: object) -> str | None:
+    if value is None:
+        return None
+    text = value if isinstance(value, str) else str(value)
+    cleaned = text.strip()
+    return cleaned or None
+
+
+def trusted_https_url(value: object) -> str | None:
+    """Absolute HTTPS URL from trusted config, or None. Never raises."""
+    if not isinstance(value, str):
+        return None
+    url = value.strip()
+    if not url or any(char.isspace() for char in url):
+        return None
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        return None
+    if parsed.scheme != "https" or not parsed.netloc or not parsed.hostname:
+        return None
+    return url
+
+
+def lookup_source_provenance(source_id: str) -> dict[str, str | None]:
+    """Title, publisher, document date, and source URL from sources.yaml.
+
+    Keyed by stable source_id (S1–S8). Missing or malformed URLs are omitted.
+    Never substitutes a landing page, and never reads model output.
+    """
+    empty: dict[str, str | None] = {
+        "title": None,
+        "source_url": None,
+        "publisher": None,
+        "document_date": None,
+    }
+    try:
+        sources = get_sources_config().get("sources") or {}
+        entry = sources.get(source_id)
+        if not isinstance(entry, dict):
+            return empty
+        return {
+            "title": _optional_text(entry.get("title")),
+            "source_url": trusted_https_url(entry.get("source_url")),
+            "publisher": _optional_text(entry.get("publisher")),
+            "document_date": _optional_text(entry.get("doc_date")),
+        }
+    except Exception:  # noqa: BLE001 — provenance lookup must not fail the answer
+        return empty
