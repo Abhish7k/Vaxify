@@ -46,12 +46,18 @@ public class RagAskUpstreamResponse {
         @JsonProperty("page_end")
         private Integer pageEnd;
 
+        private String title;
+
+        private String publisher;
+
+        @JsonProperty("document_date")
+        private String documentDate;
+
+        @JsonProperty("source_url")
+        private String sourceUrl;
+
         private String section;
 
         private String topic;
-
-        private Double score;
-
-        private String preview;
     }
 }

@@ -15,7 +15,13 @@ public class AiCitationDto {
 
     private String sourceId;
 
-    private String sourcePath;
+    private String title;
+
+    private String publisher;
+
+    private String documentDate;
+
+    private String sourceUrl;
 
     private Integer pageStart;
 
@@ -24,6 +30,4 @@ public class AiCitationDto {
     private String section;
 
     private String topic;
-
-    private String preview;
 }
