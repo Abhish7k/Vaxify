@@ -1,7 +1,7 @@
-import CenterPageHeader from "@/components/centers/centers-page/CenterPageHeader";
+import CentersPageHeader from "@/components/centers/centers-page/CentersPageHeader";
 import CentersPageListSection from "@/components/centers/centers-page/CentersPageListSection";
-import CentersPageControlsSection from "@/components/centers/centers-page/control-section/CentersPageControlsSection";
-import type { SortOption } from "@/components/centers/centers-page/control-section/CentersSort";
+import CentersPageControlsSection from "@/components/centers/centers-page/CentersPageControlsSection";
+import type { SortOption } from "@/components/centers/centers-page/CentersSort";
 import type { Center } from "@/types/hospital";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
@@ -48,7 +48,7 @@ export default function CentersPage() {
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="max-w-7xl mx-auto px-5 mb-20">
       <motion.div variants={fadeUpItem}>
-        <CenterPageHeader />
+        <CentersPageHeader />
       </motion.div>
 
       <motion.div variants={fadeUpItem}>

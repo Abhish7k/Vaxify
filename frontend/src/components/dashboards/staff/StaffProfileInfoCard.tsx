@@ -21,7 +21,7 @@ import { useMyHospital } from "@/hooks/queries/use-hospitals";
 import { openProtectedDocument } from "@/api/files.api";
 import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
 
-export default function StaffInfoCard() {
+export default function StaffProfileInfoCard() {
   const { user } = useAuthContext();
   const hospitalQuery = useMyHospital();
   const hospital = hospitalQuery.data;

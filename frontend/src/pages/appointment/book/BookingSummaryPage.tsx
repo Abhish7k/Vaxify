@@ -6,8 +6,7 @@ import { CheckCircle, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toastUtils } from "@/lib/toast";
 import { getErrorMessage, isConflictError } from "@/lib/errors";
-import { parseDateOnly } from "@/lib/utils";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/utils";
 import { useBookAppointment } from "@/hooks/queries/use-appointments";
 import { clearBookingDraft, loadBookingDraft } from "@/lib/booking-draft";
 
@@ -98,7 +97,7 @@ export default function BookingSummaryPage() {
     }
   };
 
-  const finalDate = format(parseDateOnly(date), "EEE, dd MMM, yyyy");
+  const finalDate = formatDate(date);
 
   const finalSlot = slot?.slice(0, 5);
 

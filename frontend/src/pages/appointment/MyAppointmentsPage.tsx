@@ -44,7 +44,7 @@ export default function MyAppointmentsPage() {
   };
 
   return (
-    <div className="space-y-8 container mx-auto px-2 sm:px-8 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 px-3 sm:px-4 lg:px-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* header */}
       <MyAppointmentsHeaderSection
         onRefresh={() => void appointmentsQuery.refetch()}

@@ -18,6 +18,10 @@ const QuickActionItems = [
     link: "/appointments",
   },
   {
+    name: "AI Assistant",
+    link: "/assistant",
+  },
+  {
     name: "View Profile",
     link: "/profile",
   },

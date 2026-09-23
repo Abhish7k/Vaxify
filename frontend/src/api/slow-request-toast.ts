@@ -46,7 +46,9 @@ function finishToast() {
 }
 
 export function beginSlowRequestWatch(config: InternalAxiosRequestConfig) {
-  if (isUploadRequest(config)) return config;
+  // Local Vite dev has no Render spin-down. A slow laptop backend must not
+  // show the cold-start toast.
+  if (!import.meta.env.PROD || isUploadRequest(config)) return config;
 
   const watched = config as WatchedConfig;
   const id = ++nextWatchId;

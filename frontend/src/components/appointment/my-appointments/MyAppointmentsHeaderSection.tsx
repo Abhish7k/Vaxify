@@ -34,7 +34,7 @@ export default function MyAppointmentsHeaderSection({
         </Button>
 
         <Link to="/centers">
-          <Button size="sm">
+          <Button variant="outline" size="sm">
             <Plus className="mr-2 h-4 w-4" />
             Book New
           </Button>

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import StaffStatsGrid from "@/components/dashboards/staff/StaffDashboardStatsGrid";
-import StaffAppointmentsSection from "@/components/dashboards/staff/StaffDashboardAppointmentsSection";
+import StaffDashboardStatsGrid from "@/components/dashboards/staff/StaffDashboardStatsGrid";
+import StaffDashboardAppointmentsSection from "@/components/dashboards/staff/StaffDashboardAppointmentsSection";
 import StaffDashboardChartsSection from "@/components/dashboards/staff/StaffDashboardChartsSection";
 import { PageLoadError } from "@/components/ui/page-load-error";
 import { useMyHospital } from "@/hooks/queries/use-hospitals";
@@ -54,11 +54,11 @@ export default function StaffDashboard() {
       ) : (
         <>
           <motion.div variants={fadeUpItem}>
-            <StaffStatsGrid appointments={appointments} vaccines={vaccines} loading={loading} />
+            <StaffDashboardStatsGrid appointments={appointments} vaccines={vaccines} loading={loading} />
           </motion.div>
 
           <motion.div variants={fadeUpItem}>
-            <StaffAppointmentsSection
+            <StaffDashboardAppointmentsSection
               appointments={appointments}
               loading={loading}
               onRefresh={refetchAll}

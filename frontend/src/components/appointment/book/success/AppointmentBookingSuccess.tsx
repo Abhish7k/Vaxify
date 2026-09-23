@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { TicketCard } from "../../TicketCard";
 
-export type AppointmentTicketProps = {
+export type AppointmentBookingSuccessProps = {
   appointmentId: string;
   center: {
     name: string;
@@ -16,7 +16,7 @@ export type AppointmentTicketProps = {
   slot: string;
 };
 
-export function AppointmentBookingSuccess(props: AppointmentTicketProps) {
+export function AppointmentBookingSuccess(props: AppointmentBookingSuccessProps) {
   return (
     <div
       className={cn(

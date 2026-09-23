@@ -1,4 +1,4 @@
-import { AppointmentScheduler } from "@/components/ui/appointment-scheduler";
+import { AppointmentScheduler } from "@/components/appointment/book/AppointmentScheduler";
 import { useEffect, useMemo } from "react";
 import type { TimeSlot, HospitalTimeSlot } from "@/types/appointment";
 import { toLocalDateString } from "@/lib/utils";

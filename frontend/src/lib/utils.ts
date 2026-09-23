@@ -53,13 +53,15 @@ export function formatTimeRange(startTime: string, endTime?: string) {
   return `${startStr} - ${endStr}`;
 }
 
-export function formatDate(dateString: string) {
-  if (!dateString) return "";
+export function formatDate(value: string | Date) {
+  if (!value) return "";
 
   try {
-    const date = parseDateOnly(dateString);
+    const date = value instanceof Date ? value : parseDateOnly(value);
 
-    if (isNaN(date.getTime())) return dateString;
+    if (Number.isNaN(date.getTime())) {
+      return value instanceof Date ? "" : value;
+    }
 
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -67,6 +69,6 @@ export function formatDate(dateString: string) {
 
     return `${day}-${month}-${year}`;
   } catch {
-    return dateString;
+    return value instanceof Date ? "" : value;
   }
 }

@@ -69,7 +69,7 @@ const AdminHospitalsPage = () => {
       variants={staggerContainer}
       initial="hidden"
       animate="show"
-      className="px-5 py-5 md:px-10 flex flex-col gap-10"
+      className="flex flex-col gap-10"
     >
       {/* header */}
       <motion.div variants={fadeUpItemSlow}>

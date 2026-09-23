@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 
-import AdminDashboardSecondSection from "@/components/dashboards/admin/second-section/AdminDashboardSecondSection";
+import AdminDashboardSecondSection from "@/components/dashboards/admin/AdminDashboardSecondSection";
 import AdminDashboardStatsGrid from "@/components/dashboards/admin/AdminDashboardStatsGrid";
 import { AdminDashboardSkeleton } from "@/components/skeletons/AdminDashboardSkeleton";
 import { Button } from "@/components/ui/button";
@@ -86,7 +86,6 @@ const AdminDashboard = () => {
         </Button>
       </motion.div>
 
-      {/* stats */}
       <motion.div variants={fadeUpItemSpring}>
         <AdminDashboardStatsGrid stats={statsQuery.data ?? null} />
       </motion.div>

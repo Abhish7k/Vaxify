@@ -2,10 +2,10 @@ import {
   LayoutDashboard,
   User,
   CalendarCheck,
-  PlusCircle,
   Hospital,
   Users,
   BarChart,
+  MessageCircle,
 } from "lucide-react";
 
 export const USER_NAV_DROPDOWN_ITEMS = {
@@ -22,9 +22,9 @@ export const USER_NAV_DROPDOWN_ITEMS = {
       icon: CalendarCheck,
     },
     {
-      name: "Book Appointment",
-      href: "/centers",
-      icon: PlusCircle,
+      name: "AI Assistant",
+      href: "/assistant",
+      icon: MessageCircle,
     },
     {
       name: "Profile",

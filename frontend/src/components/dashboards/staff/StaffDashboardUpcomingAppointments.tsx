@@ -28,19 +28,19 @@ import { formatTime } from "@/lib/utils";
 import { getErrorMessage } from "@/lib/errors";
 import { isAppointmentCancellable, isAppointmentCompletable, isUpcomingStatus } from "@/types/appointment";
 
-interface StaffDashboardUpcomingAppointmentsComponentProps {
+interface StaffDashboardUpcomingAppointmentsProps {
   appointments: Appointment[];
   loading: boolean;
   onRefresh: () => void;
   canMutate?: boolean;
 }
 
-const StaffDashboardUpcomingAppointmentsComponent = ({
+const StaffDashboardUpcomingAppointments = ({
   appointments,
   loading,
   onRefresh,
   canMutate = true,
-}: StaffDashboardUpcomingAppointmentsComponentProps) => {
+}: StaffDashboardUpcomingAppointmentsProps) => {
   const completeAppointment = useCompleteAppointment();
   const cancelAppointment = useCancelAppointment();
   const [actionLoading, setActionLoading] = React.useState<string | null>(null);
@@ -209,4 +209,4 @@ const StaffDashboardUpcomingAppointmentsComponent = ({
   );
 };
 
-export default StaffDashboardUpcomingAppointmentsComponent;
+export default StaffDashboardUpcomingAppointments;

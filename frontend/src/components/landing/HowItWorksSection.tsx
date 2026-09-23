@@ -30,7 +30,7 @@ const transitionVariants = {
   },
 };
 
-export function HowItWorks() {
+export function HowItWorksSection() {
   return (
     <section className="relative py-8 overflow-hidden min-h-[85vh] flex flex-col justify-center my-20">
       <div className="mx-auto max-w-5xl px-6 w-full">
@@ -56,7 +56,7 @@ export function HowItWorks() {
                 </div>
               )}
 
-              <div className="relative flex flex-col bg-[#F3F4F6]/50 border border-transparent rounded-3xl p-5 h-full w-full max-w-[280px]">
+              <div className="relative flex flex-col bg-[#F3F4F6]/50 border border-transparent rounded-3xl p-5 h-full w-full max-w-70">
                 <h4 className="text-center text-md font-medium text-[#0F172A] mb-3">{step.title}</h4>
 
                 <div className="relative aspect-square w-full bg-[#E5E7EB]/30 rounded-xl flex items-center justify-center mb-3 border border-white/20 overflow-hidden">

@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { getErrorMessage } from "@/lib/errors";
 import { clampSlotCapacity, SLOT_CAPACITY_MAX } from "@/lib/validation";
 
@@ -196,12 +196,12 @@ export function BulkCreateSlotDialog({ hospitalId, onSuccess }: BulkCreateSlotDi
                     )}
                   >
                     <CalendarIcon className="mr-3 h-4 w-4 opacity-50 text-primary" />
-                    {startDate ? format(startDate, "dd MMM, yyyy") : <span>Start date</span>}
+                    {startDate ? formatDate(startDate) : <span>Start date</span>}
                   </Button>
                 </PopoverTrigger>
 
                 <PopoverContent
-                  className="min-w-[280px] p-0 shadow-2xl border-none rounded-xl"
+                  className="min-w-70 p-0 shadow-2xl border-none rounded-xl"
                   align="start"
                 >
                   <Calendar
@@ -232,12 +232,12 @@ export function BulkCreateSlotDialog({ hospitalId, onSuccess }: BulkCreateSlotDi
                     )}
                   >
                     <CalendarIcon className="mr-3 h-4 w-4 opacity-50 text-primary" />
-                    {endDate ? format(endDate, "dd MMM, yyyy") : <span>End date</span>}
+                    {endDate ? formatDate(endDate) : <span>End date</span>}
                   </Button>
                 </PopoverTrigger>
 
                 <PopoverContent
-                  className="min-w-[280px] p-0 shadow-2xl border-none rounded-xl"
+                  className="min-w-70 p-0 shadow-2xl border-none rounded-xl"
                   align="start"
                 >
                   <Calendar

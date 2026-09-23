@@ -1,4 +1,4 @@
-import { cn, formatTimeRange } from "@/lib/utils";
+import { cn, formatDate, formatTimeRange } from "@/lib/utils";
 import { CheckCircleIcon, MapPin, Syringe } from "lucide-react";
 
 export type TicketCardProps = {
@@ -27,11 +27,7 @@ export function TicketCard({
   className,
   status = "scheduled",
 }: TicketCardProps) {
-  const formattedDate = new Date(date).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  const formattedDate = formatDate(date);
 
   return (
     <div

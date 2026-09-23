@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, ArrowUpDown, Calendar, Clock, Users, Trash2 } from "lucide-react";
 import type { Slot } from "@/api/slots.api";
-import { format } from "date-fns";
-import { cn, formatTime } from "@/lib/utils";
+import { cn, formatDate, formatTime } from "@/lib/utils";
 
 interface SlotColumnsProps {
   onDelete: (slot: Slot) => void;
@@ -33,11 +32,10 @@ export const getSlotColumns = ({ onDelete, canMutate = true }: SlotColumnsProps)
       </Button>
     ),
     cell: ({ row }) => {
-      const date = new Date(row.getValue("date"));
       return (
         <div className="flex items-center gap-2 font-medium">
           <Calendar className="h-4 w-4 text-muted-foreground" />
-          {format(date, "dd MMM, yyyy")}
+          {formatDate(row.getValue("date"))}
         </div>
       );
     },

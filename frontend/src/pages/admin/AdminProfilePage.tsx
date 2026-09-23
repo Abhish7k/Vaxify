@@ -3,18 +3,17 @@ import { motion, type Variants } from "framer-motion";
 import { ShieldCheck, Mail, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { useAuth } from "@/auth/useAuth";
-import { format } from "date-fns";
 
-export default function AdminProfileCard() {
+export default function AdminProfilePage() {
   const { user } = useAuth();
 
   if (!user) {
     return null;
   }
 
-  const joinedDate = user.createdAt ? format(new Date(user.createdAt), "MMM yyyy") : "—";
+  const joinedDate = user.createdAt ? formatDate(user.createdAt) : "—";
 
   const formattedRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
 

@@ -6,15 +6,15 @@ import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Appointment } from "@/types/appointment";
 
-interface StaffDashboardRecentVaccinationsCardComponentProps {
+interface StaffDashboardRecentVaccinationsCardProps {
   appointments: Appointment[];
   loading: boolean;
 }
 
-export const StaffDashboardRecentVaccinationsCardComponent = ({
+export const StaffDashboardRecentVaccinationsCard = ({
   appointments,
   loading,
-}: StaffDashboardRecentVaccinationsCardComponentProps) => {
+}: StaffDashboardRecentVaccinationsCardProps) => {
   // filter for completed status and slice for recent 4
   const recentList = appointments
     .filter((a) => a.status === "COMPLETED")

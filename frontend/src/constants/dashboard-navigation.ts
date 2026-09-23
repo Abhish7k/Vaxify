@@ -5,10 +5,10 @@ import {
   Users,
   BarChart,
   User,
-  CalendarPlus,
   Syringe,
   AlertTriangle,
   Clock,
+  MessageCircle,
 } from "lucide-react";
 
 export const DashboardRoleBasedNavigationLinks = {
@@ -22,14 +22,14 @@ export const DashboardRoleBasedNavigationLinks = {
           icon: LayoutDashboard,
         },
         {
-          label: "Book Appointment",
-          path: "/centers",
-          icon: CalendarPlus,
-        },
-        {
           label: "My Appointments",
           path: "/appointments",
           icon: Calendar,
+        },
+        {
+          label: "AI Assistant",
+          path: "/assistant",
+          icon: MessageCircle,
         },
       ],
     },

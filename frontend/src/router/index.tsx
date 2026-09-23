@@ -9,8 +9,8 @@ import DashboardLayout from "@/components/dashboards/DashboardLayout";
 // lazy loaded components
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
-const RegisterUser = lazy(() => import("@/pages/auth/RegisterUser"));
-const RegisterStaff = lazy(() => import("@/pages/auth/RegisterStaff"));
+const RegisterUserPage = lazy(() => import("@/pages/auth/RegisterUserPage"));
+const RegisterStaffPage = lazy(() => import("@/pages/auth/RegisterStaffPage"));
 const UserDashboard = lazy(() => import("@/pages/user/UserDashboard"));
 const StaffDashboard = lazy(() => import("@/pages/staff/StaffDashboard"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
@@ -26,6 +26,7 @@ const AdminUsersPage = lazy(() => import("@/pages/admin/AdminUsersPage"));
 const AdminProfilePage = lazy(() => import("@/pages/admin/AdminProfilePage"));
 const AdminAnalyticsPage = lazy(() => import("@/pages/admin/AdminAnalyticsPage"));
 const UserProfilePage = lazy(() => import("@/pages/user/UserProfilePage"));
+const VaccineAssistantPage = lazy(() => import("@/pages/user/VaccineAssistantPage"));
 const StaffProfilePage = lazy(() => import("@/pages/staff/StaffProfilePage"));
 const StaffVaccinesPage = lazy(() => import("@/pages/staff/StaffVaccinesPage"));
 const StaffSlotsPage = lazy(() => import("@/pages/staff/StaffSlotsPage"));
@@ -34,7 +35,7 @@ const MyHospitalPage = lazy(() => import("@/pages/staff/MyHospitalPage"));
 
 import HomePage from "@/pages/HomePage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import CentersPage from "@/pages/CentersPage";
+import CentersPage from "@/pages/centers/CentersPage";
 
 export const router = createBrowserRouter([
   {
@@ -78,12 +79,12 @@ export const router = createBrowserRouter([
           },
           {
             path: "/register/user",
-            element: <RegisterUser />,
+            element: <RegisterUserPage />,
             handle: { title: "Register as user" },
           },
           {
             path: "/register/staff",
-            element: <RegisterStaff />,
+            element: <RegisterStaffPage />,
             handle: { title: "Register as staff" },
           },
         ],
@@ -107,6 +108,11 @@ export const router = createBrowserRouter([
             path: "/appointments",
             element: <MyAppointmentsPage />,
             handle: { title: "My appointments" },
+          },
+          {
+            path: "/assistant",
+            element: <VaccineAssistantPage />,
+            handle: { title: "AI Assistant" },
           },
           {
             path: "/profile",

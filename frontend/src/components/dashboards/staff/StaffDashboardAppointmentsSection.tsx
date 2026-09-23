@@ -1,30 +1,30 @@
-import StaffDashboardUpcomingAppointmentsComponent from "./StaffDashboardUpcomingAppointmentsComponent";
-import { StaffDashboardRecentVaccinationsCardComponent } from "./StaffDashboardRecentVaccinationsCardComponent";
+import StaffDashboardUpcomingAppointments from "./StaffDashboardUpcomingAppointments";
+import { StaffDashboardRecentVaccinationsCard } from "./StaffDashboardRecentVaccinationsCard";
 import type { Appointment } from "@/types/appointment";
 
-interface StaffAppointmentsSectionProps {
+interface StaffDashboardAppointmentsSectionProps {
   appointments: Appointment[];
   loading: boolean;
   onRefresh: () => void;
   canMutate?: boolean;
 }
 
-export default function StaffAppointmentsSection({
+export default function StaffDashboardAppointmentsSection({
   appointments,
   loading,
   onRefresh,
   canMutate = true,
-}: StaffAppointmentsSectionProps) {
+}: StaffDashboardAppointmentsSectionProps) {
   return (
     <div className="grid gap-4 lg:grid-cols-3">
-      <StaffDashboardUpcomingAppointmentsComponent
+      <StaffDashboardUpcomingAppointments
         appointments={appointments}
         loading={loading}
         onRefresh={onRefresh}
         canMutate={canMutate}
       />
 
-      <StaffDashboardRecentVaccinationsCardComponent
+      <StaffDashboardRecentVaccinationsCard
         appointments={appointments}
         loading={loading}
       />

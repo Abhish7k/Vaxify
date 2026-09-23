@@ -1,15 +1,15 @@
+import { Suspense } from "react";
+import { Outlet } from "react-router-dom";
+import DocumentTitle from "@/components/DocumentTitle";
+import AppSidebar from "./sidebar/AppSidebar";
+import UserNav from "../navbar/UserNav";
+import { RouteSpinner } from "@/components/ui/route-spinner";
+import { Separator } from "../ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Outlet } from "react-router-dom";
-import AppSidebar from "./sidebar/AppSidebar";
-import { Separator } from "../ui/separator";
-import UserNav from "../navbar/UserNav";
-import { Suspense } from "react";
-import { RouteSpinner } from "@/components/ui/route-spinner";
-import DocumentTitle from "@/components/DocumentTitle";
 
 const DashboardLayout = () => {
   return (
@@ -19,9 +19,8 @@ const DashboardLayout = () => {
 
       <SidebarInset>
         <div className="flex flex-1 flex-col">
-          {/* nav */}
-          <header className="sticky z-50 top-0 h-14 border-b px-6 flex items-center justify-between bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-            <div className="font-medium flex gap-5 items-center">
+          <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-background/95 px-6 backdrop-blur supports-backdrop-filter:bg-background/60">
+            <div className="flex items-center gap-5 font-medium">
               <SidebarTrigger className="cursor-pointer" />
 
               <Separator

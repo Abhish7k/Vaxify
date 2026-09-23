@@ -16,13 +16,6 @@ const RegisterPage = () => {
       animate="visible"
       className=""
     >
-      <motion.div
-        variants={fadeUpItem}
-        className="flex items-center justify-center gap-2 mb-5"
-      >
-        <img src="/logo.svg" alt="Vaxify" className="w-12 h-12 mb-0.5" />
-      </motion.div>
-
       <motion.h2
         variants={fadeUpItem}
         className="text-xl font-semibold text-center text-foreground mb-2"

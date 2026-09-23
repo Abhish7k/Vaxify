@@ -6,7 +6,7 @@ interface FooterLink {
   href: string;
 }
 
-interface FooterSection {
+interface FooterLinkGroup {
   label: string;
   links: FooterLink[];
 }
@@ -40,7 +40,7 @@ const transitionVariants = {
   },
 };
 
-export function Footer() {
+export function FooterSection() {
   return (
     <footer className="relative mt-20 bg-white">
       <div className="relative mx-auto max-w-6xl px-6 py-14 rounded-t-4xl border-t border-slate-100">
@@ -104,7 +104,7 @@ export function Footer() {
   );
 }
 
-const footerLinks: FooterSection[] = [
+const footerLinks: FooterLinkGroup[] = [
   {
     label: "Product",
     links: [

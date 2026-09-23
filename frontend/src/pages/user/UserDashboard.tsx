@@ -7,7 +7,7 @@ import UserDashboardHeader from "@/components/dashboards/user/UserDashboardHeade
 import UserDashboardStatsGrid from "@/components/dashboards/user/UserDashboardStatsGrid";
 import UserDashboardRecentAppointments from "@/components/dashboards/user/UserDashboardRecentAppointments";
 import UserDashboardQuickActions from "@/components/dashboards/user/UserDashboardQuickActions";
-import UserDashboardTicketDialog from "@/components/dashboards/user/UserDashboardTicketDialog";
+import AppointmentTicketDialog from "@/components/appointment/AppointmentTicketDialog";
 import { useUserStats } from "@/hooks/queries/use-users";
 import type { Appointment } from "@/types/appointment";
 import { PageLoadError } from "@/components/ui/page-load-error";
@@ -52,8 +52,8 @@ export default function UserDashboard() {
         )}
       </motion.div>
 
-      <UserDashboardTicketDialog
-        selectedTicket={selectedTicket}
+      <AppointmentTicketDialog
+        appointment={selectedTicket}
         onClose={() => setSelectedTicket(null)}
       />
     </motion.div>

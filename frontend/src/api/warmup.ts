@@ -3,6 +3,8 @@ import api from "./axios";
 let warmedUp = false;
 
 export const warmUpBackend = () => {
+  if (!import.meta.env.PROD) return;
+
   // guard against react strict-mode double-invocation / repeat calls
   if (warmedUp) return;
   warmedUp = true;

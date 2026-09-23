@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { toastUtils } from "@/lib/toast";
 import { fadeUpItemSlow, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import AdminUsersTable from "@/components/admin/users-page/UsersTable";
+import AdminUsersTable from "@/components/admin/users-page/AdminUsersTable";
 import { AdminUsersTableSkeleton } from "@/components/skeletons/AdminUsersTableSkeleton";
 import { useAdminUsers, useDeleteUser } from "@/hooks/queries/use-users";
 import { useQueryErrorToast } from "@/hooks/use-query-error-toast";
@@ -39,7 +39,7 @@ const AdminUsersPage = () => {
       variants={staggerContainer}
       initial="hidden"
       animate="show"
-      className="px-5 py-5 md:px-10 space-y-8"
+      className="space-y-8"
     >
       {/* header */}
       <motion.div
@@ -58,7 +58,7 @@ const AdminUsersPage = () => {
           size="sm"
           onClick={() => void usersQuery.refetch()}
           disabled={loading}
-          className="gap-2 text-xs sm:text-sm transition-all min-w-[120px]"
+          className="gap-2 text-xs sm:text-sm transition-all min-w-30"
         >
           <RotateCcw className={cn("size-3.5 sm:size-4", loading && "animate-spin")} />
           {loading ? "Refreshing..." : "Refresh Data"}
@@ -66,7 +66,7 @@ const AdminUsersPage = () => {
       </motion.div>
 
       {/* users data table */}
-      <motion.div variants={fadeUpItemSlow} className="w-full">
+      <motion.div variants={fadeUpItemSlow} className="w-full px-5 md:px-10">
         {loading ? (
           <AdminUsersTableSkeleton />
         ) : usersQuery.isError ? (

@@ -13,7 +13,10 @@ interface SingleImageDropzoneProps {
   className?: string;
   value?: string | string[];
   onChange?: (url?: string, fileName?: string) => void;
+  onUploadingChange?: (uploading: boolean) => void;
   disabled?: boolean;
+  "aria-invalid"?: boolean;
+  "aria-describedby"?: string;
 }
 
 export const FileDropzone = ({
@@ -21,7 +24,10 @@ export const FileDropzone = ({
   className,
   value,
   onChange,
+  onUploadingChange,
   disabled,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
 }: SingleImageDropzoneProps) => {
   const [loading, setLoading] = useState(false);
 
@@ -43,6 +49,7 @@ export const FileDropzone = ({
       if (!file) return;
 
       setLoading(true);
+      onUploadingChange?.(true);
 
       try {
         const response = await uploadFile(file);
@@ -57,9 +64,10 @@ export const FileDropzone = ({
         toastUtils.error(getErrorMessage(error, "Document upload failed"));
       } finally {
         setLoading(false);
+        onUploadingChange?.(false);
       }
     },
-    [onChange],
+    [onChange, onUploadingChange],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -75,7 +83,12 @@ export const FileDropzone = ({
   // if we have a value url, show the uploaded state
   if (value) {
     return (
-      <div className="flex items-center gap-2 p-3 border rounded-md bg-muted/20">
+      <div
+        id={id}
+        aria-invalid={ariaInvalid || undefined}
+        aria-describedby={ariaDescribedBy}
+        className="flex items-center gap-2 p-3 border rounded-md bg-muted/20"
+      >
         <File className="h-4 w-4 text-blue-500" />
         <span className="text-sm truncate flex-1 text-muted-foreground">
           Document Uploaded
@@ -95,7 +108,10 @@ export const FileDropzone = ({
 
   return (
     <div
-      {...getRootProps()}
+      {...getRootProps({
+        "aria-invalid": ariaInvalid || undefined,
+        "aria-describedby": ariaDescribedBy,
+      })}
       className={cn(
         "flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors bg-white hover:bg-slate-50",
         isDragActive ? "border-primary bg-primary/5" : "border-slate-200",
@@ -103,7 +119,13 @@ export const FileDropzone = ({
         className,
       )}
     >
-      <input {...getInputProps({ id })} />
+      <input
+        {...getInputProps({
+          id,
+          "aria-invalid": ariaInvalid || undefined,
+          "aria-describedby": ariaDescribedBy,
+        })}
+      />
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-4">

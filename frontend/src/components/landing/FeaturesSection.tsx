@@ -61,7 +61,7 @@ function getFeatureCalendar(referenceDate = new Date()) {
   };
 }
 
-export function Features() {
+export function FeaturesSection() {
   const [selectedDate, setSelectedDate] = useState(2);
   const { cells: calendarCells, month: calendarMonth, monthLabel: calendarMonthLabel } =
     getFeatureCalendar();

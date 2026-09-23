@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import { parseDateOnly } from "@/lib/utils";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/utils";
 
 type Props = {
   isDisabled: boolean;
@@ -18,7 +17,7 @@ export default function ConfirmBookingFooter({
   selectedSlot,
   onConfirm,
 }: Props) {
-  const finalDate = selectedDate ? format(parseDateOnly(selectedDate), "EEE, dd MMM") : "";
+  const finalDate = selectedDate ? formatDate(selectedDate) : "";
 
   const finalSlot = selectedSlot?.slice(0, 5);
 

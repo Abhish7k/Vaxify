@@ -5,13 +5,13 @@ import { isUpcomingStatus, type Appointment } from "@/types/appointment";
 import type { Vaccine } from "@/types/vaccine";
 import { motion, type Variants } from "framer-motion";
 
-interface StaffStatsGridProps {
+interface StaffDashboardStatsGridProps {
   appointments: Appointment[];
   vaccines: Vaccine[];
   loading: boolean;
 }
 
-export default function StaffStatsGrid({ appointments, vaccines, loading }: StaffStatsGridProps) {
+export default function StaffDashboardStatsGrid({ appointments, vaccines, loading }: StaffDashboardStatsGridProps) {
   const totalAppointments = appointments.length;
 
   const upcoming = appointments.filter((a) => isUpcomingStatus(a.status)).length;

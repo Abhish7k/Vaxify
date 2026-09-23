@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { AppointmentBookingSuccess } from "@/components/appointment/book/success/AppointmentTicket";
+import { AppointmentBookingSuccess } from "@/components/appointment/book/success/AppointmentBookingSuccess";
 
 export default function BookingSuccessPage() {
   const navigate = useNavigate();

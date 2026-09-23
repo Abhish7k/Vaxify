@@ -1,24 +1,24 @@
-import { HeroSectionComponent } from "@/components/landing/HeroSection";
-import { HowItWorks } from "@/components/landing/HowItWorksSection";
-import { Features } from "@/components/landing/FeaturesSection";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
+import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { FaqSection } from "@/components/landing/FaqSection";
 import { CTASection } from "@/components/landing/CTASection";
-import { Footer } from "@/components/landing/FooterSection";
+import { FooterSection } from "@/components/landing/FooterSection";
 
 const HomePage = () => {
   return (
     <div>
-      <HeroSectionComponent />
+      <HeroSection />
 
-      <HowItWorks />
+      <HowItWorksSection />
 
-      <Features />
+      <FeaturesSection />
 
       <FaqSection />
 
       <CTASection />
 
-      <Footer />
+      <FooterSection />
     </div>
   );
 };

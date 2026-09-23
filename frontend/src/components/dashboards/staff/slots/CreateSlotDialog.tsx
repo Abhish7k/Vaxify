@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { getErrorMessage } from "@/lib/errors";
 import { clampSlotCapacity, SLOT_CAPACITY_MAX } from "@/lib/validation";
 import { useCreateSlot } from "@/hooks/queries/use-slots";
@@ -111,11 +111,11 @@ export function CreateSlotDialog({ hospitalId }: CreateSlotDialogProps) {
                   )}
                 >
                   <CalendarIcon className="mr-3 h-4 w-4 opacity-50 text-primary" />
-                  {date ? format(date, "PPPP") : <span>Select date</span>}
+                  {date ? formatDate(date) : <span>Select date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent
-                className="min-w-[280px] p-0 shadow-2xl border-none rounded-xl"
+                className="min-w-70 p-0 shadow-2xl border-none rounded-xl"
                 align="start"
               >
                 <Calendar

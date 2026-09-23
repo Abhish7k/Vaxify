@@ -167,3 +167,27 @@
     appearance: textfield;
   }
 }
+
+/* Text shimmer used by Vaccine Assistant loading status */
+@keyframes shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+/* Staggered typing indicator for the assistant loading state */
+@keyframes typing-dot {
+  0%,
+  70%,
+  100% {
+    opacity: 0.28;
+    transform: translateY(0);
+  }
+  35% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn, parseDateOnly } from "@/lib/utils";
+import { cn, formatDate, parseDateOnly } from "@/lib/utils";
 
 interface TimeSlot {
   time: string;
@@ -126,14 +126,7 @@ export function AppointmentScheduler({
     return `${hour12}:${m} ${suffix}`;
   };
 
-  const selectedDateLabel = (selectedDateObj ?? new Date(currentYear, currentMonth, 1)).toLocaleDateString(
-    "en-US",
-    {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    },
-  );
+  const selectedDateLabel = formatDate(selectedDateObj ?? new Date(currentYear, currentMonth, 1));
 
   const isSelectedDay = (day: number) =>
     Boolean(

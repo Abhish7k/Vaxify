@@ -22,7 +22,7 @@ const transitionVariants = {
   },
 };
 
-export function HeroSectionComponent() {
+export function HeroSection() {
   return (
     <>
       <main className="overflow-hidden">

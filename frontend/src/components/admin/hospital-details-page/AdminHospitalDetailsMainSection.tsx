@@ -4,8 +4,8 @@ import { MapPin, ArrowLeft, ExternalLink, Syringe, Clock, FileText } from "lucid
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import HospitalStatusBadge from "@/components/admin/hospitals-page/HospitalStatusBadge";
-import { formatDate } from "date-fns";
+import HospitalStatusBadge from "@/components/admin/HospitalStatusBadge";
+import { formatDate } from "@/lib/utils";
 import type { Hospital } from "@/types/hospital";
 import type { Vaccine } from "@/types/vaccine";
 
@@ -22,16 +22,14 @@ export default function MainSection({ hospital }: { hospital: Hospital }) {
     role: "STAFF",
   };
 
-  const registeredOn = hospital.staffCreatedAt
-    ? new Date(hospital.staffCreatedAt).toLocaleDateString()
-    : "N/A";
+  const registeredOn = hospital.staffCreatedAt ? formatDate(hospital.staffCreatedAt) : "N/A";
 
   return (
     <motion.div
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
-      className="max-w-7xl mx-auto space-y-6 pb-20 p-4 font-sans"
+      className="space-y-6 pb-20 font-sans"
     >
       {/* back btn */}
       <motion.div variants={fadeUpItemSpring} className="mb-4">
@@ -175,7 +173,7 @@ export default function MainSection({ hospital }: { hospital: Hospital }) {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Date Joined</span>
-                <span>{formatDate(registeredOn, "dd MMM yyyy")}</span>
+                <span>{registeredOn}</span>
               </div>
             </CardContent>
           </Card>

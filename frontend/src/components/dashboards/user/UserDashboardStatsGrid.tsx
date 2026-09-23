@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import type { UserStats } from "@/api/user.api";
+import { formatDate } from "@/lib/utils";
 
 interface StatCardProps {
   title: string;
@@ -62,10 +63,7 @@ export default function UserDashboardStatsGrid({ stats, loading }: UserDashboard
         value={
           stats.upcomingAppointmentDate === "No upcoming"
             ? "None"
-            : new Date(stats.upcomingAppointmentDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              })
+            : formatDate(stats.upcomingAppointmentDate)
         }
         subtitle={
           stats.upcomingAppointmentDate === "No upcoming" ? "Schedule one today" : "Your next visit"

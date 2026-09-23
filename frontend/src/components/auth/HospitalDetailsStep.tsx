@@ -7,12 +7,20 @@ import type {
 import { FileDropzone } from "@/components/ui/file-dropzone";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { fieldErrorAria } from "@/lib/errors";
+import {
+  ADDRESS_MAX,
+  CITY_MAX,
+  HOSPITAL_NAME_MAX,
+  STATE_MAX,
+} from "@/lib/validation";
 
 interface HospitalDetailsStepProps {
   register: UseFormRegister<any>;
   errors: FieldErrors;
   setValue: UseFormSetValue<any>;
   watch: UseFormWatch<any>;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 export const HospitalDetailsStep = ({
@@ -20,6 +28,7 @@ export const HospitalDetailsStep = ({
   errors,
   setValue,
   watch,
+  onUploadingChange,
 }: HospitalDetailsStepProps) => {
   const documentUrl = watch("document");
 
@@ -27,9 +36,14 @@ export const HospitalDetailsStep = ({
     <section className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       <div className="space-y-2">
         <Label htmlFor="hospitalName">Hospital Name</Label>
-        <Input id="hospitalName" {...register("hospitalName")} />
+        <Input
+          id="hospitalName"
+          maxLength={HOSPITAL_NAME_MAX}
+          {...register("hospitalName")}
+          {...fieldErrorAria("hospitalName", Boolean(errors.hospitalName))}
+        />
         {errors.hospitalName && (
-          <p className="text-sm text-red-500">
+          <p id="hospitalName-error" className="text-sm text-red-500">
             {errors.hospitalName.message as string}
           </p>
         )}
@@ -37,9 +51,14 @@ export const HospitalDetailsStep = ({
 
       <div className="space-y-2">
         <Label htmlFor="hospitalAddress">Hospital Address</Label>
-        <Input id="hospitalAddress" {...register("hospitalAddress")} />
+        <Input
+          id="hospitalAddress"
+          maxLength={ADDRESS_MAX}
+          {...register("hospitalAddress")}
+          {...fieldErrorAria("hospitalAddress", Boolean(errors.hospitalAddress))}
+        />
         {errors.hospitalAddress && (
-          <p className="text-sm text-red-500">
+          <p id="hospitalAddress-error" className="text-sm text-red-500">
             {errors.hospitalAddress.message as string}
           </p>
         )}
@@ -48,9 +67,15 @@ export const HospitalDetailsStep = ({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="city">City</Label>
-          <Input id="city" {...register("city")} placeholder="e.g. Pune" />
+          <Input
+            id="city"
+            maxLength={CITY_MAX}
+            {...register("city")}
+            placeholder="e.g. Pune"
+            {...fieldErrorAria("city", Boolean(errors.city))}
+          />
           {errors.city && (
-            <p className="text-sm text-red-500">
+            <p id="city-error" className="text-sm text-red-500">
               {errors.city.message as string}
             </p>
           )}
@@ -58,9 +83,15 @@ export const HospitalDetailsStep = ({
 
         <div className="space-y-2">
           <Label htmlFor="state">State</Label>
-          <Input id="state" {...register("state")} placeholder="e.g. Maharashtra" />
+          <Input
+            id="state"
+            maxLength={STATE_MAX}
+            {...register("state")}
+            placeholder="e.g. Maharashtra"
+            {...fieldErrorAria("state", Boolean(errors.state))}
+          />
           {errors.state && (
-            <p className="text-sm text-red-500">
+            <p id="state-error" className="text-sm text-red-500">
               {errors.state.message as string}
             </p>
           )}
@@ -74,9 +105,10 @@ export const HospitalDetailsStep = ({
           {...register("pincode")}
           placeholder="e.g. 411057"
           maxLength={6}
+          {...fieldErrorAria("pincode", Boolean(errors.pincode))}
         />
         {errors.pincode && (
-          <p className="text-sm text-red-500">
+          <p id="pincode-error" className="text-sm text-red-500">
             {errors.pincode.message as string}
           </p>
         )}
@@ -84,9 +116,13 @@ export const HospitalDetailsStep = ({
 
       <div className="space-y-2">
         <Label htmlFor="hospitalRegistrationId">Hospital Registration ID</Label>
-        <Input id="hospitalRegistrationId" {...register("hospitalRegistrationId")} />
+        <Input
+          id="hospitalRegistrationId"
+          {...register("hospitalRegistrationId")}
+          {...fieldErrorAria("hospitalRegistrationId", Boolean(errors.hospitalRegistrationId))}
+        />
         {errors.hospitalRegistrationId && (
-          <p className="text-sm text-red-500">
+          <p id="hospitalRegistrationId-error" className="text-sm text-red-500">
             {errors.hospitalRegistrationId.message as string}
           </p>
         )}
@@ -98,6 +134,9 @@ export const HospitalDetailsStep = ({
         <FileDropzone
           id="hospital-document"
           value={documentUrl}
+          onUploadingChange={onUploadingChange}
+          aria-invalid={Boolean(errors.document) || undefined}
+          aria-describedby={errors.document ? "document-error" : undefined}
           onChange={(url, fileName) => {
             setValue("document", fileName || url || "", {
               shouldValidate: true,
@@ -107,7 +146,7 @@ export const HospitalDetailsStep = ({
         />
 
         {errors.document && (
-          <p className="text-sm text-red-500 mt-1">
+          <p id="document-error" className="text-sm text-red-500 mt-1">
             {errors.document.message as string}
           </p>
         )}

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import type { Hospital } from "@/types/hospital";
+import { formatDate } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,9 +67,7 @@ export default function AdminDashboardPendingHospitals({
                     </TableCell>
 
                     <TableCell>
-                      {hospital.staffCreatedAt
-                        ? new Date(hospital.staffCreatedAt).toLocaleDateString()
-                        : "N/A"}
+                      {hospital.staffCreatedAt ? formatDate(hospital.staffCreatedAt) : "N/A"}
                     </TableCell>
 
                     <TableCell>

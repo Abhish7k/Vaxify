@@ -1,11 +1,27 @@
-import { useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toastUtils } from "@/lib/toast";
-import { getErrorMessage } from "@/lib/errors";
-import { PHONE_MESSAGE, PHONE_REGEX, PINCODE_MESSAGE, PINCODE_REGEX } from "@/lib/validation";
+import { getErrorMessage, isConflictError, mapServerFieldErrors } from "@/lib/errors";
+import {
+  ADDRESS_MAX,
+  ADDRESS_MAX_MESSAGE,
+  CITY_MAX,
+  CITY_MAX_MESSAGE,
+  HOSPITAL_NAME_MAX,
+  HOSPITAL_NAME_MAX_MESSAGE,
+  NAME_MAX,
+  passwordField,
+  PHONE_MESSAGE,
+  PHONE_REGEX,
+  PINCODE_MESSAGE,
+  PINCODE_REGEX,
+  STAFF_NAME_MAX_MESSAGE,
+  STATE_MAX,
+  STATE_MAX_MESSAGE,
+} from "@/lib/validation";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,19 +32,22 @@ import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 
 const staffRegisterSchema = z
   .object({
-    firstName: z.string().min(2, "First name must be at least 2 characters"),
-    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+    firstName: z.string().trim().min(2, "First name must be at least 2 characters"),
+    lastName: z.string().trim().min(2, "Last name must be at least 2 characters"),
     phone: z.string().regex(PHONE_REGEX, PHONE_MESSAGE),
     email: z.email("Enter a valid email address"),
-    password: z
-      .string()
-      .min(6, "Password must be at least 6 characters")
-      .max(20, "Password must be at most 20 characters"),
+    password: passwordField,
     confirmPassword: z.string(),
-    hospitalName: z.string().min(2, "Hospital name is required"),
-    hospitalAddress: z.string().min(5, "Hospital address is required"),
-    city: z.string().min(2, "City is required"),
-    state: z.string().min(2, "State is required"),
+    hospitalName: z
+      .string()
+      .min(2, "Hospital name is required")
+      .max(HOSPITAL_NAME_MAX, HOSPITAL_NAME_MAX_MESSAGE),
+    hospitalAddress: z
+      .string()
+      .min(5, "Hospital address is required")
+      .max(ADDRESS_MAX, ADDRESS_MAX_MESSAGE),
+    city: z.string().min(2, "City is required").max(CITY_MAX, CITY_MAX_MESSAGE),
+    state: z.string().min(2, "State is required").max(STATE_MAX, STATE_MAX_MESSAGE),
     pincode: z.string().regex(PINCODE_REGEX, PINCODE_MESSAGE),
     hospitalRegistrationId: z.string().min(3, "Hospital registration ID is required"),
     document: z.string().min(1, "Verification document is required"),
@@ -36,14 +55,44 @@ const staffRegisterSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
+  })
+  .refine((data) => `${data.firstName} ${data.lastName}`.length <= NAME_MAX, {
+    message: STAFF_NAME_MAX_MESSAGE,
+    path: ["firstName"],
   });
 
 type StaffRegisterForm = z.infer<typeof staffRegisterSchema>;
 
-const RegisterStaff = () => {
+const staffApiFields: Record<string, keyof StaffRegisterForm> = {
+  staffName: "firstName",
+  email: "email",
+  password: "password",
+  phone: "phone",
+  hospitalName: "hospitalName",
+  hospitalAddress: "hospitalAddress",
+  licenseNumber: "hospitalRegistrationId",
+  document: "document",
+  city: "city",
+  state: "state",
+  pincode: "pincode",
+};
+
+const staffStep1Fields = new Set<keyof StaffRegisterForm>([
+  "firstName",
+  "lastName",
+  "phone",
+  "email",
+  "password",
+  "confirmPassword",
+]);
+
+const RegisterStaffPage = () => {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [allowLeave, setAllowLeave] = useState(false);
+  const step1Attempted = useRef(false);
+  const revalidateTimers = useRef<Partial<Record<keyof StaffRegisterForm, number>>>({});
 
   const { registerStaff } = useAuth();
 
@@ -54,6 +103,7 @@ const RegisterStaff = () => {
     clearErrors,
     getValues,
     setValue,
+    setError,
     watch,
     formState: { errors, isDirty },
   } = useForm<StaffRegisterForm>({
@@ -78,32 +128,44 @@ const RegisterStaff = () => {
 
   useUnsavedChanges(isDirty && !isLoading && !allowLeave);
 
-  // clear errors on step change to ensure no premature messages
-  useEffect(() => {
-    // we clear errors and reset validation state so step 2 starts clean
-    clearErrors();
-  }, [step, clearErrors]);
+  // Next uses trigger(), which does not mark the form submitted, so onChange
+  // revalidation never starts. After the first attempt, recheck the edited field.
+  const registerStep1: typeof register = (name, options) =>
+    register(name, {
+      ...options,
+      onChange: (event) => {
+        void options?.onChange?.(event);
+        if (!step1Attempted.current) return;
 
+        const timers = revalidateTimers.current;
+        window.clearTimeout(timers[name]);
+        timers[name] = window.setTimeout(() => {
+          void trigger(name);
+          if (options?.deps) void trigger(options.deps);
+        }, 0);
+      },
+    });
+
+  const applyServerErrors = (fields: Record<string, string>) => {
+    Object.entries(fields).forEach(([name, message], index) => {
+      setError(
+        name as keyof StaffRegisterForm,
+        { type: "server", message },
+        index === 0 ? { shouldFocus: true } : undefined,
+      );
+    });
+  };
 
   const onNext = async () => {
-    // validate only the current step (using the active schema)
-    const isStepValid = await trigger([
-      "firstName",
-      "lastName",
-      "phone",
-      "email",
-      "password",
-      "confirmPassword",
-    ]);
+    step1Attempted.current = true;
+    const isStepValid = await trigger(
+      ["firstName", "lastName", "phone", "email", "password", "confirmPassword"],
+      { shouldFocus: true },
+    );
 
-    if (isStepValid) {
-      if (step === 1) {
-        // using setTimeout to move to next step ensures components mount 
-        // before clearing errors, effectively hiding premature messages
-        setTimeout(() => {
-          setStep(2);
-        }, 10);
-      }
+    if (isStepValid && step === 1) {
+      clearErrors();
+      setStep(2);
     }
   };
 
@@ -112,8 +174,7 @@ const RegisterStaff = () => {
   };
 
   const onSubmit = async () => {
-    if (step !== 2) {
-      await onNext();
+    if (step !== 2 || isUploading) {
       return;
     }
 
@@ -158,7 +219,27 @@ const RegisterStaff = () => {
       toastUtils.success("Registration submitted for approval");
     } catch (error) {
       setAllowLeave(false);
-      toastUtils.error(getErrorMessage(error, "Staff Registration failed"));
+
+      const message = getErrorMessage(error, "Staff Registration failed");
+      const fieldErrors = isConflictError(error) ? null : mapServerFieldErrors(error, staffApiFields);
+      const documentError =
+        !fieldErrors && /verification document/i.test(message) ? { document: message } : null;
+      const errorsToApply = fieldErrors ?? documentError;
+
+      if (errorsToApply) {
+        const needsStep1 = Object.keys(errorsToApply).some((field) =>
+          staffStep1Fields.has(field as keyof StaffRegisterForm),
+        );
+
+        if (needsStep1 && step === 2) {
+          setStep(1);
+          window.setTimeout(() => applyServerErrors(errorsToApply), 0);
+        } else {
+          applyServerErrors(errorsToApply);
+        }
+      } else {
+        toastUtils.error(message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -188,18 +269,20 @@ const RegisterStaff = () => {
 
       <CardContent>
         <form
-          onSubmit={(e) => {
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault();
             if (step !== 2) {
-              e.preventDefault();
               void onNext();
               return;
             }
-            void handleSubmit(onSubmit)(e);
+            if (isUploading) return;
+            void handleSubmit(onSubmit)(event);
           }}
           className="space-y-6"
         >
           {step === 1 && (
-            <StaffDetailsStep register={register} errors={errors} />
+            <StaffDetailsStep register={registerStep1} errors={errors} />
           )}
 
           {step === 2 && (
@@ -208,6 +291,7 @@ const RegisterStaff = () => {
               errors={errors}
               setValue={setValue}
               watch={watch}
+              onUploadingChange={setIsUploading}
             />
           )}
 
@@ -225,12 +309,7 @@ const RegisterStaff = () => {
               )}
 
               {step === 1 ? (
-                <Button
-                  type="button"
-                  onClick={onNext}
-                  className="w-full"
-                  size="lg"
-                >
+                <Button type="submit" className="w-full" size="lg">
                   Next Step
                 </Button>
               ) : (
@@ -238,12 +317,12 @@ const RegisterStaff = () => {
                   type="submit"
                   className="flex-1"
                   size="lg"
-                  disabled={isLoading}
+                  disabled={isLoading || isUploading}
                 >
-                  {isLoading ? (
+                  {isLoading || isUploading ? (
                     <span className="flex items-center justify-center gap-2">
                       <LoaderCircle className="animate-spin" />
-                      Submitting...
+                      {isUploading ? "Uploading..." : "Submitting..."}
                     </span>
                   ) : (
                     "Submit for Approval"
@@ -268,4 +347,4 @@ const RegisterStaff = () => {
   );
 };
 
-export default RegisterStaff;
+export default RegisterStaffPage;

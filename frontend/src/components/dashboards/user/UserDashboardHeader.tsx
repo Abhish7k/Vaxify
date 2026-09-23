@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { CalendarPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { fadeUpItemSlow } from "@/lib/motion";
@@ -19,7 +20,8 @@ export default function UserDashboardHeader() {
       </div>
 
       <Link to="/centers">
-        <Button className="w-full sm:w-auto cursor-pointer active:scale-95 transition-all">
+        <Button variant="outline" size="sm" className="w-full gap-1.5 sm:w-auto">
+          <CalendarPlus className="size-4 shrink-0" />
           Book Appointment
         </Button>
       </Link>
